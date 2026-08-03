@@ -1,0 +1,52 @@
+{
+  "receipt_id": "kaleidoscope_runtime_v0_1_4_2026_08_03",
+  "receipt_version": "1.0.0",
+  "runtime_version": "0.1.4",
+  "deployment_state": "live",
+  "source_control": {
+    "repository": "butlerajamesab-lab/Kaleidoscope",
+    "pull_request": 3,
+    "merge_commit_sha": "3e46f6cb41a1eb80bcca3b2c42d8e2bb481b671e"
+  },
+  "render": {
+    "workspace_id": "tea-d7rogkegvqtc73bli0o0",
+    "service_id": "srv-d9ob6re417fc73euovag",
+    "service_url": "https://kaleidoscope-zm5d.onrender.com",
+    "deploy_id": "dep-d9ohrqr7uimc739f1pr0",
+    "deploy_trigger": "api",
+    "deploy_finished_at": "2026-08-03T23:02:29.486485Z",
+    "startup_instance_id": "srv-d9ob6re417fc73euovag-9zxdm",
+    "startup_event": {
+      "event": "kaleidoscope_started",
+      "port": 10000,
+      "engine_version": "0.1.4",
+      "environment": "staging"
+    },
+    "root_probe": {
+      "method": "GET",
+      "path": "/",
+      "status_code": 200,
+      "observed_at": "2026-08-03T23:02:29Z"
+    }
+  },
+  "capability_state": {
+    "civic_genome_source_schema_id": "https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json",
+    "civic_genome_source_contract": "civic_genome.external_snapshot.v1@1.0.0",
+    "civic_genome_binding_contract_state": "defined_unbound",
+    "civic_genome_validation_state": "component_snapshot_replay_and_receipt_hash_validation_passed",
+    "civic_genome_live_source_state": "not_received",
+    "projection_state": "not_operational",
+    "supabase_state": "migration_not_applied"
+  },
+  "proofs_preserved": [
+    "modified_component_with_stale_hash_rejected",
+    "rehashed_component_under_stale_snapshot_rejected",
+    "binding_snapshot_identity_mismatch_rejected"
+  ],
+  "explicit_non_claims": [
+    "Kaleidoscope has not received the live HB2487 Civic Genome snapshot payload.",
+    "No Civic Genome verification-state mapping rule has been accepted.",
+    "No Kaleidoscope projection has executed.",
+    "No Kaleidoscope Supabase migration has been applied."
+  ]
+}
