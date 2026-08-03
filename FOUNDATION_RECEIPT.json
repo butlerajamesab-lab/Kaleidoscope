@@ -1,18 +1,16 @@
 {
   "package_id": "kaleidoscope_platform_foundation_v0_1_4",
   "foundation_version": "0.1.4",
-  "release_state": "staging_foundation_and_runtime_scaffold",
+  "release_state": "staging_foundation_runtime_and_source_binding_validator",
   "production_changes_included": false,
   "runtime_scaffold_included": true,
   "runtime_scaffold_deployed": false,
   "projection_capability_enabled": false,
-  "civic_genome_binding_contract_state": "defined_unbound",
-  "civic_genome_binding_state": "waiting_for_immutable_source_snapshot_and_verification_mapping",
   "supabase_project_id": "iwmytuwofniybsmidtki",
   "supabase_migration_included": true,
   "supabase_migration_applied": false,
   "render_service_included": true,
-  "render_service_state": "live_staging_scaffold",
+  "render_service_state": "live_v0_1_3_staging_scaffold_v0_1_4_pending_deploy",
   "render_service_id": "srv-d9ob6re417fc73euovag",
   "render_service_url": "https://kaleidoscope-zm5d.onrender.com",
   "render_auto_deploy": false,
@@ -25,7 +23,19 @@
     "sha256_hashing",
     "typed_state_diff",
     "truthful_staging_status_routes",
-    "civic_genome_snapshot_binding_contract"
+    "civic_genome_source_snapshot_rehashing",
+    "civic_genome_binding_identity_validation",
+    "civic_genome_tamper_rejection"
+  ],
+  "civic_genome_source_schema_id": "https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json",
+  "civic_genome_source_contract_id": "civic_genome.external_snapshot.v1",
+  "civic_genome_source_contract_version": "1.0.0",
+  "civic_genome_binding_contract_state": "defined_unbound",
+  "civic_genome_validation_state": "contract_tests_passed_live_source_not_received",
+  "civic_genome_tamper_proofs": [
+    "modified_component_with_stale_hash_rejected",
+    "rehashed_component_under_stale_snapshot_rejected",
+    "binding_snapshot_identity_mismatch_rejected"
   ],
   "new_source_integrations": [
     "P25-PREEMPT-FAMILY-01",
@@ -33,10 +43,8 @@
     "P25-IA-01_mechanism_dossier-4"
   ],
   "unproven_scope": [
-    "live_civic_genome_snapshot_producer",
-    "civic_genome_snapshot_hash_verification",
-    "source_native_verification_mapping_rule",
-    "accepted_civic_genome_component_mapping",
+    "live_civic_genome_snapshot_received",
+    "accepted_civic_genome_binding",
     "production_lens_rules",
     "governed_projection_execution",
     "persisted_replay",
