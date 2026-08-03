@@ -234,6 +234,7 @@ for path in [
     'test/civic-genome-snapshot-binding.test.mjs',
     'FOUNDATION.md',
     'docs/SOURCE_CORPUS.md',
+    'docs/receipts/KALEIDOSCOPE_RUNTIME_V0_1_4_2026-08-03.json',
     'contracts/civic-genome-snapshot-binding.v1.json',
     'fixtures/civic_genome_snapshot_binding.v1.json',
 ]:
@@ -245,8 +246,14 @@ if receipt.get('source_entry_count') != 41 or receipt.get('render_service_state'
     fail('foundation receipt is stale')
 if receipt.get('foundation_version') != '0.1.4':
     fail('foundation receipt version is stale')
-if receipt.get('runtime_version_deployed') != '0.1.3' or receipt.get('runtime_version_pending') != '0.1.4':
+if receipt.get('runtime_version_deployed') != '0.1.4' or receipt.get('runtime_version_pending') is not None:
     fail('foundation receipt runtime deployment state is stale')
+if receipt.get('render_deploy_id') != 'dep-d9ohrqr7uimc739f1pr0':
+    fail('foundation receipt Render deploy identity is stale')
+if receipt.get('render_deployed_commit') != '3e46f6cb41a1eb80bcca3b2c42d8e2bb481b671e':
+    fail('foundation receipt deployed commit identity is stale')
+if receipt.get('render_root_probe_status') != 200:
+    fail('foundation receipt root probe status is stale')
 if receipt.get('civic_genome_binding_contract_state') != 'defined_unbound':
     fail('foundation receipt Civic Genome binding state is stale')
 if receipt.get('civic_genome_validation_state') != 'contract_tests_passed_live_source_not_received':
@@ -259,4 +266,16 @@ expected_tamper_proofs = {
 if set(receipt.get('civic_genome_tamper_proofs', [])) != expected_tamper_proofs:
     fail('foundation receipt Civic Genome tamper proofs are stale')
 
-print('OK: Kaleidoscope v0.1.4 source corpus, deterministic scaffold, and Civic Genome tamper validator validated')
+runtime_receipt = load('docs/receipts/KALEIDOSCOPE_RUNTIME_V0_1_4_2026-08-03.json')
+if runtime_receipt.get('deployment_state') != 'live':
+    fail('Kaleidoscope runtime deployment receipt is not live')
+if runtime_receipt.get('runtime_version') != '0.1.4':
+    fail('Kaleidoscope runtime deployment receipt version drifted')
+if runtime_receipt.get('render', {}).get('deploy_id') != receipt.get('render_deploy_id'):
+    fail('Kaleidoscope runtime deployment receipt does not match foundation receipt')
+if runtime_receipt.get('capability_state', {}).get('civic_genome_binding_contract_state') != 'defined_unbound':
+    fail('Kaleidoscope runtime receipt overstates Civic Genome binding state')
+if runtime_receipt.get('capability_state', {}).get('projection_state') != 'not_operational':
+    fail('Kaleidoscope runtime receipt overstates projection state')
+
+print('OK: Kaleidoscope v0.1.4 source corpus, deterministic scaffold, Civic Genome tamper validator, and live runtime receipt validated')
