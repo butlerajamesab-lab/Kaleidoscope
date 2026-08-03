@@ -170,21 +170,27 @@ if civic_binding_schema.get('$schema') != 'https://json-schema.org/draft/2020-12
 if civic_binding_schema.get('$id') != 'https://luminari.org/kaleidoscope/contracts/civic-genome-snapshot-binding.v1.json':
     fail('Civic Genome binding contract ID drifted')
 required_binding_fields = {
-    'binding_id', 'binding_version', 'source_owner', 'source_contract_id',
-    'source_contract_version', 'source_snapshot_id', 'source_snapshot_hash',
-    'source_export_receipt_id', 'source_export_receipt_hash', 'source_as_of',
-    'source_scope', 'source_completeness_state', 'source_component_count',
+    'binding_id', 'binding_version', 'source_owner', 'source_schema_id',
+    'source_contract_id', 'source_contract_version', 'source_snapshot_id',
+    'source_snapshot_hash', 'source_export_receipt_id',
+    'source_export_receipt_hash', 'source_as_of', 'source_scope',
+    'source_completeness_state', 'source_component_count',
     'component_manifest', 'verification_mapping_state', 'binding_state',
     'binding_errors', 'no_mutation'
 }
 if not required_binding_fields.issubset(set(civic_binding_schema.get('required', []))):
     fail('Civic Genome binding required fields are incomplete')
+source_schema = civic_binding_schema.get('properties', {}).get('source_schema_id', {}).get('const')
+if source_schema != 'https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json':
+    fail('Civic Genome source schema identity drifted')
 
 civic_binding = load('fixtures/civic_genome_snapshot_binding.v1.json')
 if civic_binding.get('fixture_status') != 'definition_only_no_live_snapshot':
     fail('Civic Genome fixture must not claim a live snapshot')
 if civic_binding.get('source_owner') != 'lighthouse/civic_genome':
     fail('Civic Genome fixture source owner drifted')
+if civic_binding.get('source_schema_id') != source_schema:
+    fail('Civic Genome fixture source schema drifted')
 if civic_binding.get('source_contract_id') != 'civic_genome.external_snapshot.v1':
     fail('Civic Genome fixture source contract drifted')
 if civic_binding.get('source_contract_version') != '1.0.0':
@@ -224,6 +230,8 @@ for path in [
     'src/hash.mjs',
     'src/diff.mjs',
     'src/server.mjs',
+    'src/civic-genome-snapshot-binding.mjs',
+    'test/civic-genome-snapshot-binding.test.mjs',
     'FOUNDATION.md',
     'docs/SOURCE_CORPUS.md',
     'contracts/civic-genome-snapshot-binding.v1.json',
@@ -237,7 +245,18 @@ if receipt.get('source_entry_count') != 41 or receipt.get('render_service_state'
     fail('foundation receipt is stale')
 if receipt.get('foundation_version') != '0.1.4':
     fail('foundation receipt version is stale')
+if receipt.get('runtime_version_deployed') != '0.1.3' or receipt.get('runtime_version_pending') != '0.1.4':
+    fail('foundation receipt runtime deployment state is stale')
 if receipt.get('civic_genome_binding_contract_state') != 'defined_unbound':
     fail('foundation receipt Civic Genome binding state is stale')
+if receipt.get('civic_genome_validation_state') != 'contract_tests_passed_live_source_not_received':
+    fail('foundation receipt Civic Genome validation state is stale')
+expected_tamper_proofs = {
+    'modified_component_with_stale_hash_rejected',
+    'rehashed_component_under_stale_snapshot_rejected',
+    'binding_snapshot_identity_mismatch_rejected',
+}
+if set(receipt.get('civic_genome_tamper_proofs', [])) != expected_tamper_proofs:
+    fail('foundation receipt Civic Genome tamper proofs are stale')
 
-print('OK: Kaleidoscope v0.1.4 source corpus, deterministic scaffold, and unresolved Civic Genome binding contract validated')
+print('OK: Kaleidoscope v0.1.4 source corpus, deterministic scaffold, and Civic Genome tamper validator validated')
