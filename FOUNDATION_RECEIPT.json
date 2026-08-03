@@ -1,10 +1,13 @@
 {
-  "package_id": "kaleidoscope_platform_foundation_v0_1_3",
+  "package_id": "kaleidoscope_platform_foundation_v0_1_4",
+  "foundation_version": "0.1.4",
   "release_state": "staging_foundation_and_runtime_scaffold",
   "production_changes_included": false,
   "runtime_scaffold_included": true,
-  "runtime_scaffold_deployed": true,
+  "runtime_scaffold_deployed": false,
   "projection_capability_enabled": false,
+  "civic_genome_binding_contract_state": "defined_unbound",
+  "civic_genome_binding_state": "waiting_for_immutable_source_snapshot_and_verification_mapping",
   "supabase_project_id": "iwmytuwofniybsmidtki",
   "supabase_migration_included": true,
   "supabase_migration_applied": false,
@@ -21,7 +24,8 @@
     "canonical_json",
     "sha256_hashing",
     "typed_state_diff",
-    "truthful_staging_status_routes"
+    "truthful_staging_status_routes",
+    "civic_genome_snapshot_binding_contract"
   ],
   "new_source_integrations": [
     "P25-PREEMPT-FAMILY-01",
@@ -29,6 +33,10 @@
     "P25-IA-01_mechanism_dossier-4"
   ],
   "unproven_scope": [
+    "live_civic_genome_snapshot_producer",
+    "civic_genome_snapshot_hash_verification",
+    "source_native_verification_mapping_rule",
+    "accepted_civic_genome_component_mapping",
     "production_lens_rules",
     "governed_projection_execution",
     "persisted_replay",
