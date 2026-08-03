@@ -3,6 +3,7 @@
   "binding_id": "civic_genome_binding_contract_fixture.v1",
   "binding_version": "1.0.0",
   "source_owner": "lighthouse/civic_genome",
+  "source_schema_id": "https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json",
   "source_contract_id": "civic_genome.external_snapshot.v1",
   "source_contract_version": "1.0.0",
   "source_snapshot_id": "fixture-not-a-live-snapshot",
