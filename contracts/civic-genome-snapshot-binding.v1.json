@@ -8,6 +8,7 @@
     "binding_id",
     "binding_version",
     "source_owner",
+    "source_schema_id",
     "source_contract_id",
     "source_contract_version",
     "source_snapshot_id",
@@ -34,6 +35,9 @@
     },
     "source_owner": {
       "const": "lighthouse/civic_genome"
+    },
+    "source_schema_id": {
+      "const": "https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json"
     },
     "source_contract_id": {
       "const": "civic_genome.external_snapshot.v1"
