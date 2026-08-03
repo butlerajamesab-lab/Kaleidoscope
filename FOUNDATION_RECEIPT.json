@@ -1,0 +1,32 @@
+{
+  "package_id": "kaleidoscope_platform_foundation_v0_1_2",
+  "branch": "foundation/kaleidoscope-platform-v1",
+  "production_changes_included": false,
+  "runtime_scaffold_included": true,
+  "projection_capability_enabled": false,
+  "supabase_project_id": "iwmytuwofniybsmidtki",
+  "supabase_migration_included": true,
+  "supabase_migration_applied": false,
+  "render_service_included": true,
+  "render_service_state": "space_created_not_deployed",
+  "render_service_id": "srv-d9ob6re417fc73euovag",
+  "render_service_url": "https://kaleidoscope-zm5d.onrender.com",
+  "render_auto_deploy": false,
+  "source_manifest_id": "kaleidoscope_source_pack_2026_08_03_v2",
+  "source_entry_count": 38,
+  "source_identity_rule": "byte_length_and_sha256_not_filename_similarity",
+  "kernel_scope": [
+    "canonical_json",
+    "sha256_hashing",
+    "typed_state_diff",
+    "truthful_health_status_routes"
+  ],
+  "unproven_scope": [
+    "production_lens_rules",
+    "governed_projection_execution",
+    "persisted_replay",
+    "upstream_bridge_authentication",
+    "successful_render_deployment",
+    "public_ui"
+  ]
+}
