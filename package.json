@@ -1,6 +1,6 @@
 {
   "name": "@luminari/kaleidoscope",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "type": "module",
   "description": "Deterministic governed policy-scenario projection platform",
@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node src/server.mjs",
     "test": "node --test",
-    "validate:foundation": "python3 scripts/validate_foundation.py",
+    "validate:foundation": "python3 scripts/validate_foundation.py && python3 scripts/validate_civic_genome_binding.py",
     "build": "npm run validate:foundation && npm test",
     "validate": "npm run build"
   }

@@ -1,4 +1,4 @@
-# Kaleidoscope Foundation v0.1.3
+# Kaleidoscope Foundation v0.1.4
 
 ## Canonical position
 
@@ -82,6 +82,39 @@ Kaleidoscope consumes, but does not own:
 | Person-controlled procedural state | Esquire | explicit authorized read-only binding |
 
 Kaleidoscope must not rewrite Docket truth, perform Rosetta decomposition, manufacture Atlas observations, create Prism findings, take Civic Genome identity ownership, alter Esquire action state, mutate upstream fields, hide assumptions, or promote projections as canonical facts.
+
+## Civic Genome baseline contract
+
+Kaleidoscope pins the source schema:
+
+```text
+https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json
+```
+
+and the source contract:
+
+```text
+civic_genome.external_snapshot.v1@1.0.0
+```
+
+The consumer recomputes and verifies:
+
+- every source component hash;
+- the complete source snapshot hash;
+- the deterministic replay key;
+- the export-receipt hash;
+- the source snapshot, receipt, component, and canonical-record identities represented by the binding manifest.
+
+The consumer rejects:
+
+- a changed component retaining its original hashes;
+- a rehashed component beneath a stale enclosing snapshot hash;
+- a binding whose source snapshot or receipt identity differs from the validated source;
+- incomplete source state presented as accepted;
+- accepted verification without a declared mapping rule;
+- any binding that permits upstream mutation.
+
+The contract remains `defined_unbound` until Lighthouse produces a live immutable source snapshot and the required verification mapping is declared. Validation capability is not the same as an accepted source binding.
 
 ## Complete source-corpus rule
 
@@ -233,4 +266,4 @@ The mechanism predates Project 2025 and appears through different legislative ve
 
 Kaleidoscope is not operational until source, schema, kernel, determinism, provenance, boundary, unresolved-state, bridge, presentation, challenge/replay, rollback, and security proofs pass.
 
-Current v0.1.3 proves complete source custody, canonicalization, hashing, typed diff behavior, and a live staging runtime. Production lens execution, applied Supabase state, bridge proof, persisted replay, and public user UI remain unproven.
+Current v0.1.4 proves complete source custody, canonicalization, hashing, typed diff behavior, source-contract validation, and tamper rejection. Production lens execution, an applied Supabase state, a live accepted Civic Genome binding, persisted replay, and public user UI remain unproven.

@@ -1,0 +1,55 @@
+{
+  "fixture_status": "definition_only_no_live_snapshot",
+  "binding_id": "civic_genome_binding_contract_fixture.v1",
+  "binding_version": "1.0.0",
+  "source_owner": "lighthouse/civic_genome",
+  "source_schema_id": "https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json",
+  "source_contract_id": "civic_genome.external_snapshot.v1",
+  "source_contract_version": "1.0.0",
+  "source_snapshot_id": "fixture-not-a-live-snapshot",
+  "source_snapshot_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+  "source_export_receipt_id": "fixture-not-a-live-receipt",
+  "source_export_receipt_hash": "2222222222222222222222222222222222222222222222222222222222222222",
+  "source_as_of": "2026-08-03T21:45:00.000Z",
+  "source_scope": {
+    "scope_type": "family",
+    "scope_ids": ["fixture-family-id"],
+    "jurisdiction_codes": ["WA", "IA"]
+  },
+  "source_completeness_state": "incomplete",
+  "source_component_count": 1,
+  "component_manifest": [
+    {
+      "source_component_id": "civic_genome:family:fixture-family-id",
+      "source_component_type": "family",
+      "source_component_hash": "3333333333333333333333333333333333333333333333333333333333333333",
+      "source_canonical_record_id": "fixture-family-id",
+      "source_inclusion_state": "unresolved",
+      "source_verification": [
+        {
+          "owner_service": "civic_genome",
+          "state": "fixture_unresolved",
+          "receipt_id": null,
+          "evidence_hash": null,
+          "mapping_state": "source_native_preserved"
+        }
+      ],
+      "source_unresolved_conditions": [
+        "No live Civic Genome external snapshot producer exists.",
+        "No declared source-native-to-Kaleidoscope verification mapping rule exists."
+      ],
+      "kaleidoscope_component_id": null,
+      "component_mapping_state": "unmapped"
+    }
+  ],
+  "verification_mapping_state": "unmapped_source_native",
+  "verification_mapping_rule_id": null,
+  "verification_mapping_rule_version": null,
+  "binding_state": "unresolved",
+  "binding_errors": [
+    "live_source_snapshot_not_available",
+    "verification_mapping_rule_not_declared"
+  ],
+  "imported_at": null,
+  "no_mutation": true
+}

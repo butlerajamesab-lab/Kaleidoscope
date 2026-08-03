@@ -1,6 +1,6 @@
 # Kaleidoscope
 
-**Status:** Staging foundation and deterministic scaffold v0.1.3. Typed diff, canonical hashing, complete source custody, and a live staging runtime are implemented. Governed lens projection and an applied database substrate are not yet claimed.
+**Status:** Staging foundation and deterministic scaffold v0.1.4. Typed diff, canonical hashing, complete source custody, a live staging runtime, and an exact Civic Genome source-snapshot validator are implemented. Governed lens projection, an applied database substrate, and a live accepted Civic Genome binding are not yet claimed.
 
 Kaleidoscope is Luminari's independent deterministic policy-scenario projection platform.
 
@@ -15,13 +15,18 @@ It produces governed projections—not predictions, canonical facts, legal concl
 
 ## Current executable boundary
 
-The v0.1.3 staging scaffold implements:
+The v0.1.4 staging scaffold implements:
 
 - deterministic canonical JSON;
 - SHA-256 input/output hashing;
 - typed `added`, `removed`, `modified`, `preserved`, `superseded`, `preempted`, and `unresolved` state operations;
 - truthful `/`, `/health`, `/v1/status`, and `/v1/diff` routes;
+- exact Civic Genome source schema/contract identity validation;
+- complete Civic Genome component, snapshot, replay-key, and export-receipt rehashing;
+- rejection of modified source content and stale binding identities;
 - explicit capability reporting: projection remains disabled until versioned lens rule manifests exist.
+
+The Civic Genome contract remains `defined_unbound`. Validation capability does not imply that Lighthouse has delivered or Kaleidoscope has accepted a live baseline snapshot.
 
 ## Source corpus
 
