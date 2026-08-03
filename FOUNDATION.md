@@ -1,4 +1,4 @@
-# Kaleidoscope Foundation v0.1.2
+# Kaleidoscope Foundation v0.1.3
 
 ## Canonical position
 
@@ -83,6 +83,28 @@ Kaleidoscope consumes, but does not own:
 
 Kaleidoscope must not rewrite Docket truth, perform Rosetta decomposition, manufacture Atlas observations, create Prism findings, take Civic Genome identity ownership, alter Esquire action state, mutate upstream fields, hide assumptions, or promote projections as canonical facts.
 
+## Complete source-corpus rule
+
+Every document in the uploaded Kaleidoscope source sequence is active source material for the current build. The platform does not select a smaller preferred subset merely because some artifacts are drafts, revisions, duplicates, contradictions, or staging material.
+
+Artifact identity is determined by exact byte length and SHA-256. Filename similarity is not identity.
+
+Preservation rules:
+
+- exact duplicates remain listed and grouped;
+- same-name different-byte artifacts remain separate;
+- reuploads with the same name and same bytes are recorded as reupload observations;
+- supersession changes substantive preference but never deletes history;
+- corrections and contradictions remain visible;
+- staging incompleteness is documented rather than erased;
+- deletion requires an independent reason, not merely failure to meet a future user-facing completion rule.
+
+The v3 manifest contains 41 active entries. Its newest unique additions are:
+
+- `P25-PREEMPT-FAMILY-01_dossier.md`;
+- `P25-DOL-01_state_inventory_chunk2-1.md`;
+- `P25-IA-01_mechanism_dossier-4.md`.
+
 ## Source and evidence discipline
 
 The platform preserves strict separation among:
@@ -95,15 +117,16 @@ current implementation status
 claim about motive or coordination
 ```
 
-Verification states currently governed are:
+Verification states currently governed include:
 
 - `primary_verified`
 - `secondary_verified`
+- `secondary_verified_high_confidence`
 - `secondary_pending`
 - `primary_source_not_obtained`
 - `quoted_in_verified_secondary`
 - `unresolved`
-- `mixed` for a governed aggregate whose component states are preserved individually
+- `mixed` for an aggregate whose component states remain individually preserved
 
 A projection component may not carry a stronger state than its supporting source set. Alignment, temporal sequence, shared language, and similar effect do not become causation without source-bound evidence.
 
@@ -121,13 +144,7 @@ Kaleidoscope is independently owned but remains bound by Luminari's founding con
 - **UI truth law:** a surface may not imply a live projection, verified source, completed bridge, or supported capability that the runtime does not possess.
 - **Completion law:** existence is not completion. A path is complete only when truthful, governed, replayable, and able to reach an inspectable result or honest logged gap.
 
-Applied definitions:
-
-- A **dead end** includes an effect reported without sources, assumptions, unresolved conditions, or a challenge/replay path.
-- **Verified** means grounded in a source the system can identify, trace, and stand behind at output time. It does not mean remembered or assumed.
-- A **gap** is a real absence, contradiction, or unverified area; it remains explicit data.
-- A **contradiction** is a traceable misalignment between governing or declared expectation and observed or declared state.
-- A Kaleidoscope **verified foothold** is an inspectable projection bundle, challenge record, replay receipt, or explicit logged gap—not a vague recommendation.
+These rules govern eventual user-facing operation. During staging, incomplete routes and experimental artifacts may remain, provided they are labeled and do not masquerade as completed capability.
 
 Hard prohibitions include false promise, fake capability, fake data, hidden uncertainty, logic outside governance, destructive erasure, multiple hidden truths, premature interpretation, unverifiable escalation, ornamental UI claims, orphaned analysis, and abandonment after a path begins without marking where it ends.
 
@@ -164,7 +181,7 @@ Lens outputs are not averaged into one score. Kaleidoscope preserves collisions 
 - fiscal reduction / administrative burden increase;
 - short-term expansion / long-term backlog.
 
-## First bounded demonstration
+## Bounded demonstration 1: Title VII and Iowa
 
 Policy family:
 
@@ -177,6 +194,14 @@ Bound mechanisms:
 - `P25-DOL-01`: Title VII statutory baseline, *Bostock*, EO 14168, *Texas v. EEOC*, EEOC guidance-rescission chain, and open federal-process questions.
 - `P25-IA-01`: Iowa's removal of gender-identity protection and later preemption of broader local nondiscrimination categories.
 
+The current Iowa source state is component-specific:
+
+- SF 418 enacted text and legislative history: `primary_verified`;
+- SF 579 outcome and legislative history: `secondary_verified`;
+- SF 579 exact clause and March 10, 2026 signing date: `secondary_verified_high_confidence`;
+- complete enrolled SF 579 text reviewed line by line: `primary_source_not_obtained`;
+- affected-locality count of 13 cities plus unincorporated Johnson County: `secondary_verified`.
+
 Relationship:
 
 ```json
@@ -186,19 +211,26 @@ Relationship:
 }
 ```
 
-The enriched Iowa source establishes SF 418 at `primary_verified`; SF 579's outcome/history remains `secondary_verified`, while enrolled text, signature date, and effective date remain `primary_source_not_obtained`.
+## Bounded demonstration 2: Local nondiscrimination preemption
 
-Initial candidate lenses:
+Policy family:
 
-1. `civil_rights.v1`
-2. `enforcement_pathways.v1`
-3. `local_government_preemption.v1`
-4. `affected_populations.v1`
+```text
+local_lgbtq_ordinance_preemption.v1
+```
 
-The demonstration must prove immutable source binding, typed diff, minimum-lens enforcement, unresolved preservation, collision preservation, deterministic replay, and no unsupported causal claim. It must not predeclare a policy result.
+The source-defined family presently includes:
+
+- Tennessee: operative mechanism beginning in 2011;
+- Arkansas: operative mechanism beginning in 2015;
+- North Carolina: historical mechanism active during the HB2 period and expired in 2020;
+- Texas: broad 2023 preemption statute with LGBTQ-ordinance litigation observed beginning in 2025;
+- Iowa: operative 2026 local-preemption mechanism.
+
+The mechanism predates Project 2025 and appears through different legislative vehicles. Similar effect does not establish centralized coordination.
 
 ## Acceptance gates
 
 Kaleidoscope is not operational until source, schema, kernel, determinism, provenance, boundary, unresolved-state, bridge, presentation, challenge/replay, rollback, and security proofs pass.
 
-Current v0.1.2 proves only source custody, canonicalization, hashing, and typed diff behavior. Production lens execution, applied Supabase state, bridge proof, successful Render deployment, and UI remain unproven.
+Current v0.1.3 proves complete source custody, canonicalization, hashing, typed diff behavior, and a live staging runtime. Production lens execution, applied Supabase state, bridge proof, persisted replay, and public user UI remain unproven.
