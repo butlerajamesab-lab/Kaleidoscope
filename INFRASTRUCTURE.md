@@ -4,8 +4,8 @@
 
 - repository: `butlerajamesab-lab/Kaleidoscope`
 - canonical branch: `main`
-- implementation branch: `foundation/kaleidoscope-platform-v1`
-- base state before this branch: one initial commit and a one-line README
+- current staging release: `0.1.3`
+- source manifest: `kaleidoscope_source_pack_2026_08_03_v3`
 
 ## Supabase
 
@@ -13,7 +13,7 @@
 - status retrieved August 3, 2026: `ACTIVE_HEALTHY`
 - retrieved tables: `0`
 - retrieved migrations: `0`
-- current branch state: migration draft only; nothing applied
+- current state: reviewed migration draft only; nothing applied
 
 ## Render
 
@@ -24,18 +24,21 @@
 - branch: `main`
 - region: Oregon
 - auto-deploy: disabled
-
-The initial Render build failed because `main` did not contain `package.json`. That is a truthful scaffold-state failure, not an application regression. The v0.1.2 branch now contains an executable dependency-free runtime, but a successful production deployment is not claimed until the reviewed branch is merged and deliberately deployed.
+- current state: live staging scaffold
 
 ## Current capability state
 
 Proven:
 
-- source artifacts are content-addressed by byte length and SHA-256;
+- 41 source artifacts are content-addressed by byte length and SHA-256;
+- all uploaded source documents are active corpus members rather than a selected subset;
 - byte-identical copies and different-size name collisions are distinguished;
-- SF 418 and SF 579 evidence states remain separate;
+- superseded sources remain preserved;
+- SF 418 and SF 579 evidence states remain component-specific;
+- the local-ordinance-preemption family is represented as its own source-bound mechanism family;
 - canonical JSON and SHA-256 hashing are deterministic;
-- typed state diff is implemented and tested.
+- typed state diff is implemented and tested;
+- the staging runtime is live.
 
 Not yet proven:
 
@@ -44,5 +47,6 @@ Not yet proven:
 - applied database substrate;
 - cross-platform bridge authentication;
 - replay against persisted run state;
-- successful Render deployment;
-- public UI.
+- public user UI.
+
+Staging incompleteness is permitted. It is documented, not deleted or disguised.
