@@ -78,32 +78,43 @@ Kaleidoscope consumes, but does not own:
 | Legal decomposition | Rosetta | admissible extraction run, manifest, source spans, output hash |
 | Observations and reference context | Atlas | governed bundle, entity-resolution receipt, source hash |
 | Verification and contradiction findings | Prism | verification receipt and cited evidence IDs |
-| Identity, traits, lineage, events, momentum | Lighthouse / Civic Genome | immutable snapshot ID, export receipt, and hash |
+| Identity, traits, lineage, events, momentum | Lighthouse / Civic Genome | immutable checkpoint ID and hash |
 | Person-controlled procedural state | Esquire | explicit authorized read-only binding |
 
 Kaleidoscope must not rewrite Docket truth, perform Rosetta decomposition, manufacture Atlas observations, create Prism findings, take Civic Genome identity ownership, alter Esquire action state, mutate upstream fields, hide assumptions, or promote projections as canonical facts.
 
-## Civic Genome external snapshot binding
+## Civic Genome baseline contract
 
-`contracts/civic-genome-snapshot-binding.v1.json` defines the first explicit consumer contract for a Lighthouse/Civic Genome baseline.
+Kaleidoscope pins the source schema:
 
-The binding requires:
+```text
+https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json
+```
 
-- source contract `civic_genome.external_snapshot.v1@1.0.0`;
-- immutable source snapshot and export-receipt identities;
-- exact snapshot and receipt hashes;
-- source scope and as-of time;
-- a namespaced component manifest;
-- source-native verification states preserved without silent translation;
-- a declared verification-mapping rule before acceptance;
-- explicit unresolved or rejected outcomes;
-- `no_mutation = true`.
+and the source contract:
 
-The mutable Lighthouse relation `civic_genome_projection_checkpoint` is internal continuation state for Docket-to-Genome materialization. It is not a valid Kaleidoscope baseline snapshot or checkpoint.
+```text
+civic_genome.external_snapshot.v1@1.0.0
+```
 
-The definition fixture remains unresolved because no live Civic Genome external snapshot producer or source-native verification mapping rule exists. Contract existence is not bridge proof.
+The consumer recomputes and verifies:
 
-Atlas observation/context bindings and Civic Genome baseline bindings remain separate upstream inputs. Kaleidoscope may reference a governed Atlas observation without rewriting it as Civic Genome truth, provided both owners, receipts, hashes, verification states, and non-causal boundaries remain explicit.
+- every source component hash;
+- the complete source snapshot hash;
+- the deterministic replay key;
+- the export-receipt hash;
+- the source snapshot, receipt, component, and canonical-record identities represented by the binding manifest.
+
+The consumer rejects:
+
+- a changed component retaining its original hashes;
+- a rehashed component beneath a stale enclosing snapshot hash;
+- a binding whose source snapshot or receipt identity differs from the validated source;
+- incomplete source state presented as accepted;
+- accepted verification without a declared mapping rule;
+- any binding that permits upstream mutation.
+
+The contract remains `defined_unbound` until Lighthouse produces a live immutable source snapshot and the required verification mapping is declared. Validation capability is not the same as an accepted source binding.
 
 ## Complete source-corpus rule
 
@@ -151,8 +162,6 @@ Verification states currently governed include:
 - `mixed` for an aggregate whose component states remain individually preserved
 
 A projection component may not carry a stronger state than its supporting source set. Alignment, temporal sequence, shared language, and similar effect do not become causation without source-bound evidence.
-
-Source-native verification from another platform is not automatically equivalent to a Kaleidoscope evidence state. A declared mapping rule and version are required; otherwise the consumer binding remains unresolved.
 
 ## Shared founding governance
 
@@ -257,4 +266,4 @@ The mechanism predates Project 2025 and appears through different legislative ve
 
 Kaleidoscope is not operational until source, schema, kernel, determinism, provenance, boundary, unresolved-state, bridge, presentation, challenge/replay, rollback, and security proofs pass.
 
-Current v0.1.4 proves complete source custody, canonicalization, hashing, typed diff behavior, a live v0.1.3 staging runtime, and a source-controlled but unresolved Civic Genome binding contract. Live snapshot production, verification mapping, accepted component mapping, production lens execution, applied Supabase state, bridge proof, persisted replay, and public user UI remain unproven.
+Current v0.1.4 proves complete source custody, canonicalization, hashing, typed diff behavior, source-contract validation, and tamper rejection. Production lens execution, an applied Supabase state, a live accepted Civic Genome binding, persisted replay, and public user UI remain unproven.
