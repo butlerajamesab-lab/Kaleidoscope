@@ -1,5 +1,5 @@
 {
-  "fixture_version": "1.1.0",
+  "fixture_version": "1.2.0",
   "fixture_status": "definition_only_no_projection_results",
   "policy_family_id": "gender_identity_title_vii_redefinition.v1",
   "scenario": {
@@ -18,11 +18,12 @@
       "No court challenge to Iowa SF 418 or SF 579 is assumed resolved without a retrieved filing or opinion."
     ],
     "unresolved_conditions": [
-      "Official enrolled SF 579 text, signature date, and effective date have not yet been independently retrieved.",
+      "The complete enrolled SF 579 text has not yet been independently retrieved and read line by line.",
       "Iowa state or federal litigation status has not been established from a retrieved filing or opinion.",
-      "Local ordinance implementation responses after SF 579 have not been established.",
+      "Local implementation responses after SF 579 have not been established.",
       "January 2026 EEOC rescission meeting record has not yet been retrieved.",
-      "Appellate status of Texas v. EEOC has not been independently confirmed."
+      "Appellate status of Texas v. EEOC has not been independently confirmed.",
+      "Two additional states in the current 24-state explicit-protection aggregate remain unidentified by name in the source inventory."
     ],
     "temporal_horizon": "2024-2026 implementation transition",
     "configuration": {},
@@ -30,8 +31,9 @@
       "KSP-SRC-KALEIDOSCOPE-DOCTRINE",
       "KSP-SRC-P25-DOL-LEDGER",
       "KSP-SRC-P25-DOL-STATES-1",
-      "KSP-SRC-P25-DOL-STATES-2",
-      "KSP-SRC-P25-IA-ENRICHED"
+      "KSP-SRC-P25-DOL-STATES-2-CORRECTED",
+      "KSP-SRC-P25-IA-CURRENT",
+      "KSP-SRC-P25-PREEMPT-FAMILY"
     ]
   },
   "mechanisms": [
@@ -54,12 +56,20 @@
           "verification_state": "secondary_verified"
         },
         {
-          "component": "SF 579 enrolled text, signature, and effective date",
+          "component": "SF 579 exact clause and March 10, 2026 signing date",
+          "verification_state": "secondary_verified_high_confidence"
+        },
+        {
+          "component": "SF 579 complete enrolled text reviewed line by line",
           "verification_state": "primary_source_not_obtained"
+        },
+        {
+          "component": "affected localities: 13 cities plus unincorporated Johnson County",
+          "verification_state": "secondary_verified"
         }
       ],
       "implementation_state": "operative_with_open_primary_source_items",
-      "relationship_to_family": "state_parallel"
+      "relationship_to_family": "state_parallel_and_preemption_family_member"
     }
   ],
   "relationships": [
@@ -69,6 +79,13 @@
       "relationship_type": "produces_similar_effect",
       "causal_claim_state": "not_asserted",
       "evidence_note": "Shared framing and stated federal alignment do not prove coordination."
+    },
+    {
+      "source_id": "P25-IA-01",
+      "target_id": "P25-PREEMPT-FAMILY-01",
+      "relationship_type": "member_of_mechanism_family",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "Iowa is one documented use of a state-local preemption mechanism that predates the current federal policy sequence."
     }
   ],
   "projection_results": null
