@@ -1,0 +1,77 @@
+{
+  "fixture_version": "1.0.0",
+  "fixture_status": "definition_only_no_projection_results",
+  "policy_family_id": "local_lgbtq_ordinance_preemption.v1",
+  "scenario": {
+    "scenario_id": "local_lgbtq_ordinance_preemption_demo.v1",
+    "baseline_snapshot_id": "local_protection_authority_baseline.v1",
+    "change_set_id": "state_preemption_mechanism_family.v1",
+    "lens_ids": [
+      "civil_rights.v1",
+      "local_government_preemption.v1",
+      "implementation_pathways.v1",
+      "affected_populations.v1"
+    ],
+    "assumptions": [],
+    "excluded_factors": [
+      "No centralized coordination among Tennessee, Arkansas, Texas, Iowa, or North Carolina is assumed.",
+      "Reuse of a legislative technique is not treated as proof of a shared causal plan."
+    ],
+    "unresolved_conditions": [
+      "Full statutory context beyond the quoted operative clauses remains to be retrieved for Arkansas and Tennessee.",
+      "The current outcome of the Dallas litigation under the Texas broad-preemption statute remains unresolved.",
+      "The full national inventory of similar state preemption laws has not been independently completed.",
+      "The exact treatment of North Carolina as a historical expired member must remain temporally bounded to the 2016-2020 period."
+    ],
+    "temporal_horizon": "2011-2026 mechanism reuse and current-state comparison",
+    "configuration": {},
+    "source_artifact_ids": [
+      "KSP-SRC-P25-PREEMPT-FAMILY",
+      "KSP-SRC-P25-DOL-STATES-2-CORRECTED",
+      "KSP-SRC-P25-IA-CURRENT"
+    ]
+  },
+  "members": [
+    {
+      "jurisdiction": "Tennessee",
+      "mechanism_state": "operative",
+      "first_observed_year": 2011,
+      "verification_state": "primary_core_clause_obtained"
+    },
+    {
+      "jurisdiction": "Arkansas",
+      "mechanism_state": "operative",
+      "first_observed_year": 2015,
+      "verification_state": "primary_core_clause_obtained"
+    },
+    {
+      "jurisdiction": "North Carolina",
+      "mechanism_state": "historical_expired",
+      "active_period": "2016-2020",
+      "verification_state": "secondary_verified"
+    },
+    {
+      "jurisdiction": "Texas",
+      "mechanism_state": "contested_litigation",
+      "first_observed_year": 2023,
+      "lgbtq_specific_use_observed": 2025,
+      "verification_state": "secondary_verified"
+    },
+    {
+      "jurisdiction": "Iowa",
+      "mechanism_state": "operative",
+      "first_observed_year": 2026,
+      "verification_state": "mixed"
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "P25-PREEMPT-FAMILY-01",
+      "target_id": "Project 2025 / EO 14168 policy direction",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "The mechanism predates Project 2025 and appears through different legislative vehicles in different states."
+    }
+  ],
+  "projection_results": null
+}
