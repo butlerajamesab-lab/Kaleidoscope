@@ -1,0 +1,35 @@
+name: Project 2025 frontend shell
+
+on:
+  pull_request:
+    paths:
+      - "public/project2025-title-vii.*"
+      - "src/project2025-frontend-shell.mjs"
+      - "src/server.mjs"
+      - "test/project2025-frontend-shell.test.mjs"
+      - "docs/PROJECT2025_FRONTEND_SHELL_V1.md"
+      - "package.json"
+      - ".github/workflows/project2025-frontend-shell.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-shell:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check runtime syntax
+        run: |
+          node --check src/server.mjs
+          node --check src/project2025-frontend-shell.mjs
+          node --check public/project2025-title-vii.js
+      - name: Run frontend shell tests
+        run: node --test test/project2025-frontend-shell.test.mjs
+      - name: Run full foundation build
+        run: npm run build
