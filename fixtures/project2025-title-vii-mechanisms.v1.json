@@ -1,0 +1,167 @@
+{
+  "mechanisms": [
+    {
+      "mechanism_id": "P25-DOL-01",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "partially_implemented_or_contested",
+      "implementation_route_types": [
+        "executive_direction",
+        "third_party_litigation",
+        "federal_judicial_action",
+        "agency_guidance_action"
+      ],
+      "model": {
+        "proposal": "Narrow federal Title VII gender-identity enforcement through a biological-sex interpretation and rescission of EEOC guidance.",
+        "claimed_authority": "Executive policy direction, EEOC guidance authority, and litigation positions under Title VII.",
+        "baseline": "Title VII statutory text, Bostock controlling precedent, and the 2024 EEOC harassment guidance.",
+        "required_instrument": "Executive direction plus agency action, litigation, or both; the Supreme Court holding cannot be erased by agency guidance alone.",
+        "implementation_chain": [
+          {
+            "step": 1,
+            "route_type": "executive_direction",
+            "actor": "President",
+            "event": "EO 14168 sets executive-branch interpretive direction."
+          },
+          {
+            "step": 2,
+            "route_type": "third_party_litigation",
+            "actor": "State of Texas and Heritage Foundation",
+            "event": "Litigation challenges the 2024 EEOC guidance."
+          },
+          {
+            "step": 3,
+            "route_type": "federal_judicial_action",
+            "actor": "U.S. District Court",
+            "event": "The challenged guidance categories are vacated."
+          },
+          {
+            "step": 4,
+            "route_type": "agency_guidance_action",
+            "actor": "EEOC",
+            "event": "Agency rescission is reported; complete meeting record remains an open source item."
+          }
+        ],
+        "observed_evidence": [
+          "EO 14168 official text is primary-verified in the source ledger.",
+          "Texas v. EEOC memorandum opinion and order is primary-verified in the source ledger.",
+          "Bostock is independently primary-verified in the state-inventory upgrade.",
+          "The January 2026 EEOC meeting record remains not independently retrieved."
+        ],
+        "jurisdictional_variation": [
+          "State statutory and interpretive protections vary and are incompletely verified state by state.",
+          "Federal private Title VII litigation remains separately available under the bounded source record."
+        ],
+        "response_pathways": [
+          "Private Title VII litigation.",
+          "Independent state nondiscrimination statutes and state human-rights enforcement.",
+          "State or local responses where not preempted."
+        ],
+        "timing_dependencies": [
+          "Appellate status of Texas v. EEOC.",
+          "Availability of the complete January 2026 EEOC meeting record."
+        ],
+        "unresolved_questions": [
+          "Actual nationwide charge-processing effect is not quantified.",
+          "The source pack does not prove that Bostock itself has been overruled or narrowed beyond the identified guidance categories."
+        ]
+      },
+      "source_bindings": [
+        {
+          "source_artifact_id": "project2025_mechanism_dossiers_batch1.md",
+          "verification_state": "secondary_verified"
+        },
+        {
+          "source_artifact_id": "P25-DOL-01_source_ledger_chunk1.md",
+          "verification_state": "primary_verified"
+        },
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk1.md",
+          "verification_state": "primary_verified"
+        }
+      ]
+    },
+    {
+      "mechanism_id": "P25-IA-01",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "operative_with_open_primary_source_items",
+      "implementation_route_types": [
+        "state_legislation",
+        "state_local_preemption"
+      ],
+      "model": {
+        "proposal": "State removal of gender-identity protection followed by preemption of broader local nondiscrimination categories.",
+        "claimed_authority": "Iowa General Assembly authority to amend state civil-rights law and define local-government authority.",
+        "baseline": "Iowa Civil Rights Act protection for gender identity beginning in 2007 and local authority to maintain broader protections.",
+        "required_instrument": "Enacted state legislation amending the protected-class definition and a later state-local preemption clause.",
+        "implementation_chain": [
+          {
+            "step": 1,
+            "route_type": "state_legislation",
+            "actor": "Iowa General Assembly and Governor",
+            "event": "SF 418 removes gender identity from the state protected-class structure, effective July 1, 2025."
+          },
+          {
+            "step": 2,
+            "route_type": "state_local_preemption",
+            "actor": "Iowa General Assembly and Governor",
+            "event": "SF 579 preempts broader or different local discrimination categories in 2026."
+          }
+        ],
+        "observed_evidence": [
+          "SF 418 enacted text and legislative history are primary-verified in the current dossier.",
+          "SF 579 outcome and legislative history are secondary-verified.",
+          "SF 579 exact clause and signing date are secondary-verified at high confidence.",
+          "Complete enrolled SF 579 text has not been reviewed line by line."
+        ],
+        "jurisdictional_variation": [
+          "The current source says 13 cities plus unincorporated Johnson County had local gender-identity protections.",
+          "The broader preemption-family mechanism predates Project 2025 and appears in different states through different vehicles."
+        ],
+        "response_pathways": [
+          "Federal Title VII private litigation remains available under the bounded source record.",
+          "State constitutional litigation is theoretical until a filing or opinion is retrieved.",
+          "Local implementation responses after preemption remain unestablished."
+        ],
+        "timing_dependencies": [
+          "Effective dates in the enacted state laws.",
+          "Any state or federal challenge to SF 418 or SF 579."
+        ],
+        "unresolved_questions": [
+          "Complete enrolled SF 579 text not independently read line by line.",
+          "Litigation status not established from a retrieved filing or opinion.",
+          "Local implementation responses not established."
+        ]
+      },
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "secondary_verified_high_confidence"
+        },
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified"
+        },
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk2-1.md",
+          "verification_state": "secondary_verified"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "P25-IA-01",
+      "target_id": "P25-DOL-01",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "Shared framing, temporal proximity, and stated alignment do not prove coordination with Project 2025 or the White House."
+    },
+    {
+      "source_id": "P25-IA-01",
+      "target_id": "P25-DOL-01",
+      "relationship_type": "jurisdictional_parallel",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "The state and federal mechanisms act through different sovereign authorities and implementation instruments."
+    }
+  ]
+}
