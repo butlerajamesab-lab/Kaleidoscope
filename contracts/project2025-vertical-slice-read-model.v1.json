@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luminari.org/kaleidoscope/contracts/project2025-vertical-slice-read-model.v1.json",
+  "title": "Project 2025 Vertical Slice Read Model v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "read_model_version",
+    "scenario_id",
+    "policy_family_id",
+    "title",
+    "subtitle",
+    "status",
+    "summary",
+    "mechanism_paths",
+    "lens_panels",
+    "collisions",
+    "source_artifact_ids",
+    "assumptions",
+    "excluded_factors",
+    "unresolved_conditions",
+    "inspection",
+    "read_model_hash"
+  ],
+  "properties": {
+    "read_model_version": { "const": "1.0.0" },
+    "scenario_id": { "type": "string", "minLength": 1 },
+    "policy_family_id": { "type": "string", "minLength": 1 },
+    "title": { "type": "string", "minLength": 1 },
+    "subtitle": { "type": "string", "minLength": 1 },
+    "status": { "const": "executed_test_fixture_not_canonical_fact" },
+    "summary": { "$ref": "#/$defs/summary" },
+    "mechanism_paths": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/mechanism_path" }
+    },
+    "lens_panels": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/lens_panel" }
+    },
+    "collisions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/collision" }
+    },
+    "source_artifact_ids": { "$ref": "#/$defs/string_set" },
+    "assumptions": { "$ref": "#/$defs/string_set" },
+    "excluded_factors": { "$ref": "#/$defs/string_set" },
+    "unresolved_conditions": { "$ref": "#/$defs/string_set" },
+    "inspection": { "$ref": "#/$defs/inspection" },
+    "read_model_hash": { "$ref": "#/$defs/hash" }
+  },
+  "$defs": {
+    "hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "string_set": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism_count",
+        "operation_count",
+        "operation_counts",
+        "lens_count",
+        "collision_count",
+        "unresolved_count"
+      ],
+      "properties": {
+        "mechanism_count": { "type": "integer", "minimum": 1 },
+        "operation_count": { "type": "integer", "minimum": 1 },
+        "operation_counts": {
+          "type": "object",
+          "additionalProperties": { "type": "integer", "minimum": 0 }
+        },
+        "lens_count": { "type": "integer", "minimum": 3 },
+        "collision_count": { "type": "integer", "minimum": 0 },
+        "unresolved_count": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "implementation_step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["step", "actor", "event", "route_type"],
+      "properties": {
+        "step": { "type": "integer", "minimum": 1 },
+        "actor": { "type": "string", "minLength": 1 },
+        "event": { "type": "string", "minLength": 1 },
+        "route_type": { "type": "string", "minLength": 1 }
+      }
+    },
+    "mechanism_path": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism_id",
+        "implementation_match",
+        "implementation_state",
+        "implementation_route_types",
+        "implementation_chain"
+      ],
+      "properties": {
+        "mechanism_id": { "type": "string", "minLength": 1 },
+        "implementation_match": {
+          "enum": [
+            "exact_structural_match",
+            "partial_structural_match",
+            "related_policy_direction",
+            "superficial_language_similarity",
+            "no_verified_match"
+          ]
+        },
+        "implementation_state": { "type": "string", "minLength": 1 },
+        "implementation_route_types": { "$ref": "#/$defs/string_set" },
+        "implementation_chain": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/implementation_step" }
+        }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "effect_id",
+        "effect_type",
+        "direction",
+        "statement",
+        "jurisdiction",
+        "verification_state",
+        "evidence_ceiling",
+        "unresolved_conditions"
+      ],
+      "properties": {
+        "effect_id": { "type": "string", "minLength": 1 },
+        "effect_type": { "type": "string", "minLength": 1 },
+        "direction": { "type": "string", "minLength": 1 },
+        "statement": { "type": "string", "minLength": 1 },
+        "jurisdiction": { "type": "string", "minLength": 1 },
+        "verification_state": {
+          "enum": [
+            "unresolved",
+            "primary_source_not_obtained",
+            "quoted_in_verified_secondary",
+            "secondary_verified",
+            "secondary_verified_high_confidence",
+            "primary_verified",
+            "mixed"
+          ]
+        },
+        "evidence_ceiling": {
+          "enum": [
+            "unresolved",
+            "primary_source_not_obtained",
+            "quoted_in_verified_secondary",
+            "secondary_verified",
+            "secondary_verified_high_confidence",
+            "primary_verified"
+          ]
+        },
+        "unresolved_conditions": { "$ref": "#/$defs/string_set" }
+      }
+    },
+    "lens_panel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["lens_id", "effect_count", "effects"],
+      "properties": {
+        "lens_id": { "type": "string", "minLength": 1 },
+        "effect_count": { "type": "integer", "minimum": 0 },
+        "effects": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/effect" }
+        }
+      }
+    },
+    "collision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "collision_id",
+        "collision_type",
+        "left_effect_id",
+        "right_effect_id",
+        "statement",
+        "resolution_state",
+        "unresolved_conditions",
+        "collision_hash"
+      ],
+      "properties": {
+        "collision_id": { "type": "string", "minLength": 1 },
+        "collision_type": { "type": "string", "minLength": 1 },
+        "left_effect_id": { "type": "string", "minLength": 1 },
+        "right_effect_id": { "type": "string", "minLength": 1 },
+        "statement": { "type": "string", "minLength": 1 },
+        "resolution_state": { "const": "preserved_not_averaged" },
+        "unresolved_conditions": { "$ref": "#/$defs/string_set" },
+        "collision_hash": { "$ref": "#/$defs/hash" }
+      }
+    },
+    "inspection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["input_hash", "diff_hash", "projection_bundle_hash", "no_mutation"],
+      "properties": {
+        "input_hash": { "$ref": "#/$defs/hash" },
+        "diff_hash": { "$ref": "#/$defs/hash" },
+        "projection_bundle_hash": { "$ref": "#/$defs/hash" },
+        "no_mutation": { "const": true }
+      }
+    }
+  }
+}
