@@ -4,8 +4,11 @@ on:
   pull_request:
     paths:
       - "contracts/legislative-consequence-*.json"
+      - "contracts/legislation-source-platform-binding.v1.json"
       - "source_bundles/eeoc_demographics_reporting_rollback_2026.v1.json"
-      - "fixtures/eeoc_demographics_reporting_rollback_2026.v1.json"
+      - "source_bundles/eeoc_demographics_reporting_rollback_2026.legislation_sources.v1.json"
+      - "fixtures/eeoc_demographics_reporting_rollback_2026.v1.mjs"
+      - "fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs"
       - "src/legislative-consequence.mjs"
       - "test/legislative-consequence.test.mjs"
       - "scripts/capture-eeoc-source-custody.mjs"
