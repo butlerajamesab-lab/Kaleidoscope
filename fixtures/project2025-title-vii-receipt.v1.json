@@ -1,0 +1,15 @@
+{
+  "receipt_version": "1.0.0",
+  "engine_id": "project2025_vertical_slice_engine",
+  "engine_version": "1.0.0",
+  "scenario_id": "project2025_gender_identity_title_vii_vertical_slice.v1",
+  "input_hash": "5f16cd10ff9506ccd789b7f0f1542df2a368fd32d17850fd5de4d2a9c5afbf9a",
+  "diff_hash": "df38ebb1c70ff0ee76e9ba8876b9722a524911a6210f4f4ba746e45f550f372e",
+  "projection_bundle_hash": "b017237183329ec4fb534bc84e3433ccfb31a00fd541290dbad4c647c8d3249e",
+  "read_model_hash": "cc423179b97bccddb6e114843d77d32fea032d781966e7439e8065c5d8070b2a",
+  "no_mutation": true,
+  "database_write_count": 0,
+  "run_id": "p25-run-a5397b21d22a372ab1f1863ea6a08bf9",
+  "deterministic_replay_key": "6d9cf396537e25a96cfb3e97a92f91b8f1dc90bfe402a95d5fa2ae269c272de5",
+  "receipt_hash": "a5397b21d22a372ab1f1863ea6a08bf9dd9aebaf33012087a6337feb718b8284"
+}
