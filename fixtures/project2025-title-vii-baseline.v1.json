@@ -1,0 +1,163 @@
+{
+  "state_snapshot_id": "project2025_title_vii_baseline_2024.v1",
+  "components": [
+    {
+      "component_id": "federal_title_vii_bostock_termination_protection",
+      "component_type": "judicial_rule",
+      "dimension": "legal_protection",
+      "jurisdiction": "US",
+      "status": "operative",
+      "value": "Title VII covers discharge decisions based on sexual orientation or gender identity under Bostock.",
+      "affected_population_ids": [
+        "gay_employees",
+        "lesbian_employees",
+        "bisexual_employees",
+        "transgender_employees"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "Bostock was independently retrieved and verified."
+        }
+      ],
+      "unresolved_conditions": [
+        "application_beyond_the_identified_bostock_holding_remains_component_specific"
+      ]
+    },
+    {
+      "component_id": "federal_eeoc_2024_harassment_guidance",
+      "component_type": "agency_guidance",
+      "dimension": "agency_guidance",
+      "jurisdiction": "US",
+      "status": "operative",
+      "value": "The 2024 EEOC harassment guidance provides the baseline agency interpretation challenged in Texas v. EEOC.",
+      "affected_population_ids": [
+        "transgender_employees",
+        "nonbinary_employees"
+      ],
+      "declared_verification_state": "quoted_in_verified_secondary",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_source_ledger_chunk1.md",
+          "verification_state": "quoted_in_verified_secondary",
+          "support_statement": "The guidance is represented through the verified court opinion and source ledger; full guidance text remains an open item."
+        }
+      ],
+      "unresolved_conditions": [
+        "full_2024_guidance_not_independently_retrieved_in_source_ledger_chunk1"
+      ]
+    },
+    {
+      "component_id": "federal_eeoc_gender_identity_enforcement_posture",
+      "component_type": "agency_enforcement_posture",
+      "dimension": "agency_enforcement_path",
+      "jurisdiction": "US",
+      "status": "affirmative_guidance_posture",
+      "value": "EEOC posture includes the challenged 2024 guidance categories.",
+      "affected_population_ids": [
+        "transgender_employees",
+        "nonbinary_employees"
+      ],
+      "declared_verification_state": "quoted_in_verified_secondary",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_source_ledger_chunk1.md",
+          "verification_state": "quoted_in_verified_secondary",
+          "support_statement": "The posture is represented through the verified litigation record and source ledger."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "federal_private_title_vii_action",
+      "component_type": "private_right_of_action",
+      "dimension": "private_enforcement_path",
+      "jurisdiction": "US",
+      "status": "available",
+      "value": "Private Title VII litigation remains available independently of EEOC guidance.",
+      "affected_population_ids": [
+        "title_vii_covered_employees"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "Statutory text and Bostock are independently verified in the source inventory."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "iowa_gender_identity_protected_class",
+      "component_type": "state_statutory_protection",
+      "dimension": "legal_protection",
+      "jurisdiction": "IA",
+      "status": "operative",
+      "value": "Iowa state civil-rights law includes gender identity as a protected class in the pre-2025 baseline.",
+      "affected_population_ids": [
+        "transgender_iowans",
+        "gender_nonconforming_iowans"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "primary_verified",
+          "support_statement": "SF 418 enacted text and legislative history upgrade the removal baseline to primary-verified."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "iowa_state_commission_gender_identity_path",
+      "component_type": "state_administrative_enforcement_path",
+      "dimension": "state_administrative_enforcement_path",
+      "jurisdiction": "IA",
+      "status": "available",
+      "value": "State administrative enforcement is available for the represented protected class in the baseline.",
+      "affected_population_ids": [
+        "transgender_iowans",
+        "gender_nonconforming_iowans"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "primary_verified",
+          "support_statement": "The source dossier establishes the pre-2025 statutory protection and enforcement structure."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "iowa_local_broader_nondiscrimination_authority",
+      "component_type": "local_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "IA",
+      "status": "available",
+      "value": "Local governments may maintain broader protected categories than state law in the baseline.",
+      "affected_population_ids": [
+        "residents_of_protective_iowa_localities"
+      ],
+      "declared_verification_state": "secondary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The dossier identifies the preemption target and corrected affected-locality count."
+        },
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The family dossier situates Iowa within a preexisting local-preemption mechanism family."
+        }
+      ],
+      "unresolved_conditions": [
+        "complete_local_ordinance_inventory_not_independently_verified"
+      ]
+    }
+  ]
+}
