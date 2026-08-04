@@ -4,10 +4,13 @@ export const STRUCTURAL_DELTA_CONTRACT_ID =
   'https://luminari.org/kaleidoscope/contracts/legislative-consequence-structural-delta.v1.json';
 export const CONSEQUENCE_EDGE_CONTRACT_ID =
   'https://luminari.org/kaleidoscope/contracts/legislative-consequence-edge.v1.json';
+export const LEGISLATION_PLATFORM_BINDING_CONTRACT_ID =
+  'https://luminari.org/kaleidoscope/contracts/legislation-source-platform-binding.v1.json';
 
 const HEX64 = /^[0-9a-f]{64}$/;
 const DELTA_TYPES = new Set(['added', 'removed', 'modified', 'preserved', 'superseded', 'preempted', 'unresolved']);
 const EVIDENCE_CEILINGS = new Set(['direct_text', 'logical_necessity', 'historical_record', 'supported_inference', 'hypothesis_only']);
+const PLATFORM_OWNERS = new Set(['docket_room', 'civic_genome']);
 const EDGE_RULES = new Map([
   ['direct_legal_effect', new Set(['directly_prescribed'])],
   ['preserved_invariant', new Set(['directly_prescribed'])],
@@ -63,6 +66,77 @@ export function consequenceGraphHashBasis(graph) {
   const row = record(graph, 'graph');
   const { graph_hash: _ignored, ...basis } = row;
   return basis;
+}
+export function legislationPlatformBindingHashBasis(bundle) {
+  const row = record(bundle, 'legislation_platform_bindings');
+  const { platform_binding_bundle_hash: _ignored, ...basis } = row;
+  return basis;
+}
+
+export function assertLegislationPlatformBindings(bundle) {
+  const row = record(bundle, 'legislation_platform_bindings');
+  if (row.platform_binding_bundle_version !== '1.0.0') fail('platform_binding_version_mismatch');
+  string(row.platform_binding_bundle_id, 'platform_binding_bundle_id');
+  string(row.scenario_id, 'platform_binding_scenario_id');
+
+  const bindings = array(row.bindings, 'platform_bindings.bindings');
+  if (!Number.isInteger(row.binding_count) || row.binding_count !== bindings.length) {
+    fail('platform_binding_count_mismatch');
+  }
+  const bindingIds = new Set();
+  const owners = new Set();
+  for (const binding of bindings) {
+    const entry = record(binding, 'platform_binding');
+    const bindingId = string(entry.binding_id, 'platform_binding.binding_id');
+    if (bindingIds.has(bindingId)) fail('duplicate_platform_binding_id', bindingId);
+    bindingIds.add(bindingId);
+    const owner = string(entry.owner_platform, 'platform_binding.owner_platform');
+    if (!PLATFORM_OWNERS.has(owner)) fail('platform_owner_not_governed', owner);
+    owners.add(owner);
+    string(entry.binding_type, 'platform_binding.binding_type');
+    string(entry.verification_state, 'platform_binding.verification_state');
+    uniqueStrings(entry.unresolved_conditions, 'platform_binding.unresolved_conditions');
+
+    if (owner === 'docket_room') {
+      if (!Number.isInteger(entry.source_bill_id)) fail('docket_source_bill_id_required', bindingId);
+      string(entry.source_bill_number, 'docket.source_bill_number');
+      string(entry.source_bill_title, 'docket.source_bill_title');
+      string(entry.source_last_action, 'docket.source_last_action');
+      string(entry.source_change_hash, 'docket.source_change_hash');
+    }
+    if (owner === 'civic_genome') {
+      const hasCanonicalIdentity = typeof entry.genome_bill_id === 'string'
+        || typeof entry.event_id === 'string'
+        || typeof entry.family_id === 'string';
+      if (!hasCanonicalIdentity) fail('civic_genome_identity_required', bindingId);
+    }
+  }
+  if (!owners.has('docket_room') || !owners.has('civic_genome')) {
+    fail('docket_and_civic_genome_bindings_required');
+  }
+
+  const conflicts = array(row.conflicts, 'platform_bindings.conflicts');
+  if (!Number.isInteger(row.conflict_count) || row.conflict_count !== conflicts.length) {
+    fail('platform_conflict_count_mismatch');
+  }
+  for (const conflict of conflicts) {
+    const entry = record(conflict, 'platform_conflict');
+    string(entry.conflict_id, 'platform_conflict.conflict_id');
+    for (const bindingId of uniqueStrings(entry.binding_ids, 'platform_conflict.binding_ids')) {
+      if (!bindingIds.has(bindingId)) fail('platform_conflict_unknown_binding', bindingId);
+    }
+    if (entry.resolution_state !== 'unresolved_preserved') {
+      fail('platform_conflict_must_remain_unresolved');
+    }
+    if (entry.prohibited_resolution !== 'do_not_silently_choose_or_overwrite_any_source_record') {
+      fail('platform_conflict_prohibition_missing');
+    }
+  }
+  uniqueStrings(row.unresolved_conditions, 'platform_bindings.unresolved_conditions');
+  const observedHash = hash(row.platform_binding_bundle_hash, 'platform_binding_bundle_hash');
+  const expectedHash = sha256Hex(legislationPlatformBindingHashBasis(row));
+  if (observedHash !== expectedHash) fail('platform_binding_bundle_hash_mismatch');
+  return row;
 }
 
 export function assertStructuralDeltaBundle(bundle, sourceBundle) {
@@ -153,6 +227,10 @@ export function assertLegislativeConsequenceFixture(fixture) {
   if (row.fixture_state !== 'definition_and_deterministic_contract_only') fail('fixture_state_mismatch');
   if (row.projection_executed !== false || row.database_persisted !== false) {
     fail('fixture_overstates_execution');
+  }
+  const platformBindings = assertLegislationPlatformBindings(row.legislation_platform_bindings);
+  if (platformBindings.scenario_id !== row.source_bundle.scenario_id) {
+    fail('platform_binding_scenario_mismatch');
   }
   assertConsequenceGraph(row.consequence_graph, row.structural_delta_bundle, row.source_bundle);
   if (row.impact_surface !== null
