@@ -1,0 +1,144 @@
+{
+  "platform_binding_bundle_id": "eeoc_demographics_reporting_rollback_2026.legislation_sources.v1",
+  "platform_binding_bundle_version": "1.0.0",
+  "scenario_id": "eeoc_demographics_reporting_rollback_2026",
+  "observed_state_date": "2026-08-04",
+  "bindings": [
+    {
+      "binding_id": "docket_room:legiscan:2115794",
+      "owner_platform": "docket_room",
+      "binding_type": "official_legislation_source_identity",
+      "jurisdiction_code": "CO",
+      "session_id": 2243,
+      "session_title": "2026 Regular Session",
+      "source_provider": "legiscan_get_master_list",
+      "source_bill_id": 2115794,
+      "source_bill_number": "HB1207",
+      "source_bill_title": "Disclosure of Demographic Workforce Data",
+      "source_bill_description": "Concerning employer accountability through disclosure of demographic workforce data, and, in connection therewith, making an appropriation.",
+      "source_status": 4,
+      "source_status_date": "2026-06-04",
+      "source_last_action": "Governor Signed",
+      "source_last_action_date": "2026-06-04",
+      "source_url": "https://legiscan.com/CO/bill/HB1207/2026",
+      "source_change_hash": "a24ab7657fe6bed492118ab0f0885f0e",
+      "cache_fetched_at": "2026-07-20T18:30:52.059Z",
+      "verification_state": "source_identity_and_docket_status_confirmed",
+      "unresolved_conditions": []
+    },
+    {
+      "binding_id": "civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410",
+      "owner_platform": "civic_genome",
+      "binding_type": "persistent_legislation_identity",
+      "genome_bill_id": "ea189395-af71-4d61-907a-508220d6d410",
+      "bill_id": "d6617c8f-52ff-46d2-825b-4de437c8dd08",
+      "family_id": "09098633-f2fb-418f-8354-c3b1a9991dac",
+      "source_bill_id": 2115794,
+      "source_bill_number": "HB1207",
+      "source_bill_title": "Disclosure of Demographic Workforce Data",
+      "source_bill_url": "https://legiscan.com/CO/bill/HB1207/2026",
+      "structural_dna_hash": "4e7d226180ec92dd19ccbed6a38ff04551626f31e1ba4bd3251a676a599b3075",
+      "current_state_position": "introduced",
+      "bill_status": "legiscan_status_4",
+      "last_action_at": "2026-06-04T00:00:00.000Z",
+      "rosetta_source_binding_count": 0,
+      "completed_assembly_count": 0,
+      "trait_count": 0,
+      "event_count": 1,
+      "verification_state": "bound_with_state_conflict",
+      "unresolved_conditions": [
+        "current_state_position_introduced_conflicts_with_docket_governor_signed",
+        "no_rosetta_source_binding_or_structural_trait_assembly",
+        "structural_dna_is_docket_materialization_not_rosetta_legal_decomposition"
+      ]
+    },
+    {
+      "binding_id": "civic_genome:event:a8b3889c-9bb0-4c02-8d88-242bebe0eba8",
+      "owner_platform": "civic_genome",
+      "binding_type": "legislation_lifecycle_event",
+      "event_id": "a8b3889c-9bb0-4c02-8d88-242bebe0eba8",
+      "genome_bill_id": "ea189395-af71-4d61-907a-508220d6d410",
+      "family_id": "09098633-f2fb-418f-8354-c3b1a9991dac",
+      "event_type": "enacted",
+      "event_timestamp": "2026-06-04T00:00:00.000Z",
+      "event_summary": "HB1207 appears enacted or chaptered on the live docket. Latest action: Governor Signed",
+      "source_change_hash": "a24ab7657fe6bed492118ab0f0885f0e",
+      "recorded_next_state_position": "introduced",
+      "verification_state": "event_type_confirmed_internal_state_conflict",
+      "unresolved_conditions": [
+        "enacted_event_conflicts_with_recorded_next_state_position_introduced"
+      ]
+    },
+    {
+      "binding_id": "civic_genome:family:09098633-f2fb-418f-8354-c3b1a9991dac",
+      "owner_platform": "civic_genome",
+      "binding_type": "legislation_family_identity",
+      "family_id": "09098633-f2fb-418f-8354-c3b1a9991dac",
+      "family_key": "finance:disclosure_of_demographic_workforce_data",
+      "family_label": "Disclosure of Demographic Workforce Data",
+      "policy_domain": "finance",
+      "family_status": "active",
+      "active_state_count": 1,
+      "enacted_state_count": 0,
+      "last_seen_at": "2026-07-20T18:30:52.227655Z",
+      "verification_state": "provisional_docket_title_family",
+      "unresolved_conditions": [
+        "enacted_state_count_zero_conflicts_with_enacted_event_and_governor_signed_docket_status",
+        "policy_domain_finance_is_title_based_and_not_rosetta_confirmed"
+      ]
+    }
+  ],
+  "binding_count": 4,
+  "conflicts": [
+    {
+      "conflict_id": "legislation_source_conflict:co_hb1207_lifecycle_state",
+      "conflict_type": "cross_record_state_conflict",
+      "binding_ids": [
+        "docket_room:legiscan:2115794",
+        "civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410",
+        "civic_genome:event:a8b3889c-9bb0-4c02-8d88-242bebe0eba8",
+        "civic_genome:family:09098633-f2fb-418f-8354-c3b1a9991dac"
+      ],
+      "observed_states": [
+        "docket_room:Governor Signed",
+        "civic_genome_bill:introduced",
+        "civic_genome_event:enacted",
+        "civic_genome_family:enacted_state_count=0"
+      ],
+      "resolution_state": "unresolved_preserved",
+      "prohibited_resolution": "do_not_silently_choose_or_overwrite_any_source_record"
+    }
+  ],
+  "conflict_count": 1,
+  "usage_boundary": {
+    "docket_room_owns": [
+      "official_legislation_source_identity",
+      "source_status",
+      "source_last_action",
+      "source_change_hash"
+    ],
+    "civic_genome_owns": [
+      "persistent_bill_identity",
+      "family_identity",
+      "lifecycle_events",
+      "persistent_unresolved_state"
+    ],
+    "kaleidoscope_may_use": [
+      "source_identity",
+      "content_addressed_source_binding",
+      "explicit_conflict",
+      "enacted_state_law_as_declared_scenario_input"
+    ],
+    "kaleidoscope_must_not_do": [
+      "repair_docket_or_civic_genome_records",
+      "treat_title_based_family_domain_as_rosetta_structural_truth",
+      "erase_or_average_the_lifecycle_conflict"
+    ]
+  },
+  "unresolved_conditions": [
+    "colorado_hb1207_civic_genome_state_conflict",
+    "colorado_hb1207_has_no_rosetta_assembly_or_traits",
+    "federal_eeoc_nprm_has_no_docket_room_or_civic_genome_binding_in_this_specimen"
+  ],
+  "platform_binding_bundle_hash": "a491d3bba6217cb971b13be76e3b28a94c28b8fc65d7ed74237ddea810ca8366"
+}
