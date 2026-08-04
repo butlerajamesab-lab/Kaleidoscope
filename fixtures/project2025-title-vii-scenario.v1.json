@@ -1,0 +1,91 @@
+{
+  "fixture_version": "1.0.0",
+  "fixture_state": "bounded_source_pack_test",
+  "scenario_id": "project2025_gender_identity_title_vii_vertical_slice.v1",
+  "policy_family_id": "gender_identity_title_vii_redefinition.v1",
+  "source_artifact_ids": [
+    "project2025_catalog_pass1.md",
+    "project2025_mechanism_dossiers_batch1.md",
+    "P25-DOL-01_source_ledger_chunk1.md",
+    "P25-DOL-01_state_inventory_chunk1.md",
+    "P25-DOL-01_state_inventory_chunk2-1.md",
+    "P25-IA-01_mechanism_dossier-4.md",
+    "P25-PREEMPT-FAMILY-01_dossier.md",
+    "constitutional_powers_reference_pass1.md"
+  ],
+  "upstream_processing": {
+    "docket_room": {
+      "state": "not_applicable",
+      "required": false,
+      "note": "This source-pack fixture is not a live bill retrieval."
+    },
+    "rosetta": {
+      "state": "not_run",
+      "required": false,
+      "note": "Not-run is a valid neutral state; the fixture does not claim a Rosetta extraction."
+    },
+    "civic_genome": {
+      "state": "not_applicable",
+      "required": false,
+      "note": "No Civic Genome record is manufactured for the source-pack fixture."
+    },
+    "prism": {
+      "state": "not_observed",
+      "required": false,
+      "note": "No Prism finding is manufactured."
+    },
+    "atlas": {
+      "state": "not_run",
+      "required": false,
+      "note": "Historical comparison is outside this first kernel slice."
+    }
+  },
+  "lens_ids": [
+    "civil_rights.v1",
+    "enforcement_pathways.v1",
+    "local_government_preemption.v1",
+    "affected_populations.v1"
+  ],
+  "collision_rules": [
+    {
+      "collision_id": "collision_formal_federal_right_vs_agency_path",
+      "collision_type": "formal_right_preserved_practical_path_narrowed",
+      "left_effect_type": "formal_federal_protection_preserved",
+      "right_effect_type": "agency_enforcement_path_narrowed",
+      "statement": "The bounded source state preserves the represented federal judicial protection while narrowing an agency-facing enforcement or guidance path.",
+      "unresolved_conditions": [
+        "practical_magnitude_not_quantified"
+      ]
+    },
+    {
+      "collision_id": "collision_federal_private_path_vs_state_protection",
+      "collision_type": "federal_path_preserved_state_path_removed",
+      "left_effect_type": "federal_private_action_preserved",
+      "right_effect_type": "state_protection_removed",
+      "statement": "A federal private judicial pathway remains represented while Iowa state protected-class coverage is removed."
+    },
+    {
+      "collision_id": "collision_state_removal_vs_local_preemption",
+      "collision_type": "state_protection_removed_local_substitute_restricted",
+      "left_effect_type": "state_protection_removed",
+      "right_effect_type": "local_authority_preempted",
+      "statement": "State protected-class coverage is removed while local authority to restore broader categories is also preempted.",
+      "unresolved_conditions": [
+        "local_response_pathways_not_established"
+      ]
+    }
+  ],
+  "assumptions": [],
+  "excluded_factors": [
+    "No causal coordination between Project 2025, the White House, and Iowa is assumed.",
+    "No court challenge to Iowa SF 418 or SF 579 is assumed resolved without a retrieved filing or opinion.",
+    "No population count, discrimination-rate change, or outcome forecast is computed."
+  ],
+  "unresolved_conditions": [
+    "Complete January 2026 EEOC meeting record not retrieved.",
+    "Appellate status of Texas v. EEOC not independently confirmed.",
+    "Complete enrolled SF 579 text not independently reviewed line by line.",
+    "Iowa litigation status not established from a retrieved filing or opinion.",
+    "State protection inventory remains incomplete and internally corrected across source revisions."
+  ]
+}

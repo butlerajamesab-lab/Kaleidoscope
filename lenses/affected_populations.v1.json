@@ -1,0 +1,38 @@
+{
+  "lens_id": "affected_populations.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Identify source-declared population exposure changes while preserving incomplete jurisdiction inventories and avoiding unsupported magnitude claims.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "population_exposure_changed_by_removed_protection",
+      "when": {"operations": ["removed"], "dimensions": ["legal_protection", "state_administrative_enforcement_path"]},
+      "emit": {
+        "effect_type": "population_exposure_changed",
+        "direction": "coverage_or_path_reduced",
+        "statement": "A source-declared protected population is linked to a removed coverage or enforcement component.",
+        "unresolved_conditions": ["population_magnitude_not_computed"]
+      }
+    },
+    {
+      "rule_id": "population_exposure_changed_by_preemption",
+      "when": {"operations": ["preempted"], "dimensions": ["local_government_authority"]},
+      "emit": {
+        "effect_type": "population_exposure_changed",
+        "direction": "local_protective_option_restricted",
+        "statement": "A source-declared population is linked to a preempted local protective option.",
+        "unresolved_conditions": ["affected_locality_count_preserved_at_source_verification_ceiling"]
+      }
+    },
+    {
+      "rule_id": "population_exposure_changed_by_agency_narrowing",
+      "when": {"operations": ["modified", "superseded"], "dimensions": ["agency_enforcement_path", "agency_guidance"]},
+      "emit": {
+        "effect_type": "population_exposure_changed",
+        "direction": "agency_support_changed",
+        "statement": "A source-declared population is linked to a changed federal agency guidance or enforcement posture.",
+        "unresolved_conditions": ["fifty_state_inventory_incomplete"]
+      }
+    }
+  ]
+}

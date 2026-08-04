@@ -1,0 +1,18 @@
+{
+  "lens_id": "local_government_preemption.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Expose changes to local authority without asserting that similar state mechanisms were centrally coordinated.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "local_broader_protection_authority_preempted",
+      "when": {"operations": ["preempted"], "dimensions": ["local_government_authority"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "local_authority_preempted",
+        "direction": "restricted",
+        "statement": "The represented local authority to maintain broader nondiscrimination categories is preempted by state law.",
+        "unresolved_conditions": ["post_preemption_local_implementation_responses_not_established"]
+      }
+    }
+  ]
+}

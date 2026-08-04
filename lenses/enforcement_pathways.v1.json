@@ -1,0 +1,36 @@
+{
+  "lens_id": "enforcement_pathways.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Track whether public, private, agency, and state enforcement routes are preserved, narrowed, removed, or contested.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "private_title_vii_path_preserved",
+      "when": {"operations": ["preserved"], "dimensions": ["private_enforcement_path"], "jurisdictions": ["US"]},
+      "emit": {
+        "effect_type": "federal_private_action_preserved",
+        "direction": "preserved",
+        "statement": "The private Title VII litigation pathway remains represented as available in the bounded source state."
+      }
+    },
+    {
+      "rule_id": "agency_enforcement_path_narrowed",
+      "when": {"operations": ["modified", "superseded"], "dimensions": ["agency_enforcement_path", "agency_guidance"], "jurisdictions": ["US"]},
+      "emit": {
+        "effect_type": "agency_enforcement_path_narrowed",
+        "direction": "narrowed",
+        "statement": "The agency-facing enforcement or guidance pathway narrows even though a separate private judicial pathway may remain.",
+        "unresolved_conditions": ["actual_charge_processing_effect_not_quantified"]
+      }
+    },
+    {
+      "rule_id": "iowa_state_commission_path_removed",
+      "when": {"operations": ["removed"], "dimensions": ["state_administrative_enforcement_path"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "iowa_state_administrative_path_removed",
+        "direction": "removed",
+        "statement": "The represented Iowa state administrative enforcement pathway for gender-identity coverage is removed."
+      }
+    }
+  ]
+}

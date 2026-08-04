@@ -1,0 +1,357 @@
+{
+  "read_model_version": "1.0.0",
+  "scenario_id": "project2025_gender_identity_title_vii_vertical_slice.v1",
+  "policy_family_id": "gender_identity_title_vii_redefinition.v1",
+  "title": "Project 2025: Title VII and State-Law Response",
+  "subtitle": "Deterministic bounded vertical-slice demonstration",
+  "status": "executed_test_fixture_not_canonical_fact",
+  "summary": {
+    "mechanism_count": 2,
+    "operation_count": 7,
+    "operation_counts": {
+      "superseded": 1,
+      "modified": 1,
+      "preserved": 2,
+      "removed": 2,
+      "preempted": 1
+    },
+    "lens_count": 4,
+    "collision_count": 3,
+    "unresolved_count": 18
+  },
+  "mechanism_paths": [
+    {
+      "mechanism_id": "P25-DOL-01",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "partially_implemented_or_contested",
+      "implementation_route_types": [
+        "executive_direction",
+        "third_party_litigation",
+        "federal_judicial_action",
+        "agency_guidance_action"
+      ],
+      "implementation_chain": [
+        {
+          "actor": "President",
+          "event": "EO 14168 sets executive-branch interpretive direction.",
+          "route_type": "executive_direction",
+          "step": 1
+        },
+        {
+          "actor": "State of Texas and Heritage Foundation",
+          "event": "Litigation challenges the 2024 EEOC guidance.",
+          "route_type": "third_party_litigation",
+          "step": 2
+        },
+        {
+          "actor": "U.S. District Court",
+          "event": "The challenged guidance categories are vacated.",
+          "route_type": "federal_judicial_action",
+          "step": 3
+        },
+        {
+          "actor": "EEOC",
+          "event": "Agency rescission is reported; complete meeting record remains an open source item.",
+          "route_type": "agency_guidance_action",
+          "step": 4
+        }
+      ]
+    },
+    {
+      "mechanism_id": "P25-IA-01",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "operative_with_open_primary_source_items",
+      "implementation_route_types": [
+        "state_legislation",
+        "state_local_preemption"
+      ],
+      "implementation_chain": [
+        {
+          "actor": "Iowa General Assembly and Governor",
+          "event": "SF 418 removes gender identity from the state protected-class structure, effective July 1, 2025.",
+          "route_type": "state_legislation",
+          "step": 1
+        },
+        {
+          "actor": "Iowa General Assembly and Governor",
+          "event": "SF 579 preempts broader or different local discrimination categories in 2026.",
+          "route_type": "state_local_preemption",
+          "step": 2
+        }
+      ]
+    }
+  ],
+  "lens_panels": [
+    {
+      "lens_id": "affected_populations.v1",
+      "effect_count": 5,
+      "effects": [
+        {
+          "effect_id": "affected_populations.v1:population_exposure_changed_by_agency_narrowing:federal_eeoc_2024_harassment_guidance",
+          "effect_type": "population_exposure_changed",
+          "direction": "agency_support_changed",
+          "statement": "A source-declared population is linked to a changed federal agency guidance or enforcement posture.",
+          "jurisdiction": "US",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "appellate_status_not_independently_confirmed",
+            "fifty_state_inventory_incomplete",
+            "january_2026_eeoc_meeting_record_not_retrieved"
+          ]
+        },
+        {
+          "effect_id": "affected_populations.v1:population_exposure_changed_by_agency_narrowing:federal_eeoc_gender_identity_enforcement_posture",
+          "effect_type": "population_exposure_changed",
+          "direction": "agency_support_changed",
+          "statement": "A source-declared population is linked to a changed federal agency guidance or enforcement posture.",
+          "jurisdiction": "US",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "actual_charge_processing_effect_not_quantified",
+            "fifty_state_inventory_incomplete"
+          ]
+        },
+        {
+          "effect_id": "affected_populations.v1:population_exposure_changed_by_preemption:iowa_local_broader_nondiscrimination_authority",
+          "effect_type": "population_exposure_changed",
+          "direction": "local_protective_option_restricted",
+          "statement": "A source-declared population is linked to a preempted local protective option.",
+          "jurisdiction": "IA",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "affected_locality_count_preserved_at_source_verification_ceiling",
+            "complete_enrolled_sf579_text_not_reviewed_line_by_line",
+            "post_preemption_local_responses_not_established"
+          ]
+        },
+        {
+          "effect_id": "affected_populations.v1:population_exposure_changed_by_removed_protection:iowa_gender_identity_protected_class",
+          "effect_type": "population_exposure_changed",
+          "direction": "coverage_or_path_reduced",
+          "statement": "A source-declared protected population is linked to a removed coverage or enforcement component.",
+          "jurisdiction": "IA",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": [
+            "population_magnitude_not_computed"
+          ]
+        },
+        {
+          "effect_id": "affected_populations.v1:population_exposure_changed_by_removed_protection:iowa_state_commission_gender_identity_path",
+          "effect_type": "population_exposure_changed",
+          "direction": "coverage_or_path_reduced",
+          "statement": "A source-declared protected population is linked to a removed coverage or enforcement component.",
+          "jurisdiction": "IA",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": [
+            "population_magnitude_not_computed"
+          ]
+        }
+      ]
+    },
+    {
+      "lens_id": "civil_rights.v1",
+      "effect_count": 3,
+      "effects": [
+        {
+          "effect_id": "civil_rights.v1:agency_guidance_superseded:federal_eeoc_2024_harassment_guidance",
+          "effect_type": "agency_guidance_superseded",
+          "direction": "narrowed",
+          "statement": "The agency guidance component is superseded or rescinded while the separate underlying judicial component remains independently represented.",
+          "jurisdiction": "US",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "agency_guidance_change_is_not_equivalent_to_overruling_bostock",
+            "appellate_status_not_independently_confirmed",
+            "january_2026_eeoc_meeting_record_not_retrieved"
+          ]
+        },
+        {
+          "effect_id": "civil_rights.v1:formal_federal_protection_preserved:federal_title_vii_bostock_termination_protection",
+          "effect_type": "formal_federal_protection_preserved",
+          "direction": "preserved",
+          "statement": "The bounded source state preserves the underlying federal statutory or judicial protection represented by this component.",
+          "jurisdiction": "US",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": [
+            "application_beyond_the_identified_bostock_holding_remains_component_specific"
+          ]
+        },
+        {
+          "effect_id": "civil_rights.v1:state_protection_removed:iowa_gender_identity_protected_class",
+          "effect_type": "state_protection_removed",
+          "direction": "reduced",
+          "statement": "The bounded source state removes the represented Iowa protected-class coverage.",
+          "jurisdiction": "IA",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": []
+        }
+      ]
+    },
+    {
+      "lens_id": "enforcement_pathways.v1",
+      "effect_count": 4,
+      "effects": [
+        {
+          "effect_id": "enforcement_pathways.v1:agency_enforcement_path_narrowed:federal_eeoc_2024_harassment_guidance",
+          "effect_type": "agency_enforcement_path_narrowed",
+          "direction": "narrowed",
+          "statement": "The agency-facing enforcement or guidance pathway narrows even though a separate private judicial pathway may remain.",
+          "jurisdiction": "US",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "actual_charge_processing_effect_not_quantified",
+            "appellate_status_not_independently_confirmed",
+            "january_2026_eeoc_meeting_record_not_retrieved"
+          ]
+        },
+        {
+          "effect_id": "enforcement_pathways.v1:agency_enforcement_path_narrowed:federal_eeoc_gender_identity_enforcement_posture",
+          "effect_type": "agency_enforcement_path_narrowed",
+          "direction": "narrowed",
+          "statement": "The agency-facing enforcement or guidance pathway narrows even though a separate private judicial pathway may remain.",
+          "jurisdiction": "US",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "actual_charge_processing_effect_not_quantified"
+          ]
+        },
+        {
+          "effect_id": "enforcement_pathways.v1:iowa_state_commission_path_removed:iowa_state_commission_gender_identity_path",
+          "effect_type": "iowa_state_administrative_path_removed",
+          "direction": "removed",
+          "statement": "The represented Iowa state administrative enforcement pathway for gender-identity coverage is removed.",
+          "jurisdiction": "IA",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": []
+        },
+        {
+          "effect_id": "enforcement_pathways.v1:private_title_vii_path_preserved:federal_private_title_vii_action",
+          "effect_type": "federal_private_action_preserved",
+          "direction": "preserved",
+          "statement": "The private Title VII litigation pathway remains represented as available in the bounded source state.",
+          "jurisdiction": "US",
+          "verification_state": "primary_verified",
+          "evidence_ceiling": "primary_verified",
+          "unresolved_conditions": []
+        }
+      ]
+    },
+    {
+      "lens_id": "local_government_preemption.v1",
+      "effect_count": 1,
+      "effects": [
+        {
+          "effect_id": "local_government_preemption.v1:local_broader_protection_authority_preempted:iowa_local_broader_nondiscrimination_authority",
+          "effect_type": "local_authority_preempted",
+          "direction": "restricted",
+          "statement": "The represented local authority to maintain broader nondiscrimination categories is preempted by state law.",
+          "jurisdiction": "IA",
+          "verification_state": "mixed",
+          "evidence_ceiling": "primary_source_not_obtained",
+          "unresolved_conditions": [
+            "complete_enrolled_sf579_text_not_reviewed_line_by_line",
+            "post_preemption_local_implementation_responses_not_established",
+            "post_preemption_local_responses_not_established"
+          ]
+        }
+      ]
+    }
+  ],
+  "collisions": [
+    {
+      "collision_id": "collision_federal_private_path_vs_state_protection",
+      "collision_type": "federal_path_preserved_state_path_removed",
+      "left_effect_id": "enforcement_pathways.v1:private_title_vii_path_preserved:federal_private_title_vii_action",
+      "right_effect_id": "civil_rights.v1:state_protection_removed:iowa_gender_identity_protected_class",
+      "statement": "A federal private judicial pathway remains represented while Iowa state protected-class coverage is removed.",
+      "resolution_state": "preserved_not_averaged",
+      "unresolved_conditions": [],
+      "collision_hash": "1561bc32f87012f2379c1d8599f15274e57d43ba008b91590e4ebc56a64fd92d"
+    },
+    {
+      "collision_id": "collision_formal_federal_right_vs_agency_path",
+      "collision_type": "formal_right_preserved_practical_path_narrowed",
+      "left_effect_id": "civil_rights.v1:formal_federal_protection_preserved:federal_title_vii_bostock_termination_protection",
+      "right_effect_id": "enforcement_pathways.v1:agency_enforcement_path_narrowed:federal_eeoc_2024_harassment_guidance",
+      "statement": "The bounded source state preserves the represented federal judicial protection while narrowing an agency-facing enforcement or guidance path.",
+      "resolution_state": "preserved_not_averaged",
+      "unresolved_conditions": [
+        "actual_charge_processing_effect_not_quantified",
+        "appellate_status_not_independently_confirmed",
+        "application_beyond_the_identified_bostock_holding_remains_component_specific",
+        "january_2026_eeoc_meeting_record_not_retrieved",
+        "practical_magnitude_not_quantified"
+      ],
+      "collision_hash": "609e431dc2266a7fb4811edadfa067631df0ae7b907c1530c94ae860cf506a6c"
+    },
+    {
+      "collision_id": "collision_state_removal_vs_local_preemption",
+      "collision_type": "state_protection_removed_local_substitute_restricted",
+      "left_effect_id": "civil_rights.v1:state_protection_removed:iowa_gender_identity_protected_class",
+      "right_effect_id": "local_government_preemption.v1:local_broader_protection_authority_preempted:iowa_local_broader_nondiscrimination_authority",
+      "statement": "State protected-class coverage is removed while local authority to restore broader categories is also preempted.",
+      "resolution_state": "preserved_not_averaged",
+      "unresolved_conditions": [
+        "complete_enrolled_sf579_text_not_reviewed_line_by_line",
+        "local_response_pathways_not_established",
+        "post_preemption_local_implementation_responses_not_established",
+        "post_preemption_local_responses_not_established"
+      ],
+      "collision_hash": "e161ee92183004ba931a01e59c9654a945aa90f6317ae5fd4a3c854f2f8e7c76"
+    }
+  ],
+  "source_artifact_ids": [
+    "P25-DOL-01_source_ledger_chunk1.md",
+    "P25-DOL-01_state_inventory_chunk1.md",
+    "P25-DOL-01_state_inventory_chunk2-1.md",
+    "P25-IA-01_mechanism_dossier-4.md",
+    "P25-PREEMPT-FAMILY-01_dossier.md",
+    "constitutional_powers_reference_pass1.md",
+    "project2025_catalog_pass1.md",
+    "project2025_mechanism_dossiers_batch1.md"
+  ],
+  "assumptions": [],
+  "excluded_factors": [
+    "No causal coordination between Project 2025, the White House, and Iowa is assumed.",
+    "No court challenge to Iowa SF 418 or SF 579 is assumed resolved without a retrieved filing or opinion.",
+    "No population count, discrimination-rate change, or outcome forecast is computed."
+  ],
+  "unresolved_conditions": [
+    "Appellate status of Texas v. EEOC not independently confirmed.",
+    "Complete January 2026 EEOC meeting record not retrieved.",
+    "Complete enrolled SF 579 text not independently reviewed line by line.",
+    "Iowa litigation status not established from a retrieved filing or opinion.",
+    "State protection inventory remains incomplete and internally corrected across source revisions.",
+    "actual_charge_processing_effect_not_quantified",
+    "affected_locality_count_preserved_at_source_verification_ceiling",
+    "agency_guidance_change_is_not_equivalent_to_overruling_bostock",
+    "appellate_status_not_independently_confirmed",
+    "application_beyond_the_identified_bostock_holding_remains_component_specific",
+    "complete_enrolled_sf579_text_not_reviewed_line_by_line",
+    "fifty_state_inventory_incomplete",
+    "january_2026_eeoc_meeting_record_not_retrieved",
+    "local_response_pathways_not_established",
+    "population_magnitude_not_computed",
+    "post_preemption_local_implementation_responses_not_established",
+    "post_preemption_local_responses_not_established",
+    "practical_magnitude_not_quantified"
+  ],
+  "inspection": {
+    "input_hash": "5f16cd10ff9506ccd789b7f0f1542df2a368fd32d17850fd5de4d2a9c5afbf9a",
+    "diff_hash": "df38ebb1c70ff0ee76e9ba8876b9722a524911a6210f4f4ba746e45f550f372e",
+    "projection_bundle_hash": "b017237183329ec4fb534bc84e3433ccfb31a00fd541290dbad4c647c8d3249e",
+    "no_mutation": true
+  },
+  "read_model_hash": "cc423179b97bccddb6e114843d77d32fea032d781966e7439e8065c5d8070b2a"
+}
