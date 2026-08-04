@@ -1,0 +1,38 @@
+name: EEOC legislative consequence contract
+
+on:
+  pull_request:
+    paths:
+      - "contracts/legislative-consequence-*.json"
+      - "source_bundles/eeoc_demographics_reporting_rollback_2026.v1.json"
+      - "fixtures/eeoc_demographics_reporting_rollback_2026.v1.json"
+      - "src/legislative-consequence.mjs"
+      - "test/legislative-consequence.test.mjs"
+      - "scripts/capture-eeoc-source-custody.mjs"
+      - "docs/LEGISLATIVE_CONSEQUENCE_ENGINE_V1.md"
+      - ".github/workflows/eeoc-legislative-consequence-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run deterministic contract tests
+        run: node --test test/legislative-consequence.test.mjs
+      - name: Capture exact official source bytes
+        run: node scripts/capture-eeoc-source-custody.mjs
+      - name: Upload source custody artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: eeoc-legislative-consequence-source-custody
+          path: artifacts/eeoc-source-custody/
+          if-no-files-found: error
+          retention-days: 30
