@@ -2,8 +2,18 @@
   "source_bundle_id": "eeoc_demographics_reporting_rollback_2026.v1",
   "source_bundle_version": "1.0.0",
   "scenario_id": "eeoc_demographics_reporting_rollback_2026",
-  "custody_state": "official_sources_bound_raw_byte_custody_pending",
-  "identity_rule": "official_identifier_plus_version_date_plus_official_url; raw byte identity remains unresolved until independently fetched",
+  "custody_state": "official_sources_bound_raw_bytes_hashed",
+  "identity_rule": "official_identifier_plus_version_date_plus_official_url_plus_raw_byte_sha256",
+  "custody_receipt": {
+    "receipt_id": "eeoc_demographics_reporting_rollback_source_custody_2026_08_04",
+    "capture_method": "github_actions_fetch_exact_official_urls",
+    "workflow_run_id": 30882067069,
+    "artifact_id": 8881654462,
+    "artifact_name": "eeoc-legislative-consequence-source-custody",
+    "artifact_digest": "sha256:a9608497b623ca6c8ec89f315a206f09e6a5af540c5eb81125e8e57c7af005c8",
+    "artifact_created_at": "2026-08-04T05:52:42Z",
+    "artifact_expires_at": "2026-09-03T05:52:42Z"
+  },
   "sources": [
     {
       "source_id": "eeoc_nprm_rin_3046_ab37_2026_07_21",
@@ -13,16 +23,32 @@
       "title": "Removal of Reporting Requirements",
       "official_url": "https://www.eeoc.gov/sites/default/files/2026-07/2026_NL01498_NPRM_Rescission.pdf",
       "version_date": "2026-07-21",
-      "content_identity_state": "official_url_bound_byte_hash_pending",
-      "raw_byte_sha256": null,
+      "content_identity_state": "official_bytes_hashed_by_github_actions",
+      "raw_byte_length": 459706,
+      "raw_byte_sha256": "e3b9d8ab886106f8a37ea47fec8a75ef4cc41b7c4c2b3656a524e5cc590e6b0e",
+      "content_type": "application/pdf",
       "relevant_spans": [
-        {"locator": "PDF pp. 1, 31-34, 53-63", "purpose": "proposed rescission, section-by-section analysis, and amendatory text"},
-        {"locator": "PDF p. 7 n.5", "purpose": "general record-preservation provisions expressly preserved"},
-        {"locator": "PDF pp. 10-11", "purpose": "charge-specific record requests expressly preserved"},
-        {"locator": "PDF p. 8", "purpose": "Component 2 historical analogue"}
+        {
+          "locator": "PDF pp. 1, 31-34, 53-63",
+          "purpose": "proposed rescission, section-by-section analysis, and amendatory text"
+        },
+        {
+          "locator": "PDF p. 7 n.5",
+          "purpose": "general record-preservation provisions expressly preserved"
+        },
+        {
+          "locator": "PDF pp. 10-11",
+          "purpose": "charge-specific record requests expressly preserved"
+        },
+        {
+          "locator": "PDF p. 8",
+          "purpose": "Component 2 historical analogue"
+        }
       ],
-      "unresolved_conditions": ["external_primary_source_bytes_not_embedded_or_hashed_in_repository"],
-      "source_reference_hash": "98065ad45f743a5eebec97827d58c90bbe6d757a2ac348be78dbe62694253891"
+      "unresolved_conditions": [
+        "raw_source_bytes_not_embedded_in_repository"
+      ],
+      "source_reference_hash": "bf1170ede6bc6f638cf55e78139d02794a4d61cebee8140784dea31121a40c7e"
     },
     {
       "source_id": "ecfr_title_29_part_1602_2026_07_31",
@@ -32,15 +58,28 @@
       "title": "Recordkeeping and Reporting Requirements Under Title VII, the ADA, GINA, and the PWFA",
       "official_url": "https://www.ecfr.gov/api/versioner/v1/full/2026-07-31/title-29.xml?part=1602",
       "version_date": "2026-07-31",
-      "content_identity_state": "official_point_in_time_url_bound_byte_hash_pending",
-      "raw_byte_sha256": null,
+      "content_identity_state": "official_bytes_hashed_by_github_actions",
+      "raw_byte_length": 66341,
+      "raw_byte_sha256": "62497fed1adfd51d029e0f1135608d068946c13dc68fd572e052a3e86d7ea20d",
+      "content_type": "application/xml; charset=utf-8",
       "relevant_spans": [
-        {"locator": "29 CFR §§ 1602.7, 1602.15, 1602.22, 1602.32, 1602.41, 1602.50", "purpose": "baseline EEO-1 through EEO-6 filing requirements"},
-        {"locator": "29 CFR §§ 1602.14, 1602.31, 1602.40", "purpose": "general record-preservation invariants"},
-        {"locator": "29 CFR § 1602.20", "purpose": "apprenticeship recordkeeping baseline"}
+        {
+          "locator": "29 CFR §§ 1602.7, 1602.15, 1602.22, 1602.32, 1602.41, 1602.50",
+          "purpose": "baseline EEO-1 through EEO-6 filing requirements"
+        },
+        {
+          "locator": "29 CFR §§ 1602.14, 1602.31, 1602.40",
+          "purpose": "general record-preservation invariants"
+        },
+        {
+          "locator": "29 CFR § 1602.20",
+          "purpose": "apprenticeship recordkeeping baseline"
+        }
       ],
-      "unresolved_conditions": ["external_primary_source_bytes_not_embedded_or_hashed_in_repository"],
-      "source_reference_hash": "fbef39df7c3f11c0e9e7c310c665b453c004b1e4e29b82ea660560f3575d3ed3"
+      "unresolved_conditions": [
+        "raw_source_bytes_not_embedded_in_repository"
+      ],
+      "source_reference_hash": "9ff16413d1cf7749045ddc027a179bf3f6471cada08259b674b9190ab36f3fcb"
     },
     {
       "source_id": "colorado_hb26_1207_signed_act_2026_06_04",
@@ -50,13 +89,20 @@
       "title": "Disclosure of Demographic Workforce Data",
       "official_url": "https://www.leg.colorado.gov/bill_files/117148/download",
       "version_date": "2026-06-04",
-      "content_identity_state": "official_url_bound_byte_hash_pending",
-      "raw_byte_sha256": null,
+      "content_identity_state": "official_bytes_hashed_by_github_actions",
+      "raw_byte_length": 1443146,
+      "raw_byte_sha256": "2f707e86c32f95b6dfb3f449f30d0535533025104f1533b7471ba8177962a662",
+      "content_type": "application/pdf",
       "relevant_spans": [
-        {"locator": "Signed Act, operative reporting provisions", "purpose": "state EEO-1 data reporting duty beginning July 1, 2027 even if federal requirement is repealed or discontinued"}
+        {
+          "locator": "Signed Act, operative reporting provisions",
+          "purpose": "state EEO-1 data reporting duty beginning July 1, 2027 even if the federal requirement is repealed or discontinued"
+        }
       ],
-      "unresolved_conditions": ["external_primary_source_bytes_not_embedded_or_hashed_in_repository"],
-      "source_reference_hash": "4f8dcb2c015aedee2f8fca95ffa9452e672e3f31af895f7be8ecfb941c0b2bab"
+      "unresolved_conditions": [
+        "raw_source_bytes_not_embedded_in_repository"
+      ],
+      "source_reference_hash": "5e0480eb7daaec4c5a2b1f9c781e2656842990bdb7906369e1d29de359a85329"
     },
     {
       "source_id": "eeoc_press_release_2026_07_21",
@@ -66,20 +112,26 @@
       "title": "EEOC Proposes Rescission of Annual Race and Sex Reporting Requirements",
       "official_url": "https://www.eeoc.gov/newsroom/eeoc-proposes-rescission-annual-race-and-sex-reporting-requirements",
       "version_date": "2026-07-21",
-      "content_identity_state": "official_url_bound_byte_hash_pending",
-      "raw_byte_sha256": null,
+      "content_identity_state": "official_bytes_hashed_by_github_actions",
+      "raw_byte_length": 67327,
+      "raw_byte_sha256": "a3430806f48af947ce49e0dab5917eb3a73ece5c315773446fea84075f7e7955",
+      "content_type": "text/html; charset=utf-8",
       "relevant_spans": [
-        {"locator": "press release body", "purpose": "agency-attributed cost estimates and plain-language proposal summary"}
+        {
+          "locator": "press release body",
+          "purpose": "agency-attributed cost estimates and plain-language proposal summary"
+        }
       ],
-      "unresolved_conditions": ["external_primary_source_bytes_not_embedded_or_hashed_in_repository"],
-      "source_reference_hash": "e0f97c52841ae380d44d8d60515f89fb245706a41866689516391251ef672646"
+      "unresolved_conditions": [
+        "raw_source_bytes_not_embedded_in_repository"
+      ],
+      "source_reference_hash": "cf664512865ccafc908af3a4b3c20924421df9b37d8f866ce2e66c154311a916"
     }
   ],
   "source_count": 4,
   "unresolved_conditions": [
     "raw_source_bytes_are_not_embedded_in_the_repository",
-    "raw_byte_sha256_values_remain_pending",
     "federal_rule_is_proposed_not_final"
   ],
-  "source_bundle_hash": "4d265dfebf7b20fb0eedce0a2863b95f8f5b0cd8eb064541bf210ab9cdeae5e0"
+  "source_bundle_hash": "10bf34f75b281a8e749ffb4c5434a5003932e74971ac04f15d7786a1327af97b"
 }
