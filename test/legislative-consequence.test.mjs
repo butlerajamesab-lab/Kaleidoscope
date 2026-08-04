@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.v1.json' with { type: 'json' };
+import fixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
 import {
   assertLegislativeConsequenceFixture,
+  assertLegislationPlatformBindings,
   assertStructuralDeltaBundle,
   assertConsequenceGraph,
   structuralDeltaHashBasis
@@ -15,6 +16,29 @@ test('accepts the deterministic EEOC structural delta and typed consequence grap
   assert.equal(fixture.consequence_graph.edge_count, 6);
   assert.equal(fixture.projection_executed, false);
   assert.equal(fixture.database_persisted, false);
+});
+
+test('binds legislation through Docket Room and Civic Genome without collapsing ownership', () => {
+  const bindings = assertLegislationPlatformBindings(fixture.legislation_platform_bindings);
+  assert.equal(bindings.binding_count, 4);
+  const docket = bindings.bindings.find((entry) => entry.binding_id === 'docket_room:legiscan:2115794');
+  const genomeBill = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410');
+  const genomeEvent = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:event:a8b3889c-9bb0-4c02-8d88-242bebe0eba8');
+  assert.equal(docket.source_last_action, 'Governor Signed');
+  assert.equal(genomeBill.current_state_position, 'introduced');
+  assert.equal(genomeEvent.event_type, 'enacted');
+  assert.equal(bindings.conflicts[0].resolution_state, 'unresolved_preserved');
+  assert.equal(bindings.conflicts[0].prohibited_resolution, 'do_not_silently_choose_or_overwrite_any_source_record');
+});
+
+test('preserves missing Rosetta assembly as an explicit Civic Genome limitation', () => {
+  const genomeBill = fixture.legislation_platform_bindings.bindings.find(
+    (entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410'
+  );
+  assert.equal(genomeBill.rosetta_source_binding_count, 0);
+  assert.equal(genomeBill.completed_assembly_count, 0);
+  assert.equal(genomeBill.trait_count, 0);
+  assert.ok(genomeBill.unresolved_conditions.includes('no_rosetta_source_binding_or_structural_trait_assembly'));
 });
 
 test('replay preserves exact bundle and graph hashes', () => {
@@ -60,6 +84,15 @@ test('rejects a direct legal effect labeled as hypothesis-only causation', () =>
   assert.throws(
     () => assertLegislativeConsequenceFixture(changed),
     /edge_causal_state_not_allowed/
+  );
+});
+
+test('rejects silent resolution of the Docket and Civic Genome state conflict', () => {
+  const changed = structuredClone(fixture);
+  changed.legislation_platform_bindings.conflicts[0].resolution_state = 'resolved';
+  assert.throws(
+    () => assertLegislativeConsequenceFixture(changed),
+    /platform_conflict_must_remain_unresolved/
   );
 });
 
