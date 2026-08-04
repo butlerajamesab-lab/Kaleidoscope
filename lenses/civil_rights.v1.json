@@ -1,0 +1,36 @@
+{
+  "lens_id": "civil_rights.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Describe formal civil-rights coverage changes without converting enforcement posture into a claim that the underlying judicial rule disappeared.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "formal_federal_protection_preserved",
+      "when": {"operations": ["preserved"], "dimensions": ["legal_protection"], "jurisdictions": ["US"]},
+      "emit": {
+        "effect_type": "formal_federal_protection_preserved",
+        "direction": "preserved",
+        "statement": "The bounded source state preserves the underlying federal statutory or judicial protection represented by this component."
+      }
+    },
+    {
+      "rule_id": "state_protection_removed",
+      "when": {"operations": ["removed"], "dimensions": ["legal_protection"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "state_protection_removed",
+        "direction": "reduced",
+        "statement": "The bounded source state removes the represented Iowa protected-class coverage."
+      }
+    },
+    {
+      "rule_id": "agency_guidance_superseded",
+      "when": {"operations": ["superseded"], "dimensions": ["agency_guidance"], "jurisdictions": ["US"]},
+      "emit": {
+        "effect_type": "agency_guidance_superseded",
+        "direction": "narrowed",
+        "statement": "The agency guidance component is superseded or rescinded while the separate underlying judicial component remains independently represented.",
+        "unresolved_conditions": ["agency_guidance_change_is_not_equivalent_to_overruling_bostock"]
+      }
+    }
+  ]
+}
