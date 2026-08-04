@@ -3,6 +3,24 @@
   "platform_binding_bundle_version": "1.0.0",
   "scenario_id": "eeoc_demographics_reporting_rollback_2026",
   "observed_state_date": "2026-08-04",
+  "run_transition": {
+    "pre_run_observation": {
+      "state": "identity_bound_rosetta_not_yet_run",
+      "rosetta_source_binding_count": 0,
+      "completed_assembly_count": 0,
+      "trait_count": 0,
+      "observation_time_state": "before_2026-08-04T05:53:25.338969Z"
+    },
+    "trigger": "user_initiated_rosetta_run",
+    "post_run_observation": {
+      "state": "rosetta_extracted_civic_genome_assembled",
+      "completed_at": "2026-08-04T05:53:25.338969Z",
+      "rosetta_source_binding_count": 1,
+      "completed_assembly_count": 1,
+      "trait_count": 7,
+      "prism_binding_count": 0
+    }
+  },
   "bindings": [
     {
       "binding_id": "docket_room:legiscan:2115794",
@@ -27,6 +45,26 @@
       "unresolved_conditions": []
     },
     {
+      "binding_id": "rosetta:extraction_run:26",
+      "owner_platform": "rosetta",
+      "binding_type": "deterministic_legal_decomposition",
+      "official_source_id": "colorado_hb26_1207_signed_act_2026_06_04",
+      "source_document_id": 25,
+      "extraction_run_id": "26",
+      "source_url": "https://leg.colorado.gov/bill_files/117148/download",
+      "source_version": "legiscan_text:3446809:Chaptered:pdf-parse-2.4.5-getText-v1",
+      "source_identity_hash": "d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478",
+      "source_byte_hash": "2f707e86c32f95b6dfb3f449f30d0535533025104f1533b7471ba8177962a662",
+      "source_content_hash": "32a47634ae089333dcfe023cc2718b9203d30149c505bad9c564030f8b54cbd8",
+      "output_content_hash": "4f28d8c76579b8b4c205fae76d7a34ba2e85d9b9b2361c2267c31ab78ed70878",
+      "engine_version": "rosetta-v3-deterministic-sql-1.0.0",
+      "rule_set_version": "rosetta-five-layer-exact-patterns-1.0.0",
+      "rule_manifest_hash": "230b948f1d30c9b5f491f79863c04208f1fe1aab6c5faf52483b4492f985a3cf",
+      "configuration_hash": "367a10ac62f48574efc4d5eb9743f533c5c2635243d6ca1d4aa1196a9dda5a59",
+      "verification_state": "complete",
+      "unresolved_conditions": []
+    },
+    {
       "binding_id": "civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410",
       "owner_platform": "civic_genome",
       "binding_type": "persistent_legislation_identity",
@@ -37,19 +75,60 @@
       "source_bill_number": "HB1207",
       "source_bill_title": "Disclosure of Demographic Workforce Data",
       "source_bill_url": "https://legiscan.com/CO/bill/HB1207/2026",
-      "structural_dna_hash": "4e7d226180ec92dd19ccbed6a38ff04551626f31e1ba4bd3251a676a599b3075",
+      "structural_dna_hash": "90420ebc5396ed690d472544353a4f211eece799e4ffb605484661d4b3891813",
       "current_state_position": "introduced",
       "bill_status": "legiscan_status_4",
       "last_action_at": "2026-06-04T00:00:00.000Z",
-      "rosetta_source_binding_count": 0,
-      "completed_assembly_count": 0,
-      "trait_count": 0,
-      "event_count": 1,
-      "verification_state": "bound_with_state_conflict",
+      "rosetta_extraction_run_id": "26",
+      "rosetta_source_binding_count": 1,
+      "completed_assembly_count": 1,
+      "trait_count": 7,
+      "prism_binding_count": 0,
+      "updated_at": "2026-08-04T05:53:25.338969Z",
+      "verification_state": "rosetta_assembled_prism_not_observed_lifecycle_conflict_preserved",
       "unresolved_conditions": [
         "current_state_position_introduced_conflicts_with_docket_governor_signed",
-        "no_rosetta_source_binding_or_structural_trait_assembly",
-        "structural_dna_is_docket_materialization_not_rosetta_legal_decomposition"
+        "prism_verification_not_observed"
+      ]
+    },
+    {
+      "binding_id": "civic_genome:assembly:6c5b1326-3c96-41d3-8950-ddc46cb5ebf5",
+      "owner_platform": "civic_genome",
+      "binding_type": "structural_assembly_receipt",
+      "assembly_run_id": "6c5b1326-3c96-41d3-8950-ddc46cb5ebf5",
+      "genome_bill_id": "ea189395-af71-4d61-907a-508220d6d410",
+      "source_document_id": 25,
+      "extraction_run_id": "26",
+      "engine_version": "rosetta-genome-assembly-v1",
+      "rule_version": "rosetta-five-layer-trait-map-v1",
+      "input_hash": "9282c5abba659835294820e540ca9acecdac551dbc52c31948a1f19e573408d6",
+      "output_hash": "90420ebc5396ed690d472544353a4f211eece799e4ffb605484661d4b3891813",
+      "run_status": "completed",
+      "verification_state": "complete",
+      "completed_at": "2026-08-04T05:53:25.338969Z",
+      "trait_count": 7,
+      "malformed_object_count": 0,
+      "coverage": {
+        "help": 1,
+        "workflow": 1,
+        "accountability": 1,
+        "override": 1,
+        "definition": 1
+      },
+      "trait_manifest": [
+        {"trait_id":"0524acdd-7bb5-4634-a3c9-0b07dd8d85ba","trait_key":"td-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-001","trait_class":"definition","content_hash":"70d05aa434113f5b9b2b2f43100d093ae204899e86c460086c062ef384aa63c6","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"1f443f10-7d7a-4649-826f-96e8e628eca3","trait_key":"td-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-002","trait_class":"definition","content_hash":"573aaf7429b8aaa907cfb59581ba20169ffd8e0234042187debe7645eb5d1bf7","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"243f50e1-142e-4956-82a2-fd0372d7e567","trait_key":"td-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-003","trait_class":"definition","content_hash":"36ad041348429f6aaba482f171c60b2556f4bd51f30cbdef317dad2f90901efd","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"2f815f12-4c29-4298-b51a-806274e803a7","trait_key":"wp-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478","trait_class":"workflow","content_hash":"a3f0f74371b42a91067bac9ffbd52e711f8b723ebe66df6f957c9c8343564c58","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"31aa64eb-411c-49a8-a209-5fc14b8fa883","trait_key":"ov-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-001","trait_class":"override","content_hash":"b987326a7163afe15ec779d402cad09f51ccb1c19a924d0ef4a44f2abd497c64","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"404a09be-9191-46d6-8719-725ca0c8903c","trait_key":"td-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-004","trait_class":"definition","content_hash":"807255bc6e5cb0303fad76a1e7140ebed8414a5786577c60a0a1e558be1be820","verification_state":"confirmed","confidence_score":1},
+        {"trait_id":"63557803-294f-433b-902b-ac17d746a157","trait_key":"ov-v1-d5bd02f24e7f60847a197630f2562f9cda000c7f095f1ab1ad268bdf93319478-002","trait_class":"override","content_hash":"d44c167f2253c6938509e3edd6ace9610685adc646f91e1ecfa64c23d793cd72","verification_state":"confirmed","confidence_score":1}
+      ],
+      "prism_observation_state": "not_observed",
+      "prism_binding_count": 0,
+      "unresolved_conditions": [
+        "prism_verification_not_observed",
+        "effective_date_subject_to_petition_and_referendum_condition"
       ]
     },
     {
@@ -65,9 +144,7 @@
       "source_change_hash": "a24ab7657fe6bed492118ab0f0885f0e",
       "recorded_next_state_position": "introduced",
       "verification_state": "event_type_confirmed_internal_state_conflict",
-      "unresolved_conditions": [
-        "enacted_event_conflicts_with_recorded_next_state_position_introduced"
-      ]
+      "unresolved_conditions": ["enacted_event_conflicts_with_recorded_next_state_position_introduced"]
     },
     {
       "binding_id": "civic_genome:family:09098633-f2fb-418f-8354-c3b1a9991dac",
@@ -81,14 +158,15 @@
       "active_state_count": 1,
       "enacted_state_count": 0,
       "last_seen_at": "2026-07-20T18:30:52.227655Z",
+      "updated_at": "2026-08-04T05:49:55.601695Z",
       "verification_state": "provisional_docket_title_family",
       "unresolved_conditions": [
         "enacted_state_count_zero_conflicts_with_enacted_event_and_governor_signed_docket_status",
-        "policy_domain_finance_is_title_based_and_not_rosetta_confirmed"
+        "policy_domain_finance_remains_title_based_despite_completed_rosetta_assembly"
       ]
     }
   ],
-  "binding_count": 4,
+  "binding_count": 6,
   "conflicts": [
     {
       "conflict_id": "legislation_source_conflict:co_hb1207_lifecycle_state",
@@ -111,34 +189,17 @@
   ],
   "conflict_count": 1,
   "usage_boundary": {
-    "docket_room_owns": [
-      "official_legislation_source_identity",
-      "source_status",
-      "source_last_action",
-      "source_change_hash"
-    ],
-    "civic_genome_owns": [
-      "persistent_bill_identity",
-      "family_identity",
-      "lifecycle_events",
-      "persistent_unresolved_state"
-    ],
-    "kaleidoscope_may_use": [
-      "source_identity",
-      "content_addressed_source_binding",
-      "explicit_conflict",
-      "enacted_state_law_as_declared_scenario_input"
-    ],
-    "kaleidoscope_must_not_do": [
-      "repair_docket_or_civic_genome_records",
-      "treat_title_based_family_domain_as_rosetta_structural_truth",
-      "erase_or_average_the_lifecycle_conflict"
-    ]
+    "docket_room_owns": ["official_legislation_source_identity","source_status","source_last_action","source_change_hash"],
+    "rosetta_owns": ["official_source_legal_decomposition","five_layer_objects","extraction_run_identity","rule_and_configuration_receipts","source_and_output_content_hashes"],
+    "civic_genome_owns": ["persistent_bill_identity","structural_trait_assembly","family_identity","lifecycle_events","persistent_unresolved_state"],
+    "kaleidoscope_may_use": ["source_identity","content_addressed_source_binding","rosetta_structural_objects","civic_genome_traits","explicit_conflict","enacted_state_law_as_declared_scenario_input"],
+    "kaleidoscope_must_not_do": ["repair_docket_rosetta_or_civic_genome_records","treat_title_based_family_domain_as_rosetta_structural_truth","treat_prism_not_observed_as_verified","erase_or_average_the_lifecycle_conflict"]
   },
   "unresolved_conditions": [
     "colorado_hb1207_civic_genome_state_conflict",
-    "colorado_hb1207_has_no_rosetta_assembly_or_traits",
+    "colorado_hb1207_prism_verification_not_observed",
+    "colorado_hb1207_effective_date_subject_to_petition_and_referendum_condition",
     "federal_eeoc_nprm_has_no_docket_room_or_civic_genome_binding_in_this_specimen"
   ],
-  "platform_binding_bundle_hash": "a491d3bba6217cb971b13be76e3b28a94c28b8fc65d7ed74237ddea810ca8366"
+  "platform_binding_bundle_hash": "f18eaf8f3ff7eb4b5796f4648cd2c4a3f8c48f739430fc8c4dc87ba1bda6076f"
 }
