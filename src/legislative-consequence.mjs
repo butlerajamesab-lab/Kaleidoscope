@@ -1,0 +1,165 @@
+import { sha256Hex } from './hash.mjs';
+
+export const STRUCTURAL_DELTA_CONTRACT_ID =
+  'https://luminari.org/kaleidoscope/contracts/legislative-consequence-structural-delta.v1.json';
+export const CONSEQUENCE_EDGE_CONTRACT_ID =
+  'https://luminari.org/kaleidoscope/contracts/legislative-consequence-edge.v1.json';
+
+const HEX64 = /^[0-9a-f]{64}$/;
+const DELTA_TYPES = new Set(['added', 'removed', 'modified', 'preserved', 'superseded', 'preempted', 'unresolved']);
+const EVIDENCE_CEILINGS = new Set(['direct_text', 'logical_necessity', 'historical_record', 'supported_inference', 'hypothesis_only']);
+const EDGE_RULES = new Map([
+  ['direct_legal_effect', new Set(['directly_prescribed'])],
+  ['preserved_invariant', new Set(['directly_prescribed'])],
+  ['necessary_operational_effect', new Set(['logically_necessary'])],
+  ['historical_analogue', new Set(['historically_observed'])],
+  ['jurisdictional_fragmentation', new Set(['directly_prescribed', 'logically_necessary', 'supported_inference'])],
+  ['possible_downstream_effect', new Set(['supported_inference', 'hypothesis_only', 'causation_not_asserted'])],
+  ['unresolved_relationship', new Set(['hypothesis_only', 'causation_not_asserted'])]
+]);
+
+function fail(code, detail = '') {
+  throw new Error(`invalid_legislative_consequence:${code}${detail ? `:${detail}` : ''}`);
+}
+function record(value, label) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) fail('object_required', label);
+  return value;
+}
+function string(value, label) {
+  if (typeof value !== 'string' || value.length === 0) fail('string_required', label);
+  return value;
+}
+function array(value, label) {
+  if (!Array.isArray(value)) fail('array_required', label);
+  return value;
+}
+function hash(value, label) {
+  const candidate = string(value, label);
+  if (!HEX64.test(candidate)) fail('sha256_required', label);
+  return candidate;
+}
+function uniqueStrings(value, label) {
+  const rows = array(value, label).map((entry, index) => string(entry, `${label}[${index}]`));
+  if (new Set(rows).size !== rows.length) fail('unique_values_required', label);
+  return rows;
+}
+
+export function structuralDeltaHashBasis(delta) {
+  const row = record(delta, 'delta');
+  const { delta_hash: _ignored, ...basis } = row;
+  return basis;
+}
+export function structuralDeltaBundleHashBasis(bundle) {
+  const row = record(bundle, 'bundle');
+  const { bundle_hash: _ignored, ...basis } = row;
+  return basis;
+}
+export function consequenceEdgeHashBasis(edge) {
+  const row = record(edge, 'edge');
+  const { edge_hash: _ignored, ...basis } = row;
+  return basis;
+}
+export function consequenceGraphHashBasis(graph) {
+  const row = record(graph, 'graph');
+  const { graph_hash: _ignored, ...basis } = row;
+  return basis;
+}
+
+export function assertStructuralDeltaBundle(bundle, sourceBundle) {
+  const row = record(bundle, 'bundle');
+  const source = record(sourceBundle, 'source_bundle');
+  if (row.engine_id !== 'legislative_consequence_engine') fail('engine_id_mismatch');
+  if (row.bundle_version !== '1.0.0') fail('bundle_version_mismatch');
+  if (row.source_bundle_id !== source.source_bundle_id) fail('source_bundle_id_mismatch');
+  if (row.source_bundle_hash !== source.source_bundle_hash) fail('source_bundle_hash_mismatch');
+  const sourceHash = sha256Hex((({ source_bundle_hash, ...basis }) => basis)(source));
+  if (source.source_bundle_hash !== sourceHash) fail('source_bundle_content_hash_mismatch');
+
+  const sourceIds = new Set(array(source.sources, 'source_bundle.sources').map((entry) => string(entry.source_id, 'source_id')));
+  const deltas = array(row.deltas, 'bundle.deltas');
+  if (!Number.isInteger(row.delta_count) || row.delta_count !== deltas.length) fail('delta_count_mismatch');
+  const ids = new Set();
+  for (const delta of deltas) {
+    const d = record(delta, 'delta');
+    const id = string(d.delta_id, 'delta.delta_id');
+    if (ids.has(id)) fail('duplicate_delta_id', id);
+    ids.add(id);
+    if (!DELTA_TYPES.has(d.delta_type)) fail('delta_type_invalid', id);
+    if (!EVIDENCE_CEILINGS.has(d.evidence_ceiling)) fail('delta_evidence_ceiling_invalid', id);
+    const citations = array(d.legal_citations, 'delta.legal_citations');
+    if (citations.length === 0) fail('delta_citation_required', id);
+    for (const citation of citations) {
+      if (!sourceIds.has(citation.source_id)) fail('unknown_source_id', citation.source_id);
+      string(citation.legal_citation, 'citation.legal_citation');
+      string(citation.locator, 'citation.locator');
+      string(citation.quote_basis, 'citation.quote_basis');
+    }
+    uniqueStrings(d.actor_ids, 'delta.actor_ids');
+    uniqueStrings(d.unresolved_conditions, 'delta.unresolved_conditions');
+    if (hash(d.delta_hash, 'delta.delta_hash') !== sha256Hex(structuralDeltaHashBasis(d))) {
+      fail('delta_hash_mismatch', id);
+    }
+    if (d.delta_type === 'unresolved' && d.verification_state !== 'explicitly_unresolved') {
+      fail('unresolved_delta_must_be_explicit', id);
+    }
+  }
+  if (hash(row.bundle_hash, 'bundle.bundle_hash') !== sha256Hex(structuralDeltaBundleHashBasis(row))) {
+    fail('bundle_hash_mismatch');
+  }
+  return row;
+}
+
+export function assertConsequenceGraph(graph, deltaBundle, sourceBundle) {
+  const deltas = assertStructuralDeltaBundle(deltaBundle, sourceBundle);
+  const row = record(graph, 'graph');
+  if (row.engine_id !== 'legislative_consequence_engine') fail('graph_engine_id_mismatch');
+  if (row.graph_version !== '1.0.0') fail('graph_version_mismatch');
+  if (row.source_delta_bundle_id !== deltas.bundle_id) fail('graph_delta_bundle_id_mismatch');
+  if (row.source_delta_bundle_hash !== deltas.bundle_hash) fail('graph_delta_bundle_hash_mismatch');
+
+  const deltaIds = new Set(deltas.deltas.map((delta) => delta.delta_id));
+  const sourceIds = new Set(sourceBundle.sources.map((source) => source.source_id));
+  const edges = array(row.edges, 'graph.edges');
+  if (!Number.isInteger(row.edge_count) || row.edge_count !== edges.length) fail('edge_count_mismatch');
+  const edgeIds = new Set();
+  for (const edge of edges) {
+    const e = record(edge, 'edge');
+    const id = string(e.edge_id, 'edge.edge_id');
+    if (edgeIds.has(id)) fail('duplicate_edge_id', id);
+    edgeIds.add(id);
+    for (const deltaId of uniqueStrings(e.from_delta_ids, 'edge.from_delta_ids')) {
+      if (!deltaIds.has(deltaId)) fail('edge_unknown_delta', deltaId);
+    }
+    const allowed = EDGE_RULES.get(e.relationship_type);
+    if (!allowed || !allowed.has(e.causal_state)) fail('edge_causal_state_not_allowed', id);
+    if (!EVIDENCE_CEILINGS.has(e.evidence_ceiling)) fail('edge_evidence_ceiling_invalid', id);
+    for (const binding of array(e.source_bindings, 'edge.source_bindings')) {
+      if (!sourceIds.has(binding.source_id)) fail('edge_unknown_source', binding.source_id);
+      string(binding.locator, 'edge.source_binding.locator');
+    }
+    uniqueStrings(e.unresolved_conditions, 'edge.unresolved_conditions');
+    if (hash(e.edge_hash, 'edge.edge_hash') !== sha256Hex(consequenceEdgeHashBasis(e))) {
+      fail('edge_hash_mismatch', id);
+    }
+  }
+  if (hash(row.graph_hash, 'graph.graph_hash') !== sha256Hex(consequenceGraphHashBasis(row))) {
+    fail('graph_hash_mismatch');
+  }
+  return row;
+}
+
+export function assertLegislativeConsequenceFixture(fixture) {
+  const row = record(fixture, 'fixture');
+  if (row.fixture_state !== 'definition_and_deterministic_contract_only') fail('fixture_state_mismatch');
+  if (row.projection_executed !== false || row.database_persisted !== false) {
+    fail('fixture_overstates_execution');
+  }
+  assertConsequenceGraph(row.consequence_graph, row.structural_delta_bundle, row.source_bundle);
+  if (row.impact_surface !== null
+      || row.atlas_historical_compare !== null
+      || row.lighthouse_accountability_view !== null
+      || row.instantiated_checklist !== null) {
+    fail('later_stages_must_remain_uninstantiated');
+  }
+  return row;
+}
