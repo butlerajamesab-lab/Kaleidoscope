@@ -1,0 +1,143 @@
+{
+  "state_snapshot_id": "project2025_title_vii_changed_2025_2026.v1",
+  "components": [
+    {
+      "component_id": "federal_title_vii_bostock_termination_protection",
+      "component_type": "judicial_rule",
+      "dimension": "legal_protection",
+      "jurisdiction": "US",
+      "status": "operative",
+      "value": "Title VII covers discharge decisions based on sexual orientation or gender identity under Bostock.",
+      "affected_population_ids": [
+        "gay_employees",
+        "lesbian_employees",
+        "bisexual_employees",
+        "transgender_employees"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "Bostock was independently retrieved and verified."
+        }
+      ],
+      "unresolved_conditions": [
+        "application_beyond_the_identified_bostock_holding_remains_component_specific"
+      ]
+    },
+    {
+      "component_id": "federal_eeoc_2024_harassment_guidance",
+      "component_type": "agency_guidance",
+      "dimension": "agency_guidance",
+      "jurisdiction": "US",
+      "status": "vacated_and_rescinded_in_relevant_part",
+      "value": "The challenged guidance categories are vacated; agency rescission is reported with the complete meeting record still unresolved.",
+      "declared_transition": "superseded",
+      "affected_population_ids": [
+        "transgender_employees",
+        "nonbinary_employees"
+      ],
+      "declared_verification_state": "primary_source_not_obtained",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_source_ledger_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "The Texas v. EEOC vacatur is primary-verified."
+        },
+        {
+          "source_artifact_id": "project2025_mechanism_dossiers_batch1.md",
+          "verification_state": "primary_source_not_obtained",
+          "support_statement": "The January 2026 agency vote is reported, but the complete meeting record remains open."
+        }
+      ],
+      "unresolved_conditions": [
+        "january_2026_eeoc_meeting_record_not_retrieved",
+        "appellate_status_not_independently_confirmed"
+      ]
+    },
+    {
+      "component_id": "federal_eeoc_gender_identity_enforcement_posture",
+      "component_type": "agency_enforcement_posture",
+      "dimension": "agency_enforcement_path",
+      "jurisdiction": "US",
+      "status": "narrowed_or_changed",
+      "declared_transition": "modified",
+      "value": "The agency posture represented by the challenged guidance is narrowed; actual charge-processing magnitude is not quantified.",
+      "affected_population_ids": [
+        "transgender_employees",
+        "nonbinary_employees"
+      ],
+      "declared_verification_state": "primary_source_not_obtained",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_source_ledger_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "The court vacatur is primary-verified."
+        },
+        {
+          "source_artifact_id": "project2025_mechanism_dossiers_batch1.md",
+          "verification_state": "primary_source_not_obtained",
+          "support_statement": "The complete agency rescission record remains open."
+        }
+      ],
+      "unresolved_conditions": [
+        "actual_charge_processing_effect_not_quantified"
+      ]
+    },
+    {
+      "component_id": "federal_private_title_vii_action",
+      "component_type": "private_right_of_action",
+      "dimension": "private_enforcement_path",
+      "jurisdiction": "US",
+      "status": "available",
+      "value": "Private Title VII litigation remains available independently of EEOC guidance.",
+      "affected_population_ids": [
+        "title_vii_covered_employees"
+      ],
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-DOL-01_state_inventory_chunk1.md",
+          "verification_state": "primary_verified",
+          "support_statement": "Statutory text and Bostock are independently verified in the source inventory."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "iowa_local_broader_nondiscrimination_authority",
+      "component_type": "local_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "IA",
+      "status": "preempted",
+      "value": "State law bars broader or different local discrimination categories than the state chapter provides.",
+      "declared_transition": "preempted",
+      "affected_population_ids": [
+        "residents_of_protective_iowa_localities"
+      ],
+      "declared_verification_state": "primary_source_not_obtained",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "secondary_verified_high_confidence",
+          "support_statement": "Exact clause, signing date, and corrected locality count are secondary-verified at high confidence."
+        },
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "primary_source_not_obtained",
+          "support_statement": "Complete enrolled SF 579 text remains not reviewed line by line."
+        },
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The family dossier shows the mechanism predates Project 2025 and must not be treated as proof of coordination."
+        }
+      ],
+      "unresolved_conditions": [
+        "complete_enrolled_sf579_text_not_reviewed_line_by_line",
+        "post_preemption_local_responses_not_established"
+      ]
+    }
+  ]
+}
