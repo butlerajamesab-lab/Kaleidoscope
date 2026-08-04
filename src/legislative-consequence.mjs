@@ -10,7 +10,7 @@ export const LEGISLATION_PLATFORM_BINDING_CONTRACT_ID =
 const HEX64 = /^[0-9a-f]{64}$/;
 const DELTA_TYPES = new Set(['added', 'removed', 'modified', 'preserved', 'superseded', 'preempted', 'unresolved']);
 const EVIDENCE_CEILINGS = new Set(['direct_text', 'logical_necessity', 'historical_record', 'supported_inference', 'hypothesis_only']);
-const PLATFORM_OWNERS = new Set(['docket_room', 'civic_genome']);
+const PLATFORM_OWNERS = new Set(['docket_room', 'rosetta', 'civic_genome']);
 const EDGE_RULES = new Map([
   ['direct_legal_effect', new Set(['directly_prescribed'])],
   ['preserved_invariant', new Set(['directly_prescribed'])],
@@ -104,11 +104,43 @@ export function assertLegislationPlatformBindings(bundle) {
       string(entry.source_last_action, 'docket.source_last_action');
       string(entry.source_change_hash, 'docket.source_change_hash');
     }
+    if (owner === 'rosetta') {
+      if (!Number.isInteger(entry.source_document_id)) fail('rosetta_source_document_id_required', bindingId);
+      string(entry.extraction_run_id, 'rosetta.extraction_run_id');
+      hash(entry.source_identity_hash, 'rosetta.source_identity_hash');
+      hash(entry.source_byte_hash, 'rosetta.source_byte_hash');
+      hash(entry.source_content_hash, 'rosetta.source_content_hash');
+      hash(entry.output_content_hash, 'rosetta.output_content_hash');
+      string(entry.engine_version, 'rosetta.engine_version');
+      string(entry.rule_set_version, 'rosetta.rule_set_version');
+    }
     if (owner === 'civic_genome') {
       const hasCanonicalIdentity = typeof entry.genome_bill_id === 'string'
+        || typeof entry.assembly_run_id === 'string'
         || typeof entry.event_id === 'string'
         || typeof entry.family_id === 'string';
       if (!hasCanonicalIdentity) fail('civic_genome_identity_required', bindingId);
+      if (entry.binding_type === 'structural_assembly_receipt') {
+        if (entry.run_status !== 'completed' || entry.verification_state !== 'complete') {
+          fail('civic_genome_assembly_not_complete', bindingId);
+        }
+        if (!Number.isInteger(entry.trait_count)
+            || !Array.isArray(entry.trait_manifest)
+            || entry.trait_count !== entry.trait_manifest.length) {
+          fail('civic_genome_trait_manifest_mismatch', bindingId);
+        }
+        for (const trait of entry.trait_manifest) {
+          string(trait.trait_id, 'trait.trait_id');
+          string(trait.trait_key, 'trait.trait_key');
+          hash(trait.content_hash, 'trait.content_hash');
+          if (trait.verification_state !== 'confirmed' || trait.confidence_score !== 1) {
+            fail('civic_genome_trait_not_confirmed', trait.trait_id);
+          }
+        }
+        if (entry.prism_binding_count === 0 && entry.prism_observation_state !== 'not_observed') {
+          fail('prism_zero_binding_state_mismatch');
+        }
+      }
     }
   }
   if (!owners.has('docket_room') || !owners.has('civic_genome')) {
@@ -232,6 +264,34 @@ export function assertLegislativeConsequenceFixture(fixture) {
   if (platformBindings.scenario_id !== row.source_bundle.scenario_id) {
     fail('platform_binding_scenario_mismatch');
   }
+
+  const rosetta = platformBindings.bindings.find(
+    (entry) => entry.binding_id === 'rosetta:extraction_run:26'
+  );
+  const assembly = platformBindings.bindings.find(
+    (entry) => entry.binding_id === 'civic_genome:assembly:6c5b1326-3c96-41d3-8950-ddc46cb5ebf5'
+  );
+  const genomeBill = platformBindings.bindings.find(
+    (entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410'
+  );
+  if (!rosetta || !assembly || !genomeBill) fail('hb1207_structural_chain_incomplete');
+  const officialColoradoSource = row.source_bundle.sources.find(
+    (source) => source.source_id === rosetta.official_source_id
+  );
+  if (!officialColoradoSource) fail('rosetta_official_source_missing');
+  if (officialColoradoSource.raw_byte_sha256 !== rosetta.source_byte_hash) {
+    fail('rosetta_source_byte_hash_mismatch');
+  }
+  if (assembly.extraction_run_id !== rosetta.extraction_run_id) {
+    fail('rosetta_assembly_extraction_mismatch');
+  }
+  if (assembly.output_hash !== genomeBill.structural_dna_hash) {
+    fail('assembly_bill_output_hash_mismatch');
+  }
+  if (assembly.trait_count !== genomeBill.trait_count) {
+    fail('assembly_bill_trait_count_mismatch');
+  }
+
   assertConsequenceGraph(row.consequence_graph, row.structural_delta_bundle, row.source_bundle);
   if (row.impact_surface !== null
       || row.atlas_historical_compare !== null
