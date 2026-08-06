@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luminari.org/kaleidoscope/contracts/legislative-consequence-structural-delta.v1.json",
+  "title": "Legislative Consequence Structural Delta v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bundle_id","bundle_version","engine_id","engine_version","scenario_id","baseline_state_id","proposed_state_id","source_bundle_id","source_bundle_hash","delta_count","deltas","unresolved_conditions","bundle_hash"],
+  "properties": {
+    "bundle_id": {"type": "string", "pattern": "^lcdelta-[a-z0-9-]+-v[0-9]+$"},
+    "bundle_version": {"const": "1.0.0"},
+    "engine_id": {"const": "legislative_consequence_engine"},
+    "engine_version": {"type": "string", "minLength": 1},
+    "scenario_id": {"type": "string", "minLength": 1},
+    "baseline_state_id": {"type": "string", "minLength": 1},
+    "proposed_state_id": {"type": "string", "minLength": 1},
+    "source_bundle_id": {"type": "string", "minLength": 1},
+    "source_bundle_hash": {"$ref": "#/$defs/hash"},
+    "delta_count": {"type": "integer", "minimum": 1},
+    "deltas": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/delta"}},
+    "unresolved_conditions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "bundle_hash": {"$ref": "#/$defs/hash"}
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "citation": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source_id","legal_citation","locator","quote_basis"],
+      "properties": {
+        "source_id": {"type": "string", "minLength": 1},
+        "legal_citation": {"type": "string", "minLength": 1},
+        "locator": {"type": "string", "minLength": 1},
+        "quote_basis": {"type": "string", "minLength": 1}
+      }
+    },
+    "state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status","text"],
+      "properties": {
+        "status": {"type": "string", "minLength": 1},
+        "text": {"type": "string", "minLength": 1}
+      }
+    },
+    "delta": {
+      "type": "object", "additionalProperties": false,
+      "required": ["delta_id","delta_type","subject_type","obligation_type","reporting_vector","baseline_component_id","proposed_component_id","actor_ids","baseline_state","proposed_state","legal_citations","evidence_class","evidence_ceiling","verification_state","unresolved_conditions","delta_hash"],
+      "properties": {
+        "delta_id": {"type": "string", "pattern": "^lcd-[a-z0-9-]+$"},
+        "delta_type": {"enum": ["added","removed","modified","preserved","superseded","preempted","unresolved"]},
+        "subject_type": {"enum": ["legal_obligation","enforcement_authority","authority_reference","definition","reporting_channel","recordkeeping_requirement"]},
+        "obligation_type": {"enum": ["file_report","make_records","preserve_records","provide_charge_specific_records","collect_demographic_data","report_to_state_repository","none"]},
+        "reporting_vector": {"enum": ["federal_periodic_mass_reporting","report_specific_internal_recordkeeping","general_internal_record_preservation","charge_specific_request","apprenticeship_recordkeeping","state_periodic_reporting","none"]},
+        "baseline_component_id": {"type": ["string","null"]},
+        "proposed_component_id": {"type": ["string","null"]},
+        "actor_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "uniqueItems": true},
+        "baseline_state": {"$ref": "#/$defs/state"},
+        "proposed_state": {"$ref": "#/$defs/state"},
+        "legal_citations": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/citation"}},
+        "evidence_class": {"enum": ["primary_proposed_rule","codified_baseline_and_primary_proposed_rule","enacted_state_law","agency_summary"]},
+        "evidence_ceiling": {"enum": ["direct_text","logical_necessity","historical_record","supported_inference","hypothesis_only"]},
+        "verification_state": {"enum": ["source_text_confirmed","explicitly_unresolved"]},
+        "unresolved_conditions": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "delta_hash": {"$ref": "#/$defs/hash"}
+      }
+    }
+  }
+}
