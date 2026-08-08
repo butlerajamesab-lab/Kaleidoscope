@@ -274,22 +274,25 @@ export function assertLegislativeConsequenceFixture(fixture) {
   const genomeBill = platformBindings.bindings.find(
     (entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410'
   );
-  if (!rosetta || !assembly || !genomeBill) fail('hb1207_structural_chain_incomplete');
-  const officialColoradoSource = row.source_bundle.sources.find(
-    (source) => source.source_id === rosetta.official_source_id
-  );
-  if (!officialColoradoSource) fail('rosetta_official_source_missing');
-  if (officialColoradoSource.raw_byte_sha256 !== rosetta.source_byte_hash) {
-    fail('rosetta_source_byte_hash_mismatch');
-  }
-  if (assembly.extraction_run_id !== rosetta.extraction_run_id) {
-    fail('rosetta_assembly_extraction_mismatch');
-  }
-  if (assembly.output_hash !== genomeBill.structural_dna_hash) {
-    fail('assembly_bill_output_hash_mismatch');
-  }
-  if (assembly.trait_count !== genomeBill.trait_count) {
-    fail('assembly_bill_trait_count_mismatch');
+  if (!genomeBill) fail('hb1207_structural_chain_incomplete');
+  if (!!rosetta !== !!assembly) fail('hb1207_partial_rosetta_chain_invalid');
+  if (rosetta && assembly) {
+    const officialColoradoSource = row.source_bundle.sources.find(
+      (source) => source.source_id === rosetta.official_source_id
+    );
+    if (!officialColoradoSource) fail('rosetta_official_source_missing');
+    if (officialColoradoSource.raw_byte_sha256 !== rosetta.source_byte_hash) {
+      fail('rosetta_source_byte_hash_mismatch');
+    }
+    if (assembly.extraction_run_id !== rosetta.extraction_run_id) {
+      fail('rosetta_assembly_extraction_mismatch');
+    }
+    if (assembly.output_hash !== genomeBill.structural_dna_hash) {
+      fail('assembly_bill_output_hash_mismatch');
+    }
+    if (assembly.trait_count !== genomeBill.trait_count) {
+      fail('assembly_bill_trait_count_mismatch');
+    }
   }
 
   assertConsequenceGraph(row.consequence_graph, row.structural_delta_bundle, row.source_bundle);
