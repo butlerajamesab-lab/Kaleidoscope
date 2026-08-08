@@ -47,7 +47,7 @@ The live source records currently disagree:
 
 That conflict is preserved as `unresolved_preserved`. Kaleidoscope is prohibited from choosing, averaging, or overwriting those source states.
 
-HB1207 also has no Rosetta source binding, completed assembly, or structural traits. Kaleidoscope may use its Docket identity and enacted-source evidence as a declared state-law input, but it may not represent the Civic Genome record as a completed Rosetta structural baseline.
+The current specimen also preserves the transition from a pre-run gap to a completed Rosetta/Civic Genome structural chain. Before the 2026-08-04 run, HB1207 had no Rosetta source binding, completed assembly, or structural traits. After that run, the specimen records Rosetta extraction run `26`, Civic Genome assembly `6c5b1326-3c96-41d3-8950-ddc46cb5ebf5`, and `trait_count = 7`, while still preserving unresolved lifecycle and Prism-state limitations.
 
 The federal EEOC NPRM remains an official regulatory source in this specimen because no Docket Room or Civic Genome identity for it has been established.
 
@@ -84,7 +84,7 @@ The fixture currently instantiates:
 
 - 12 structural deltas;
 - 6 consequence edges;
-- 4 Docket/Civic Genome platform bindings;
+- 6 Docket/Rosetta/Civic Genome platform bindings;
 - 1 preserved cross-record lifecycle conflict;
 - preserved general recordkeeping and charge-specific investigatory invariants;
 - an explicit unresolved PWFA-reference state;
