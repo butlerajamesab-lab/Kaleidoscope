@@ -33,7 +33,13 @@ function humanize(value) {
 
 function statusTone(state) {
   if (['available', 'live_proven_unbound', 'validated_unbound'].includes(state)) return 'positive';
-  if (['executed_test_fixture', 'source_controlled_test_fixture', 'external_owner'].includes(state)) return 'warning';
+  if ([
+    'executed_test_fixture',
+    'source_controlled_test_fixture',
+    'external_owner',
+    'schema_present_empty',
+    'runtime_not_bound'
+  ].includes(state)) return 'warning';
   if (['disabled', 'contract_not_established'].includes(state)) return 'restricted';
   return '';
 }
@@ -60,7 +66,7 @@ function renderMetrics(model) {
     ['Lenses', summary.lens_count, 'independent transformations'],
     ['Collisions', summary.preserved_collision_count, 'preserved, not averaged'],
     ['Unresolved', summary.unresolved_condition_count, 'visible open conditions'],
-    ['Accepted bindings', summary.accepted_civic_genome_bindings, 'Civic Genome → Kaleidoscope']
+    ['DB tables', summary.database_tables, `${summary.database_rows} canonical rows`]
   ];
 
   const grid = document.querySelector('#metric-grid');
@@ -259,7 +265,11 @@ function renderReceipts(model) {
 
 function boundaryDisplay(key, value) {
   const labels = {
-    database_persistence: ['Database persistence', value ? 'Enabled' : 'Disabled', 'Kaleidoscope Supabase has not been promoted into canonical projection storage.'],
+    database_schema: ['Database schema', value, 'The projection substrate is isolated in its own Kaleidoscope-owned schema.'],
+    database_tables: ['Database tables', value, 'All current projection-substrate tables are RLS enabled.'],
+    database_rows: ['Canonical database rows', value, 'All 16 projection-substrate tables are currently empty.'],
+    database_migrations: ['Recorded migrations', value, 'The substrate and index migrations are present in Supabase migration history.'],
+    database_persistence: ['Runtime persistence', value ? 'Enabled' : 'Not bound', 'The schema exists, but the runtime has no proven canonical write path.'],
     canonical_projection_execution: ['Canonical projection execution', value ? 'Enabled' : 'Disabled', 'Current execution remains a source-controlled test fixture, not canonical civic truth.'],
     upstream_mutation: ['Upstream mutation', value ? 'Enabled' : 'Prohibited', 'Docket, Rosetta, Civic Genome, Prism, Atlas, and Esquire remain authoritative owners.'],
     hidden_composite_score: ['Hidden composite score', value ? 'Present' : 'None', 'Independent lens effects and collisions remain separate.'],
@@ -289,7 +299,11 @@ function renderHeaderState(model) {
   document.querySelector('#truth-label').textContent = model.truth_label;
   document.querySelector('#hero-environment').textContent = humanize(model.environment);
   document.querySelector('#hero-determinism').textContent = model.deterministic ? 'Deterministic' : 'Unverified';
-  document.querySelector('#hero-persistence').textContent = model.system_boundary.database_persistence ? 'Enabled' : 'Disabled';
+  document.querySelector('#hero-persistence').textContent = model.system_boundary.database_persistence
+    ? 'Enabled'
+    : model.summary.database_tables > 0
+      ? 'Runtime not bound'
+      : 'Disabled';
   document.querySelector('#hero-projection').textContent = model.system_boundary.canonical_projection_execution ? 'Enabled' : 'Disabled';
   document.querySelector('#sidebar-foundation').textContent = `v${model.foundation_version}`;
   document.querySelector('#footer-model-hash').textContent = `Platform read model · ${model.read_model_hash}`;
