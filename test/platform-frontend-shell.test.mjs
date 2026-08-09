@@ -57,6 +57,20 @@ test('represents the database as present and empty without inventing runtime per
   assert.equal(persistenceCapability.state, 'runtime_not_bound');
 });
 
+test('derives Legislative Consequence Stage 1/2 from the source-controlled specimen without claiming projection', () => {
+  const model = kaleidoscopePlatformReadModel();
+  const capability = model.capabilities.find((entry) => entry.capability_id === 'legislative_consequence_stage_1_2');
+  assert.equal(capability.state, 'stage_1_2_source_controlled');
+  assert.equal(model.legislative_consequence.state, 'stage_1_2_source_controlled_stages_3_6_null');
+  assert.equal(model.legislative_consequence.structural_delta_count, 12);
+  assert.equal(model.legislative_consequence.consequence_edge_count, 6);
+  assert.equal(model.legislative_consequence.platform_binding_count, 6);
+  assert.equal(model.legislative_consequence.preserved_conflict_count, 1);
+  assert.equal(model.legislative_consequence.projection_executed, false);
+  assert.equal(model.legislative_consequence.database_persisted, false);
+  assert.equal(model.system_boundary.legislative_consequence_projection_execution, false);
+});
+
 test('does not overstate accepted binding, canonical projection, or AI runtime state', () => {
   const model = kaleidoscopePlatformReadModel();
   assert.equal(model.system_boundary.database_persistence, false);

@@ -4,6 +4,7 @@ import project2025ReadModel from '../fixtures/project2025-title-vii-read-model.v
 import project2025Receipt from '../fixtures/project2025-title-vii-receipt.v1.json' with { type: 'json' };
 import substrateState from '../fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json' with { type: 'json' };
 import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
+import legislativeConsequenceFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
 
@@ -55,6 +56,20 @@ function assertSourceControlledState() {
   }
   if (project2025Receipt.no_mutation !== true || project2025Receipt.database_write_count !== 0) {
     fail('project2025_write_boundary_mismatch');
+  }
+
+  if (legislativeConsequenceFixture.structural_delta_bundle?.delta_count !== 12
+      || legislativeConsequenceFixture.consequence_graph?.edge_count !== 6) {
+    fail('legislative_consequence_shape_mismatch');
+  }
+  if (legislativeConsequenceFixture.projection_executed !== false
+      || legislativeConsequenceFixture.database_persisted !== false) {
+    fail('legislative_consequence_execution_boundary_mismatch');
+  }
+  if (legislativeConsequenceFixture.legislation_platform_bindings?.binding_count !== 6
+      || legislativeConsequenceFixture.legislation_platform_bindings?.conflict_count !== 1
+      || legislativeConsequenceFixture.legislation_platform_bindings?.conflicts?.[0]?.resolution_state !== 'unresolved_preserved') {
+    fail('legislative_consequence_platform_binding_mismatch');
   }
 
   if (substrateState.schema_name !== 'kaleidoscope'
@@ -158,6 +173,12 @@ function capabilities() {
       detail: 'Four independent lenses with deterministic replay and preserved collisions.'
     },
     {
+      capability_id: 'legislative_consequence_stage_1_2',
+      label: 'Legislative consequence engine',
+      state: 'stage_1_2_source_controlled',
+      detail: `${legislativeConsequenceFixture.structural_delta_bundle.delta_count} structural deltas and ${legislativeConsequenceFixture.consequence_graph.edge_count} typed consequence edges; stages 3–6 remain null and projection is not executed.`
+    },
+    {
       capability_id: 'civic_genome_snapshot_validation',
       label: 'Civic Genome snapshot validation',
       state: 'live_proven_unbound',
@@ -227,6 +248,16 @@ export function kaleidoscopePlatformReadModel() {
         read_model_hash: project2025ReadModel.read_model_hash
       }
     ],
+    legislative_consequence: {
+      scenario_id: legislativeConsequenceFixture.structural_delta_bundle.scenario_id,
+      state: 'stage_1_2_source_controlled_stages_3_6_null',
+      structural_delta_count: legislativeConsequenceFixture.structural_delta_bundle.delta_count,
+      consequence_edge_count: legislativeConsequenceFixture.consequence_graph.edge_count,
+      platform_binding_count: legislativeConsequenceFixture.legislation_platform_bindings.binding_count,
+      preserved_conflict_count: legislativeConsequenceFixture.legislation_platform_bindings.conflict_count,
+      projection_executed: legislativeConsequenceFixture.projection_executed,
+      database_persisted: legislativeConsequenceFixture.database_persisted
+    },
     lens_registry: lensRegistry,
     source_corpus: {
       manifest_id: sourceManifest.manifest_id,
@@ -277,6 +308,7 @@ export function kaleidoscopePlatformReadModel() {
       database_migrations: substrateState.migration_history.length,
       database_persistence: false,
       canonical_projection_execution: false,
+      legislative_consequence_projection_execution: false,
       upstream_mutation: false,
       hidden_composite_score: false,
       runtime_ai_dependency: false,

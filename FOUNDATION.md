@@ -114,7 +114,7 @@ The consumer rejects:
 - accepted verification without a declared mapping rule;
 - any binding that permits upstream mutation.
 
-The contract remains `defined_unbound` until Lighthouse produces a live immutable source snapshot and the required verification mapping is declared. Validation capability is not the same as an accepted source binding.
+An authenticated Civic Genome snapshot delivery has been validated by Kaleidoscope, but the delivery remained non-persistent and unresolved. The contract therefore remains `defined_unbound` until an immutable source snapshot is accepted under a declared verification mapping and governed persistence contract. Authenticated validation is not the same as an accepted source binding.
 
 ## Complete source-corpus rule
 
@@ -244,6 +244,8 @@ Relationship:
 }
 ```
 
+The source-controlled Project 2025 Title VII vertical slice executes this bounded scenario through four declared lenses, preserves three cross-lens collisions, emits deterministic read-model and replay identities, and remains labeled `executed_test_fixture_not_canonical_fact`. Its execution does not make the fixture a canonical fact or production projection.
+
 ## Bounded demonstration 2: Local nondiscrimination preemption
 
 Policy family:
@@ -262,8 +264,74 @@ The source-defined family presently includes:
 
 The mechanism predates Project 2025 and appears through different legislative vehicles. Similar effect does not establish centralized coordination.
 
+## Legislative Consequence bounded specimen
+
+The EEOC workforce-demographics reporting rollback specimen establishes the first Legislative Consequence Stage 1/2 contract boundary.
+
+Stage 1 contains 12 deterministic structural deltas governed by the same typed structural vocabulary:
+
+- `added`
+- `removed`
+- `modified`
+- `preserved`
+- `superseded`
+- `preempted`
+- `unresolved`
+
+Stage 2 contains 6 typed consequence edges with explicit causal states and prohibits numeric weighting. Direct legal effects and downstream hypotheses remain distinct; hypothesis-only downstream enforcement claims preserve `causation_not_asserted`.
+
+The specimen binds Colorado HB1207 through Docket Room source bill `2115794`, Rosetta extraction run `26`, and Civic Genome bill/assembly/event/family records without taking ownership of those records. It preserves the observed lifecycle conflict instead of resolving it: Docket reports `Governor Signed`, the Civic Genome bill reports `introduced`, the Civic Genome event reports `enacted`, and the Civic Genome family enacted count remains `0`. Prism remains `not_observed` for the specimen.
+
+Stages 3 through 6 remain null. This specimen does not enable or claim completed projection.
+
+## Platform workspace
+
+The first full Kaleidoscope workspace is source-controlled as a read-only inspection surface.
+
+It provides:
+
+- `/app` as the explicit browser workspace;
+- `/` as the workspace for normal `Accept: text/html` requests while preserving the JSON root for machine/API requests;
+- `/v1/platform/read-model` as the deterministic platform-level read model;
+- Overview, Scenarios, Lenses, Sources, Receipts, and System views;
+- the Project 2025 inspection surface as a child scenario view rather than the platform itself;
+- explicit peer-platform ownership topology;
+- database state, source custody, receipts, unresolved conditions, and capability boundaries without write controls.
+
+The platform read model fails closed if the 41-entry source corpus, Project 2025 hashes, database substrate snapshot, Civic Genome handoff proof, or Legislative Consequence Stage 1/2 specimen no longer matches its declared source-controlled state.
+
+The browser surface uses a self-only content security policy, no external runtime libraries or fonts, no inline script/style, no `innerHTML` or `eval`, and disables camera, microphone, geolocation, and payment permissions.
+
+The workspace being present does not imply that it has been deployed and independently verified on Render.
+
+## Persistence substrate
+
+On 2026-08-09 the source-controlled append-only projection substrate was applied to the Kaleidoscope Supabase project `iwmytuwofniybsmidtki`.
+
+The live substrate contains:
+
+- schema `kaleidoscope`;
+- canonical persistence state `schema_present_empty_runtime_not_bound`;
+- 16 truth-bearing tables;
+- 3 governed functions;
+- 17 non-internal triggers;
+- RLS enabled on every truth-bearing table;
+- no table privileges for `public`, `anon`, or `authenticated`;
+- `service_role` limited to `select` and `insert`;
+- update/delete rejection through append-only triggers;
+- covering indexes for all foreign-key paths reported by the Supabase performance advisor.
+
+Live migration history:
+
+- `20260809144200` — `kaleidoscope_projection_substrate`;
+- `20260809144457` — `kaleidoscope_projection_substrate_indexes`.
+
+All 16 Kaleidoscope tables contained zero rows at the post-migration receipt boundary. No source binding, scenario, projection run, lens result, collision, or replay receipt was persisted by applying the schema. The live receipt is `receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json`.
+
+The substrate being present does not prove the runtime persistence adapter. Engine-to-database mapping, transactional persistence, replay from persisted state, and zero-upstream-mutation behavior remain separate required proofs.
+
 ## Acceptance gates
 
 Kaleidoscope is not operational until source, schema, kernel, determinism, provenance, boundary, unresolved-state, bridge, presentation, challenge/replay, rollback, and security proofs pass.
 
-Current v0.1.4 proves complete source custody, canonicalization, hashing, typed diff behavior, source-contract validation, and tamper rejection. Production lens execution, an applied Supabase state, a live accepted Civic Genome binding, persisted replay, and public user UI remain unproven.
+Current v0.1.4 source control proves complete source custody, canonicalization, hashing, typed diff behavior, Civic Genome source-contract validation and tamper rejection, authenticated non-persistent Civic Genome delivery validation, an executable bounded Project 2025 test fixture, its read-only child inspection surface, the bounded Legislative Consequence Stage 1/2 specimen, and the first full read-only Kaleidoscope platform workspace. The append-only Supabase projection substrate and its foreign-key indexes are live and empty. Production lens execution, Legislative Consequence stages 3 through 6, a governed runtime persistence adapter, an accepted Civic Genome binding, persisted replay, full peer-platform bridge proofs, and an independently verified current Render deployment remain unproven.
