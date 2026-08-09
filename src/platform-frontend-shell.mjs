@@ -16,12 +16,16 @@ import preemptionTemporalHistory from '../lenses/preemption_temporal_history.v1.
 import preemptionJurisdictionalVariation from '../lenses/preemption_jurisdictional_variation.v1.json' with { type: 'json' };
 import { buildDeterministicPersistencePlan } from './persistence-plan.mjs';
 import { executeLocalPreemptionFamilyVerticalSlice } from './local-preemption-family-slice.mjs';
+import {
+  LOCAL_PREEMPTION_FRONTEND_PATH,
+  LOCAL_PREEMPTION_RECEIPT_PATH
+} from './local-preemption-frontend-shell.mjs';
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
 
 export const KALEIDOSCOPE_APP_PATH = '/app';
 export const KALEIDOSCOPE_APP_READ_MODEL_PATH = '/v1/platform/read-model';
-export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.1.0';
+export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.2.0';
 
 const HTML_ASSET = {
   file: '../public/kaleidoscope-app.html',
@@ -339,7 +343,7 @@ function combinedLensRegistry(localPreemption) {
     add(lens, project2025ReadModel.scenario_id, '/project2025/title-vii#lenses');
   }
   for (const lens of localPreemption.read_model.lens_panels) {
-    add(lens, localPreemption.read_model.scenario_id, null);
+    add(lens, localPreemption.read_model.scenario_id, `${LOCAL_PREEMPTION_FRONTEND_PATH}#lenses`);
   }
   return [...registry.values()].sort((a, b) => a.lens_id.localeCompare(b.lens_id));
 }
@@ -353,7 +357,7 @@ export function kaleidoscopePlatformReadModel() {
   const rowCount = substrateRowCount();
 
   const basis = {
-    read_model_version: '1.1.0',
+    read_model_version: '1.2.0',
     platform: 'kaleidoscope',
     platform_label: 'Kaleidoscope',
     environment: 'staging',
@@ -402,9 +406,9 @@ export function kaleidoscopePlatformReadModel() {
         lens_count: localPreemption.read_model.summary.lens_count,
         collision_count: localPreemption.read_model.summary.collision_count,
         unresolved_count: localPreemption.read_model.summary.unresolved_count,
-        href: null,
-        receipt_href: null,
-        inspection_state: 'workspace_summary_only_detailed_route_not_published',
+        href: LOCAL_PREEMPTION_FRONTEND_PATH,
+        receipt_href: LOCAL_PREEMPTION_RECEIPT_PATH,
+        inspection_state: 'detailed_route_available',
         read_model_hash: localPreemption.read_model.read_model_hash
       }
     ],
@@ -493,7 +497,7 @@ export function kaleidoscopePlatformReadModel() {
         state: 'executed_test_fixture',
         receipt_hash: localPreemption.receipt.receipt_hash,
         run_id: localPreemption.receipt.run_id,
-        href: null
+        href: LOCAL_PREEMPTION_RECEIPT_PATH
       },
       {
         receipt_id: civicGenomeHandoffReceipt.receipt_id,
@@ -540,7 +544,7 @@ export function kaleidoscopePlatformReadModel() {
       app: KALEIDOSCOPE_APP_PATH,
       platform_read_model: KALEIDOSCOPE_APP_READ_MODEL_PATH,
       project2025_scenario: '/project2025/title-vii',
-      local_preemption_scenario_detail: null,
+      local_preemption_scenario_detail: LOCAL_PREEMPTION_FRONTEND_PATH,
       health: '/health',
       status: '/v1/status'
     }
