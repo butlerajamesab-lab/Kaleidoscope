@@ -2,15 +2,28 @@ import { readFile } from 'node:fs/promises';
 import sourceManifest from '../source_manifests/source_pack_2026_08_03_v3.json' with { type: 'json' };
 import project2025ReadModel from '../fixtures/project2025-title-vii-read-model.v1.json' with { type: 'json' };
 import project2025Receipt from '../fixtures/project2025-title-vii-receipt.v1.json' with { type: 'json' };
-import substrateState from '../fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json' with { type: 'json' };
-import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
+import project2025Fixture from '../fixtures/project2025-title-vii-vertical-slice.v1.mjs';
 import legislativeConsequenceFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
+import substrateReceipt from '../receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json' with { type: 'json' };
+import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
+import affectedPopulations from '../lenses/affected_populations.v1.json' with { type: 'json' };
+import civilRights from '../lenses/civil_rights.v1.json' with { type: 'json' };
+import enforcementPathways from '../lenses/enforcement_pathways.v1.json' with { type: 'json' };
+import localGovernmentPreemption from '../lenses/local_government_preemption.v1.json' with { type: 'json' };
+import { buildDeterministicPersistencePlan } from './persistence-plan.mjs';
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
 
 export const KALEIDOSCOPE_APP_PATH = '/app';
 export const KALEIDOSCOPE_APP_READ_MODEL_PATH = '/v1/platform/read-model';
 export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.0.0';
+
+const PERSISTENCE_LENS_MANIFESTS = [
+  affectedPopulations,
+  civilRights,
+  enforcementPathways,
+  localGovernmentPreemption
+];
 
 const HTML_ASSET = {
   file: '../public/kaleidoscope-app.html',
@@ -39,7 +52,19 @@ function fail(code) {
   throw new Error(`invalid_kaleidoscope_platform_frontend:${code}`);
 }
 
-function assertSourceControlledState() {
+function substrateRowCount() {
+  return Object.values(substrateReceipt.row_counts ?? {}).reduce((sum, value) => sum + value, 0);
+}
+
+function currentPersistencePlan() {
+  return buildDeterministicPersistencePlan({
+    fixture: project2025Fixture,
+    lensManifests: PERSISTENCE_LENS_MANIFESTS,
+    sourceManifest
+  });
+}
+
+function assertSourceControlledState(persistencePlan) {
   if (!Array.isArray(sourceManifest.entries) || sourceManifest.entries.length !== 41) {
     fail('source_manifest_count_mismatch');
   }
@@ -71,20 +96,45 @@ function assertSourceControlledState() {
       || legislativeConsequenceFixture.legislation_platform_bindings?.conflicts?.[0]?.resolution_state !== 'unresolved_preserved') {
     fail('legislative_consequence_platform_binding_mismatch');
   }
+  if (legislativeConsequenceFixture.legislation_platform_bindings?.run_transition?.trigger !== 'user_initiated_rosetta_run') {
+    fail('legislative_consequence_rosetta_transition_mismatch');
+  }
 
-  if (substrateState.schema_name !== 'kaleidoscope'
-      || substrateState.table_count !== 16
-      || substrateState.table_names?.length !== 16) {
+  if (substrateReceipt.platform !== 'kaleidoscope'
+      || substrateReceipt.project_ref !== 'iwmytuwofniybsmidtki'
+      || substrateReceipt.state !== 'projection_substrate_applied_empty_unbound') {
+    fail('substrate_receipt_identity_mismatch');
+  }
+  if (substrateReceipt.schema?.name !== 'kaleidoscope'
+      || substrateReceipt.schema?.table_count !== 16
+      || substrateReceipt.schema?.function_count !== 3
+      || substrateReceipt.schema?.trigger_count !== 17) {
     fail('substrate_shape_mismatch');
   }
-  if (substrateState.exact_total_rows !== 0
-      || substrateState.all_tables_rls_enabled !== true
-      || substrateState.migration_history?.length !== 2) {
-    fail('substrate_state_mismatch');
+  if (substrateReceipt.schema?.rls_state !== 'enabled_all_truth_bearing_tables'
+      || substrateReceipt.schema?.rls_policy_state !== 'none_intentional_deny_by_default'
+      || substrateReceipt.schema?.service_role_access !== 'select_insert_only'
+      || substrateReceipt.schema?.append_only_update_delete_boundary !== 'trigger_enforced') {
+    fail('substrate_governance_mismatch');
   }
-  if (substrateState.runtime_database_write_path_proven !== false
-      || substrateState.canonical_persistence_state !== 'schema_present_empty_runtime_not_bound') {
+  if (substrateReceipt.live_migrations?.length !== 2
+      || substrateRowCount() !== 0
+      || substrateReceipt.capability_boundaries?.runtime_database_adapter_proven !== false) {
     fail('substrate_runtime_boundary_mismatch');
+  }
+
+  if (persistencePlan.adapter_state !== 'deterministic_dry_run_mapping_only'
+      || persistencePlan.target_schema !== 'kaleidoscope'
+      || persistencePlan.table_plan?.length !== 16
+      || persistencePlan.blocker_count !== 5) {
+    fail('persistence_preflight_shape_mismatch');
+  }
+  if (persistencePlan.live_write_authorized !== false
+      || persistencePlan.database_write_count !== 0
+      || persistencePlan.upstream_mutation !== false
+      || persistencePlan.credentials_required !== false
+      || persistencePlan.sql_emitted !== false) {
+    fail('persistence_preflight_safety_boundary_mismatch');
   }
 
   if (civicGenomeHandoffReceipt.proof_state !== 'completed') {
@@ -158,7 +208,7 @@ function platformContracts() {
   ];
 }
 
-function capabilities() {
+function capabilities(persistencePlan) {
   return [
     {
       capability_id: 'typed_state_diff',
@@ -187,20 +237,27 @@ function capabilities() {
     {
       capability_id: 'projection_substrate',
       label: 'Projection substrate',
-      state: 'schema_present_empty',
-      detail: 'The Kaleidoscope schema contains 16 RLS-enabled projection tables and two recorded migrations; all tables are empty.'
+      state: 'applied_empty_unbound',
+      detail: 'The governed Kaleidoscope schema contains 16 truth-bearing tables, 3 functions, 17 append-only triggers, and 2 applied migrations. All tables are empty.'
+    },
+    {
+      capability_id: 'deterministic_persistence_preflight',
+      label: 'Persistence preflight',
+      state: 'no_write_plan_available',
+      detail: `Deterministic dry-run mapping covers all ${persistencePlan.table_plan.length} substrate tables and preserves ${persistencePlan.blocker_count} blockers. It emits no SQL, requests no credentials, and authorizes no live writes.`
     },
     {
       capability_id: 'canonical_projection_persistence',
       label: 'Canonical projection persistence',
       state: 'runtime_not_bound',
-      detail: 'The database substrate exists, but the runtime has no proven write path and no canonical rows have been persisted.'
+      detail: 'The governed substrate exists, but the runtime transport and persistence adapter are not bound and no canonical rows have been persisted.'
     }
   ];
 }
 
 export function kaleidoscopePlatformReadModel() {
-  assertSourceControlledState();
+  const persistencePlan = currentPersistencePlan();
+  assertSourceControlledState(persistencePlan);
 
   const lensRegistry = project2025ReadModel.lens_panels.map((lens) => ({
     lens_id: lens.lens_id,
@@ -208,6 +265,7 @@ export function kaleidoscopePlatformReadModel() {
     state: 'source_controlled_test_fixture',
     href: '/project2025/title-vii#lenses'
   }));
+  const rowCount = substrateRowCount();
 
   const basis = {
     read_model_version: '1.0.0',
@@ -226,11 +284,11 @@ export function kaleidoscopePlatformReadModel() {
       preserved_collision_count: project2025ReadModel.summary.collision_count,
       unresolved_condition_count: project2025ReadModel.summary.unresolved_count,
       accepted_civic_genome_bindings: 0,
-      database_tables: substrateState.table_count,
-      database_rows: substrateState.exact_total_rows,
-      database_migrations: substrateState.migration_history.length
+      database_tables: substrateReceipt.schema.table_count,
+      database_rows: rowCount,
+      database_migrations: substrateReceipt.live_migrations.length
     },
-    capabilities: capabilities(),
+    capabilities: capabilities(persistencePlan),
     scenarios: [
       {
         scenario_id: project2025ReadModel.scenario_id,
@@ -255,8 +313,24 @@ export function kaleidoscopePlatformReadModel() {
       consequence_edge_count: legislativeConsequenceFixture.consequence_graph.edge_count,
       platform_binding_count: legislativeConsequenceFixture.legislation_platform_bindings.binding_count,
       preserved_conflict_count: legislativeConsequenceFixture.legislation_platform_bindings.conflict_count,
+      upstream_trigger: legislativeConsequenceFixture.legislation_platform_bindings.run_transition.trigger,
       projection_executed: legislativeConsequenceFixture.projection_executed,
       database_persisted: legislativeConsequenceFixture.database_persisted
+    },
+    persistence_preflight: {
+      plan_version: persistencePlan.persistence_plan_version,
+      state: persistencePlan.adapter_state,
+      target_schema: persistencePlan.target_schema,
+      table_plan_count: persistencePlan.table_plan.length,
+      blocker_count: persistencePlan.blocker_count,
+      blockers: persistencePlan.blockers,
+      persistence_plan_hash: persistencePlan.persistence_plan_hash,
+      projection_claim_state: persistencePlan.projection_claim_state,
+      live_write_authorized: persistencePlan.live_write_authorized,
+      database_write_count: persistencePlan.database_write_count,
+      upstream_mutation: persistencePlan.upstream_mutation,
+      credentials_required: persistencePlan.credentials_required,
+      sql_emitted: persistencePlan.sql_emitted
     },
     lens_registry: lensRegistry,
     source_corpus: {
@@ -268,17 +342,23 @@ export function kaleidoscopePlatformReadModel() {
       selected_subset: false
     },
     database_substrate: {
-      snapshot_id: substrateState.snapshot_id,
-      observed_date: substrateState.observed_date,
-      supabase_project_id: substrateState.supabase_project_id,
-      schema_name: substrateState.schema_name,
-      table_count: substrateState.table_count,
-      table_names: substrateState.table_names,
-      exact_total_rows: substrateState.exact_total_rows,
-      all_tables_rls_enabled: substrateState.all_tables_rls_enabled,
-      migration_history: substrateState.migration_history,
-      canonical_persistence_state: substrateState.canonical_persistence_state,
-      runtime_database_write_path_proven: substrateState.runtime_database_write_path_proven
+      receipt_id: substrateReceipt.receipt_id,
+      observed_date: substrateReceipt.observed_date,
+      supabase_project_id: substrateReceipt.project_ref,
+      schema_name: substrateReceipt.schema.name,
+      table_count: substrateReceipt.schema.table_count,
+      table_names: Object.keys(substrateReceipt.row_counts),
+      function_count: substrateReceipt.schema.function_count,
+      trigger_count: substrateReceipt.schema.trigger_count,
+      exact_total_rows: rowCount,
+      all_tables_rls_enabled: substrateReceipt.schema.rls_state === 'enabled_all_truth_bearing_tables',
+      rls_policy_state: substrateReceipt.schema.rls_policy_state,
+      service_role_access: substrateReceipt.schema.service_role_access,
+      append_only_update_delete_boundary: substrateReceipt.schema.append_only_update_delete_boundary,
+      migration_history: substrateReceipt.live_migrations,
+      canonical_persistence_state: substrateReceipt.canonical_persistence_state,
+      substrate_state: substrateReceipt.state,
+      runtime_database_write_path_proven: substrateReceipt.capability_boundaries.runtime_database_adapter_proven
     },
     platform_contracts: platformContracts(),
     receipts: [
@@ -299,14 +379,31 @@ export function kaleidoscopePlatformReadModel() {
         persisted: civicGenomeHandoffReceipt.write_and_execution_boundary.kaleidoscope_persisted,
         projection_executed: civicGenomeHandoffReceipt.write_and_execution_boundary.kaleidoscope_projection_executed,
         binding_state: civicGenomeHandoffReceipt.binding.binding_state
+      },
+      {
+        receipt_id: substrateReceipt.receipt_id,
+        label: 'Kaleidoscope Supabase projection substrate',
+        state: substrateReceipt.state,
+        table_count: substrateReceipt.schema.table_count,
+        function_count: substrateReceipt.schema.function_count,
+        trigger_count: substrateReceipt.schema.trigger_count,
+        row_count: rowCount,
+        migration_count: substrateReceipt.live_migrations.length,
+        runtime_adapter_proven: substrateReceipt.capability_boundaries.runtime_database_adapter_proven
       }
     ],
     system_boundary: {
-      database_schema: substrateState.schema_name,
-      database_tables: substrateState.table_count,
-      database_rows: substrateState.exact_total_rows,
-      database_migrations: substrateState.migration_history.length,
+      database_schema: substrateReceipt.schema.name,
+      database_tables: substrateReceipt.schema.table_count,
+      database_functions: substrateReceipt.schema.function_count,
+      database_triggers: substrateReceipt.schema.trigger_count,
+      database_rows: rowCount,
+      database_migrations: substrateReceipt.live_migrations.length,
       database_persistence: false,
+      persistence_preflight_available: true,
+      persistence_preflight_state: persistencePlan.adapter_state,
+      persistence_blocker_count: persistencePlan.blocker_count,
+      persistence_live_write_authorized: persistencePlan.live_write_authorized,
       canonical_projection_execution: false,
       legislative_consequence_projection_execution: false,
       upstream_mutation: false,
