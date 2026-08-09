@@ -1,0 +1,53 @@
+{
+  "lens_id": "preemption_temporal_history.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Preserve the source-defined sequence of local nondiscrimination preemption mechanisms across time so older, expired, and newer mechanisms are not treated as one contemporaneous event.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "pre_project2025_members_persist_tn_ar",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TN", "AR"]},
+      "emit": {
+        "effect_type": "pre_project2025_mechanism_persists",
+        "direction": "historical_continuity",
+        "statement": "This source-defined preemption mechanism predates Project 2025 and remains represented as operative, preventing the family from being modeled as newly originating in the current federal period."
+      }
+    },
+    {
+      "rule_id": "historical_member_expired_nc",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["NC"]},
+      "emit": {
+        "effect_type": "mechanism_expired_before_current_period",
+        "direction": "historical_not_current",
+        "statement": "North Carolina is preserved as a historical family member whose source-described preemption expired in 2020 rather than as a current operative restriction."
+      }
+    },
+    {
+      "rule_id": "post_reference_texas_instrument",
+      "when": {"operations": ["modified"], "dimensions": ["state_preemption_instrument"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "later_broad_instrument_entered_family_context",
+        "direction": "newer_instrument",
+        "statement": "The Texas source state introduces a 2023 broad preemption instrument later reported as being applied to an LGBTQ ordinance."
+      }
+    },
+    {
+      "rule_id": "post_reference_texas_application",
+      "when": {"operations": ["unresolved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "later_lgbtq_application_contested",
+        "direction": "newer_contested_application",
+        "statement": "The Texas LGBTQ-ordinance application is temporally later than the general statute and remains contested in the source pass."
+      }
+    },
+    {
+      "rule_id": "newest_family_member_iowa",
+      "when": {"operations": ["preempted"], "dimensions": ["local_government_authority"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "newer_state_local_preemption_operative",
+        "direction": "newer_restriction",
+        "statement": "Iowa is represented as a newer 2026 state-local preemption mechanism reached through a different legislative vehicle from the older family members."
+      }
+    }
+  ]
+}
