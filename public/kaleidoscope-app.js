@@ -2,18 +2,129 @@ const PLATFORM_MODEL_URL = '/v1/platform/read-model';
 
 const VIEW_TITLES = new Map([
   ['overview', 'Overview'],
-  ['scenarios', 'Scenarios'],
-  ['lenses', 'Lenses'],
-  ['sources', 'Sources'],
-  ['receipts', 'Receipts'],
-  ['system', 'System']
+  ['scenarios', 'What changes'],
+  ['lenses', 'Ways to examine it'],
+  ['sources', 'Evidence'],
+  ['receipts', 'Proof & history'],
+  ['system', 'System details']
 ]);
 
-const LENS_DESCRIPTIONS = new Map([
-  ['civil_rights.v1', 'Tracks formal rights, protected-class coverage, and preserved or removed legal protections.'],
-  ['enforcement_pathways.v1', 'Tracks practical routes through agencies, courts, and administrative enforcement systems.'],
-  ['local_government_preemption.v1', 'Tracks when state rules restrict or displace local protective authority.'],
-  ['affected_populations.v1', 'Tracks which source-declared populations are structurally exposed to a change without forecasting outcomes.']
+const STATUS_LABELS = new Map([
+  ['available', 'Available'],
+  ['available_no_write', 'Check available — no live writes'],
+  ['executed_test_fixture', 'Tested example'],
+  ['source_controlled_test_fixture', 'Tested example'],
+  ['source_controlled_no_projection', 'Structured analysis — not a live projection'],
+  ['stage_1_2_source_controlled', 'First two analysis stages available'],
+  ['live_proven_unbound', 'Connection tested — not accepted as official input'],
+  ['validated_unbound', 'Validated — not accepted as official input'],
+  ['applied_empty_unbound', 'Storage ready — runtime not connected'],
+  ['schema_present_empty', 'Storage ready — empty'],
+  ['runtime_not_bound', 'Not connected'],
+  ['external_owner', 'Separate source system'],
+  ['contract_not_established', 'Not connected'],
+  ['disabled', 'Off']
+]);
+
+const CAPABILITY_PRESENTATION = new Map([
+  ['typed_state_diff', {
+    label: 'Compare a before state with an after state',
+    detail: 'Shows exactly what was added, removed, changed, kept, replaced, blocked, or left unresolved.',
+    technical: 'Typed state diff'
+  }],
+  ['project2025_vertical_slice', {
+    label: 'Examine workplace discrimination and gender-identity protections',
+    detail: 'Compares several layers of federal, state, court, agency, and local protection without collapsing them into one conclusion.',
+    technical: 'Project 2025 Title VII vertical slice'
+  }],
+  ['local_preemption_family_vertical_slice', {
+    label: 'Compare when states limit local nondiscrimination protections',
+    detail: 'Shows how related state-local restrictions differ across jurisdictions and over time without treating similarity as proof of coordination.',
+    technical: 'Local preemption family vertical slice'
+  }],
+  ['legislative_consequence_stage_1_2', {
+    label: 'See what a proposed legal change actually changes',
+    detail: 'Separates the direct change in legal duties from possible downstream effects, and keeps unproven effects marked as unresolved.',
+    technical: 'Legislative Consequence Engine · Stages 1–2'
+  }],
+  ['deterministic_persistence_preflight', {
+    label: 'Check what could be saved safely before saving anything',
+    detail: 'Maps an analysis to the governed record system, lists every blocker, and authorizes zero live writes until the missing rules are declared.',
+    technical: 'Deterministic persistence preflight'
+  }],
+  ['civic_genome_snapshot_validation', {
+    label: 'Verify incoming Civic Genome records without silently accepting them',
+    detail: 'Rechecks identity and hashes before Kaleidoscope can rely on an incoming snapshot; validation is kept separate from acceptance.',
+    technical: 'Civic Genome snapshot validation'
+  }],
+  ['projection_substrate', {
+    label: 'Keep governed Kaleidoscope records in an append-only store',
+    detail: 'The storage structure exists and is protected, but it remains empty until an authorized runtime write path is proven.',
+    technical: 'Projection substrate'
+  }],
+  ['canonical_projection_persistence', {
+    label: 'Save an analysis as an official Kaleidoscope record',
+    detail: 'Not enabled yet. The storage exists, but Kaleidoscope will not write an official analysis until the remaining ownership and authorization rules are satisfied.',
+    technical: 'Canonical projection persistence'
+  }]
+]);
+
+const LENS_PRESENTATION = new Map([
+  ['civil_rights.v1', {
+    label: 'What legal protections remain or change?',
+    description: 'Looks only at formal rights and protected-class coverage.'
+  }],
+  ['enforcement_pathways.v1', {
+    label: 'What ways to enforce the right remain?',
+    description: 'Separates agency, court, private-action, and administrative pathways instead of treating them as the same thing.'
+  }],
+  ['local_government_preemption.v1', {
+    label: 'What can local governments still do?',
+    description: 'Looks at whether state law restricts a city or county from maintaining broader local protections.'
+  }],
+  ['affected_populations.v1', {
+    label: 'Who is structurally affected?',
+    description: 'Identifies source-declared populations connected to a change without predicting how many people will experience a particular outcome.'
+  }],
+  ['preemption_operability.v1', {
+    label: 'Is the restriction in force now?',
+    description: 'Separates a currently operative restriction from a historical, expired, contested, or unresolved one.'
+  }],
+  ['preemption_temporal_history.v1', {
+    label: 'How has the rule changed over time?',
+    description: 'Keeps earlier and current legal states separate instead of flattening them into one present-day description.'
+  }],
+  ['preemption_jurisdictional_variation.v1', {
+    label: 'How does it differ from state to state?',
+    description: 'Compares related mechanisms while preserving the different legal vehicle, scope, timing, and unresolved state of each jurisdiction.'
+  }]
+]);
+
+const SCENARIO_PRESENTATION = new Map([
+  ['gender_identity_title_vii_redefinition.v1', {
+    category: 'Workplace rights',
+    title: 'Employment discrimination and gender identity',
+    subtitle: 'See how federal enforcement changes and Iowa law changes can affect different layers of workplace protection.',
+    whatChanged: 'The represented federal court protection remains while federal agency guidance or enforcement pathways change. Iowa removes the represented state protection and also limits local governments from restoring broader protected categories.',
+    whyItMatters: 'A legal right, an agency enforcement path, a private court path, a state protection, and a local protection are different layers. One can remain while another becomes narrower or disappears.',
+    terms: [
+      ['Title VII', 'A federal employment-discrimination law.'],
+      ['EEOC', 'U.S. Equal Employment Opportunity Commission — the federal agency responsible for enforcing federal workplace-discrimination laws.'],
+      ['Preemption', 'A state rule that limits what local governments are allowed to regulate or protect.']
+    ]
+  }],
+  ['local_lgbtq_ordinance_preemption.v1', {
+    category: 'State and local authority',
+    title: 'When states limit local nondiscrimination protections',
+    subtitle: 'Compare related restrictions on local authority across Tennessee, Arkansas, North Carolina, Texas, and Iowa — including where their current status differs.',
+    whatChanged: 'The governed source pack records related state-local restriction mechanisms in five jurisdictions. Some are represented as currently operative, North Carolina’s represented mechanism is historical and expired, and the Texas application remains partly unresolved.',
+    whyItMatters: 'Similar legal techniques can exist in different places and times without having the same current effect. Similarity also does not establish that the states acted together or for the same reason.',
+    terms: [
+      ['Preemption', 'A state rule that limits what local governments are allowed to regulate or protect.'],
+      ['Operative', 'Currently in force in the represented source state.'],
+      ['Unresolved', 'The available source material does not support a final answer yet.']
+    ]
+  }]
 ]);
 
 let platformModel = null;
@@ -34,18 +145,26 @@ function humanize(value) {
 function statusTone(state) {
   if (['available', 'live_proven_unbound', 'validated_unbound'].includes(state)) return 'positive';
   if ([
+    'available_no_write',
     'executed_test_fixture',
     'source_controlled_test_fixture',
+    'source_controlled_no_projection',
+    'stage_1_2_source_controlled',
     'external_owner',
     'schema_present_empty',
+    'applied_empty_unbound',
     'runtime_not_bound'
   ].includes(state)) return 'warning';
   if (['disabled', 'contract_not_established'].includes(state)) return 'restricted';
   return '';
 }
 
+function statusLabel(state) {
+  return STATUS_LABELS.get(state) ?? humanize(state);
+}
+
 function statusChip(state) {
-  return element('span', `status-chip ${statusTone(state)}`.trim(), humanize(state));
+  return element('span', `status-chip ${statusTone(state)}`.trim(), statusLabel(state));
 }
 
 function metricCard(label, value, note) {
@@ -61,38 +180,72 @@ function metricCard(label, value, note) {
 function renderMetrics(model) {
   const summary = model.summary;
   const metrics = [
-    ['Source artifacts', summary.active_source_artifacts, 'active manifest entries'],
-    ['Scenarios', summary.scenario_count, 'bounded scenario library'],
-    ['Lenses', summary.lens_count, 'independent transformations'],
-    ['Collisions', summary.preserved_collision_count, 'preserved, not averaged'],
-    ['Unresolved', summary.unresolved_condition_count, 'visible open conditions'],
-    ['DB tables', summary.database_tables, `${summary.database_rows} canonical rows`]
+    ['Evidence files', summary.active_source_artifacts, 'preserved in the current source record'],
+    ['Examples', summary.scenario_count, 'before-and-after civic change examples'],
+    ['Ways examined', summary.lens_count, 'separate questions asked of the same change'],
+    ['Conflicts shown', summary.preserved_collision_count, 'kept visible instead of averaged away'],
+    ['Open questions', summary.unresolved_condition_count, 'information the sources do not settle yet'],
+    ['Official saved results', summary.database_rows, 'currently stored as canonical Kaleidoscope records']
   ];
 
   const grid = document.querySelector('#metric-grid');
   grid.replaceChildren(...metrics.map(([label, value, note]) => metricCard(label, value, note)));
 }
 
+function technicalDetails(rows) {
+  const details = element('details', 'technical-details');
+  details.append(element('summary', '', 'Technical details'));
+  const list = element('dl', 'receipt-meta');
+  for (const [term, value] of rows.filter(([, value]) => value !== undefined && value !== null)) {
+    const row = element('div');
+    row.append(element('dt', '', term), element('dd', '', String(value)));
+    list.append(row);
+  }
+  details.append(list);
+  return details;
+}
+
 function renderCapabilities(model) {
   const container = document.querySelector('#capability-list');
   const rows = model.capabilities.map((capability) => {
+    const presentation = CAPABILITY_PRESENTATION.get(capability.capability_id) ?? {
+      label: capability.label,
+      detail: capability.detail,
+      technical: capability.label
+    };
     const row = element('article', 'capability-row');
     row.append(
-      element('strong', 'capability-label', capability.label),
+      element('strong', 'capability-label', presentation.label),
       statusChip(capability.state),
-      element('span', 'capability-detail', capability.detail)
+      element('span', 'capability-detail', presentation.detail),
+      technicalDetails([
+        ['Technical name', presentation.technical],
+        ['Capability ID', capability.capability_id],
+        ['Engine state', capability.state]
+      ])
     );
     return row;
   });
   container.replaceChildren(...rows);
 }
 
+function scenarioPresentation(scenario) {
+  return SCENARIO_PRESENTATION.get(scenario.policy_family_id) ?? {
+    category: 'Civic change',
+    title: scenario.title,
+    subtitle: scenario.subtitle,
+    whatChanged: 'This example compares a declared before state with a declared changed state.',
+    whyItMatters: 'Kaleidoscope keeps different legal and practical effects separate so one summary does not hide disagreement.',
+    terms: []
+  };
+}
+
 function scenarioStats(scenario) {
   return [
-    ['Mechanisms', scenario.mechanism_count],
-    ['Operations', scenario.operation_count],
-    ['Lenses', scenario.lens_count],
-    ['Collisions', scenario.collision_count]
+    ['Paths compared', scenario.mechanism_count],
+    ['Changes found', scenario.operation_count],
+    ['Ways examined', scenario.lens_count],
+    ['Conflicts kept visible', scenario.collision_count]
   ];
 }
 
@@ -106,44 +259,101 @@ function createScenarioStats(scenario) {
   return stats;
 }
 
+function createScenarioExplanation(scenario) {
+  const presentation = scenarioPresentation(scenario);
+  const wrapper = element('div', 'scenario-explanation');
+  const changed = element('div', 'scenario-explanation-block');
+  changed.append(element('strong', '', 'What changed?'), element('p', '', presentation.whatChanged));
+  const matters = element('div', 'scenario-explanation-block');
+  matters.append(element('strong', '', 'Why does it matter?'), element('p', '', presentation.whyItMatters));
+  wrapper.append(changed, matters);
+  return wrapper;
+}
+
+function createTerms(scenario) {
+  const presentation = scenarioPresentation(scenario);
+  if (presentation.terms.length === 0) return null;
+  const details = element('details', 'term-details');
+  details.append(element('summary', '', 'Terms used on this page'));
+  const list = element('dl', 'definition-grid');
+  for (const [term, definition] of presentation.terms) {
+    const row = element('div', 'definition-row');
+    row.append(element('dt', '', term), element('dd', '', definition));
+    list.append(row);
+  }
+  details.append(list);
+  return details;
+}
+
 function createScenarioActions(scenario) {
   const actions = element('div', 'scenario-actions');
-  const inspect = element('a', '', 'Inspect scenario');
-  inspect.href = scenario.href;
-  const receipt = element('a', '', 'Open receipt');
-  receipt.href = scenario.receipt_href;
-  actions.append(inspect, receipt);
+  if (scenario.href) {
+    const inspect = element('a', '', 'Explore the evidence and changes');
+    inspect.href = scenario.href;
+    actions.append(inspect);
+  } else {
+    actions.append(element('span', 'scenario-action-unavailable', 'Detailed evidence page not published yet'));
+  }
+  if (scenario.receipt_href) {
+    const receipt = element('a', '', 'View technical replay proof');
+    receipt.href = scenario.receipt_href;
+    actions.append(receipt);
+  }
   return actions;
+}
+
+function createScenarioTechnicalDetails(scenario) {
+  return technicalDetails([
+    ['Scenario ID', scenario.scenario_id],
+    ['Policy family ID', scenario.policy_family_id],
+    ['Technical title', scenario.title],
+    ['Engineering state', scenario.state],
+    ['Inspection state', scenario.inspection_state],
+    ['Read-model hash', scenario.read_model_hash]
+  ]);
 }
 
 function renderScenarioSpotlight(model) {
   const scenario = model.scenarios[0];
   const container = document.querySelector('#scenario-spotlight');
   if (!scenario) {
-    container.replaceChildren(element('p', 'scenario-subtitle', 'No source-controlled scenario is currently available.'));
+    container.replaceChildren(element('p', 'scenario-subtitle', 'No source-controlled example is currently available.'));
     return;
   }
 
+  const presentation = scenarioPresentation(scenario);
   const inner = element('div', 'scenario-card-inner');
   inner.append(
-    element('div', 'scenario-family', scenario.policy_family_id),
-    element('h3', 'scenario-title', scenario.title),
-    element('p', 'scenario-subtitle', scenario.subtitle),
+    element('div', 'scenario-family', presentation.category),
+    element('h3', 'scenario-title', presentation.title),
+    element('p', 'scenario-subtitle', presentation.subtitle),
     statusChip(scenario.state),
+    createScenarioExplanation(scenario),
     createScenarioStats(scenario),
     createScenarioActions(scenario)
   );
+  const terms = createTerms(scenario);
+  if (terms) inner.append(terms);
+  inner.append(createScenarioTechnicalDetails(scenario));
   container.replaceChildren(inner);
 }
 
 function renderPlatformContracts(model) {
   const container = document.querySelector('#upstream-contracts');
+  const roleLabels = new Map([
+    ['docket_room', 'Finds and preserves official legislation, bill identity, and bill status.'],
+    ['rosetta', 'Breaks law and policy text into deterministic, traceable parts.'],
+    ['civic_genome', 'Keeps persistent policy identities, traits, events, lineage, and source snapshots.'],
+    ['prism', 'Checks evidence and records contradictions without silently resolving them.'],
+    ['atlas', 'Provides governed observations, entity resolution, and historical context.'],
+    ['esquire', 'Keeps a person’s authorized procedural or case state when that connection is explicitly allowed.']
+  ]);
   const cards = model.platform_contracts.map((contract) => {
     const card = element('article', 'upstream-card');
     card.append(
       element('strong', '', contract.label),
-      element('span', 'upstream-role', contract.role),
-      element('span', 'upstream-state', `${humanize(contract.state)} · ${humanize(contract.mutation)}`)
+      element('span', 'upstream-role', roleLabels.get(contract.platform_id) ?? contract.role),
+      element('span', 'upstream-state', `${statusLabel(contract.state)} · Kaleidoscope cannot rewrite it`)
     );
     return card;
   });
@@ -152,31 +362,29 @@ function renderPlatformContracts(model) {
 
 function renderScenarios(model) {
   const count = document.querySelector('#scenario-count-badge');
-  count.textContent = `${model.scenarios.length} ${model.scenarios.length === 1 ? 'scenario' : 'scenarios'}`;
+  count.textContent = `${model.scenarios.length} ${model.scenarios.length === 1 ? 'example' : 'examples'}`;
 
   const cards = model.scenarios.map((scenario) => {
+    const presentation = scenarioPresentation(scenario);
     const card = element('article', 'scenario-library-card');
     const header = element('div', 'scenario-card-header');
     const identity = element('div');
     identity.append(
-      element('span', 'scenario-id', scenario.scenario_id),
-      element('h2', '', scenario.title)
+      element('span', 'scenario-id', presentation.category),
+      element('h2', '', presentation.title)
     );
     header.append(identity, statusChip(scenario.state));
 
     card.append(
       header,
-      element('p', '', scenario.subtitle),
+      element('p', '', presentation.subtitle),
+      createScenarioExplanation(scenario),
       createScenarioStats(scenario),
       createScenarioActions(scenario)
     );
-
-    const hashLine = element('div', 'hash-line');
-    hashLine.append(
-      element('span', '', 'Read model hash'),
-      element('code', '', scenario.read_model_hash)
-    );
-    card.append(hashLine);
+    const terms = createTerms(scenario);
+    if (terms) card.append(terms);
+    card.append(createScenarioTechnicalDetails(scenario));
     return card;
   });
 
@@ -185,23 +393,35 @@ function renderScenarios(model) {
 
 function renderLenses(model) {
   const cards = model.lens_registry.map((lens) => {
+    const presentation = LENS_PRESENTATION.get(lens.lens_id) ?? {
+      label: 'Another declared way to examine the change',
+      description: 'A deterministic question asked separately of the same before-and-after state.'
+    };
     const card = element('article', 'lens-card');
     const topline = element('div', 'lens-card-topline');
     topline.append(
       statusChip(lens.state),
-      element('strong', 'lens-effect-count', lens.effect_count)
+      element('strong', 'lens-effect-count', `${lens.effect_count} findings`)
     );
 
-    const title = element('h2', '', lens.lens_id);
-    const description = element(
-      'p',
-      '',
-      LENS_DESCRIPTIONS.get(lens.lens_id) ?? 'Declared deterministic lens with source-bound output.'
+    card.append(
+      topline,
+      element('h2', '', presentation.label),
+      element('p', '', presentation.description)
     );
-    const link = element('a', 'quiet-link', 'Inspect current effects →');
-    link.href = lens.href;
-
-    card.append(topline, title, description, link);
+    if (lens.href) {
+      const link = element('a', 'quiet-link', 'Explore the current findings →');
+      link.href = lens.href;
+      card.append(link);
+    } else {
+      card.append(element('span', 'scenario-action-unavailable', 'Detailed findings page not published yet'));
+    }
+    card.append(technicalDetails([
+      ['Technical term', 'Lens'],
+      ['Lens ID', lens.lens_id],
+      ['Examples using this lens', lens.scenario_count],
+      ['Engine state', lens.state]
+    ]));
     return card;
   });
   document.querySelector('#lens-registry').replaceChildren(...cards);
@@ -211,14 +431,14 @@ function renderSources(model) {
   const source = model.source_corpus;
   document.querySelector('#source-count').textContent = source.entry_count;
   document.querySelector('#source-subset').textContent = source.selected_subset ? 'Yes' : 'None';
-  document.querySelector('#source-embedding').textContent = source.embedded_in_runtime ? 'Embedded' : 'External';
+  document.querySelector('#source-embedding').textContent = source.embedded_in_runtime ? 'Embedded' : 'Kept separate';
 
   const definitions = [
-    ['Manifest', source.manifest_id],
-    ['Corpus policy', source.corpus_policy],
-    ['Identity rule', source.identity_rule],
-    ['Subset selection', source.selected_subset ? 'A preferred subset is active.' : 'No silent preferred subset. All manifest entries remain active source artifacts.'],
-    ['Runtime payload', source.embedded_in_runtime ? 'Source bytes are embedded.' : 'Source custody is preserved separately from runtime payload.']
+    ['Evidence record', source.manifest_id],
+    ['What is kept', source.corpus_policy],
+    ['How exact file identity is checked', source.identity_rule],
+    ['Silent source selection', source.selected_subset ? 'A preferred subset is active.' : 'None. Files are not silently dropped because they conflict, duplicate, revise, or complicate the story.'],
+    ['Where the source files live', source.embedded_in_runtime ? 'Source bytes are embedded in the runtime.' : 'Source custody is kept separate from the running application.']
   ];
 
   const fragment = document.createDocumentFragment();
@@ -230,31 +450,46 @@ function renderSources(model) {
   document.querySelector('#source-contract').replaceChildren(fragment);
 }
 
+function receiptPublicLabel(receipt) {
+  if (receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1') {
+    return 'Replay proof for the workplace-rights example';
+  }
+  if (String(receipt.receipt_id).startsWith('preempt-run-')) {
+    return 'Replay proof for the state/local-authority example';
+  }
+  if (receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04') {
+    return 'Proof of a validated Civic Genome handoff';
+  }
+  if (receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1') {
+    return 'Proof of the current Kaleidoscope storage boundary';
+  }
+  return receipt.label;
+}
+
 function renderReceipts(model) {
   const cards = model.receipts.map((receipt) => {
     const card = element('article', 'receipt-card');
-    card.append(statusChip(receipt.state), element('h2', '', receipt.label));
+    card.append(statusChip(receipt.state), element('h2', '', receiptPublicLabel(receipt)));
 
-    const meta = element('dl', 'receipt-meta');
-    const values = [
+    const plain = element('p', '', 'This record makes the underlying technical state inspectable and replayable instead of asking you to trust a hidden conclusion.');
+    card.append(plain);
+    card.append(technicalDetails([
+      ['Technical label', receipt.label],
       ['Receipt ID', receipt.receipt_id],
       ['Receipt hash', receipt.receipt_hash],
       ['Run ID', receipt.run_id],
       ['Snapshot hash', receipt.source_snapshot_hash],
       ['Binding state', receipt.binding_state],
       ['Persisted', receipt.persisted],
-      ['Projection', receipt.projection_executed]
-    ].filter(([, value]) => value !== undefined && value !== null);
-
-    for (const [term, value] of values) {
-      const row = element('div');
-      row.append(element('dt', '', term), element('dd', '', typeof value === 'boolean' ? String(value) : value));
-      meta.append(row);
-    }
-    card.append(meta);
+      ['Projection executed', receipt.projection_executed],
+      ['Tables', receipt.table_count],
+      ['Functions', receipt.function_count],
+      ['Triggers', receipt.trigger_count],
+      ['Rows', receipt.row_count]
+    ]));
 
     if (receipt.href) {
-      const link = element('a', '', 'Open raw receipt →');
+      const link = element('a', '', 'Open raw technical record →');
       link.href = receipt.href;
       card.append(link);
     }
@@ -265,17 +500,23 @@ function renderReceipts(model) {
 
 function boundaryDisplay(key, value) {
   const labels = {
-    database_schema: ['Database schema', value, 'The projection substrate is isolated in its own Kaleidoscope-owned schema.'],
-    database_tables: ['Database tables', value, 'All current projection-substrate tables are RLS enabled.'],
-    database_rows: ['Canonical database rows', value, 'All 16 projection-substrate tables are currently empty.'],
-    database_migrations: ['Recorded migrations', value, 'The substrate and index migrations are present in Supabase migration history.'],
-    database_persistence: ['Runtime persistence', value ? 'Enabled' : 'Not bound', 'The schema exists, but the runtime has no proven canonical write path.'],
-    canonical_projection_execution: ['Canonical projection execution', value ? 'Enabled' : 'Disabled', 'Current execution remains a source-controlled test fixture, not canonical civic truth.'],
-    upstream_mutation: ['Upstream mutation', value ? 'Enabled' : 'Prohibited', 'Docket, Rosetta, Civic Genome, Prism, Atlas, and Esquire remain authoritative owners.'],
-    hidden_composite_score: ['Hidden composite score', value ? 'Present' : 'None', 'Independent lens effects and collisions remain separate.'],
-    runtime_ai_dependency: ['Runtime AI dependency', value ? 'Present' : 'None', 'The execution contract is deterministic code and declared math only.'],
-    unresolved_states_preserved: ['Unresolved state', value ? 'Preserved' : 'Not preserved', 'Unknown, mixed, contradictory, and incomplete states remain visible.'],
-    source_identity_rule: ['Source identity', humanize(value), 'Artifact identity is governed by exact bytes and SHA-256, not filename similarity.']
+    database_schema: ['Database area', value, 'Kaleidoscope keeps its own governed record area separate from upstream systems.'],
+    database_tables: ['Record structures', value, 'The current Kaleidoscope record structures are access-controlled.'],
+    database_functions: ['Governed database functions', value, 'Database-side functions are part of the inspectable storage boundary.'],
+    database_triggers: ['Append-only protections', value, 'Database triggers reject update/delete attempts on truth-bearing records.'],
+    database_rows: ['Official saved results', value, 'No canonical Kaleidoscope analysis has been saved yet.'],
+    database_migrations: ['Storage versions applied', value, 'The storage structure and its indexing change are both recorded.'],
+    database_persistence: ['Saving official results', value ? 'Enabled' : 'Not enabled', 'The storage exists, but the runtime has no proven authorized write path.'],
+    canonical_projection_execution: ['Live official projections', value ? 'Enabled' : 'Not enabled', 'Current executions are bounded tested examples, not canonical civic truth.'],
+    legislative_consequence_stage_1_2: ['Legal-change analysis', value ? 'First two stages available' : 'Unavailable', 'Direct structural change and governed consequence relationships are available; later stages remain separate.'],
+    legislative_consequence_stages_3_6: ['Later consequence stages', value ? 'Available' : 'Not run', 'Kaleidoscope does not invent later-stage impact, historical comparison, accountability, or checklist output.'],
+    persistence_preflight_available: ['Safe-save check', value ? 'Available' : 'Unavailable', 'Kaleidoscope can identify what could map into storage and what still blocks a live write.'],
+    persistence_live_write_authorized: ['Live database write', value ? 'Authorized' : 'Not authorized', 'A mapping check is not permission to save an official record.'],
+    upstream_mutation: ['Changing source systems', value ? 'Enabled' : 'Prohibited', 'Kaleidoscope reads governed outputs but does not rewrite Docket Room, Rosetta, Civic Genome, Prism, Atlas, or Esquire.'],
+    hidden_composite_score: ['Hidden all-in-one score', value ? 'Present' : 'None', 'Different findings and conflicts stay separate instead of being averaged into one number.'],
+    runtime_ai_dependency: ['AI in the runtime decision path', value ? 'Present' : 'None', 'The execution contract is deterministic code and declared math only.'],
+    unresolved_states_preserved: ['Open questions', value ? 'Preserved' : 'Not preserved', 'Unknown, mixed, contradictory, and incomplete states remain visible.'],
+    source_identity_rule: ['Exact source identity', humanize(value), 'File identity is governed by exact bytes and SHA-256, not filename similarity.']
   };
   return labels[key] ?? [humanize(key), String(value), ''];
 }
@@ -295,18 +536,20 @@ function renderSystem(model) {
 }
 
 function renderHeaderState(model) {
-  document.querySelector('#platform-mission').textContent = model.mission;
-  document.querySelector('#truth-label').textContent = model.truth_label;
-  document.querySelector('#hero-environment').textContent = humanize(model.environment);
-  document.querySelector('#hero-determinism').textContent = model.deterministic ? 'Deterministic' : 'Unverified';
+  document.querySelector('#platform-mission').textContent = 'See what changes, why it matters, what the evidence supports, and what is still unknown — without hiding disagreement behind a score.';
+  document.querySelector('#truth-label').textContent = 'This is a staging workspace. It shows deterministic, source-controlled examples and clearly marks anything that is not yet an official saved Kaleidoscope result.';
+  document.querySelector('#hero-environment').textContent = model.environment === 'staging' ? 'Testing / staging' : humanize(model.environment);
+  document.querySelector('#hero-determinism').textContent = model.deterministic ? 'Same inputs → same result' : 'Unverified';
   document.querySelector('#hero-persistence').textContent = model.system_boundary.database_persistence
-    ? 'Enabled'
+    ? 'Official saving enabled'
     : model.summary.database_tables > 0
-      ? 'Runtime not bound'
-      : 'Disabled';
-  document.querySelector('#hero-projection').textContent = model.system_boundary.canonical_projection_execution ? 'Enabled' : 'Disabled';
+      ? 'Storage ready; saving not enabled'
+      : 'Not available';
+  document.querySelector('#hero-projection').textContent = model.system_boundary.canonical_projection_execution
+    ? 'Official projections enabled'
+    : 'Examples only';
   document.querySelector('#sidebar-foundation').textContent = `v${model.foundation_version}`;
-  document.querySelector('#footer-model-hash').textContent = `Platform read model · ${model.read_model_hash}`;
+  document.querySelector('#footer-model-hash').textContent = `Technical read-model hash · ${model.read_model_hash}`;
   document.title = `${model.platform_label} · Luminari`;
 }
 
