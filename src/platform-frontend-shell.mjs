@@ -249,7 +249,7 @@ export function kaleidoscopePlatformReadModel() {
       }
     ],
     legislative_consequence: {
-      scenario_id: legislativeConsequenceFixture.scenario_id,
+      scenario_id: legislativeConsequenceFixture.structural_delta_bundle.scenario_id,
       state: 'stage_1_2_source_controlled_stages_3_6_null',
       structural_delta_count: legislativeConsequenceFixture.structural_delta_bundle.delta_count,
       consequence_edge_count: legislativeConsequenceFixture.consequence_graph.edge_count,
