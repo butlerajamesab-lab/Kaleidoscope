@@ -1,0 +1,48 @@
+{
+  "manifest_id": "legislative_consequence_impact_surface_classification.v1",
+  "manifest_version": "1.0.0",
+  "scenario_id": "eeoc_demographics_reporting_rollback_2026",
+  "source_graph_id": "lcgraph-eeoc-demographics-reporting-rollback-2026-v1",
+  "no_numeric_weights": true,
+  "no_new_causal_claims": true,
+  "classifications": [
+    {
+      "source_edge_id": "lce-eeoc-2026-federal-filing-channel-removed",
+      "disposition": "include",
+      "effect_classes": ["legal"]
+    },
+    {
+      "source_edge_id": "lce-eeoc-2026-federal-aggregate-intake-channel-unavailable",
+      "disposition": "include",
+      "effect_classes": ["operational"]
+    },
+    {
+      "source_edge_id": "lce-eeoc-2026-charge-investigation-path-preserved",
+      "disposition": "include",
+      "effect_classes": ["legal"]
+    },
+    {
+      "source_edge_id": "lce-eeoc-2026-federal-colorado-fragmentation",
+      "disposition": "include",
+      "effect_classes": ["legal", "administrative"]
+    },
+    {
+      "source_edge_id": "lce-eeoc-2026-component2-historical-analogue",
+      "disposition": "defer",
+      "effect_classes": [],
+      "defer_reason": "historical_comparison_reserved_for_stage_4_atlas"
+    },
+    {
+      "source_edge_id": "lce-eeoc-2026-proactive-analysis-effect-unresolved",
+      "disposition": "include",
+      "effect_classes": ["operational"]
+    }
+  ],
+  "explicit_non_claims": [
+    "Impact classification does not strengthen the causal state of a Stage 2 edge.",
+    "Impact classification does not strengthen the evidence ceiling of a Stage 2 edge.",
+    "No economic effect is asserted where the Stage 2 graph and this manifest do not declare one.",
+    "The historical analogue is not treated as an executed Atlas historical comparison.",
+    "No Lighthouse accountability view or checklist is instantiated by Stage 3."
+  ]
+}
