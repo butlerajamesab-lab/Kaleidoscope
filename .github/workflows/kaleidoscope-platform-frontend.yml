@@ -7,8 +7,12 @@ on:
       - "src/platform-frontend-shell.mjs"
       - "src/server.mjs"
       - "src/persistence-plan.mjs"
+      - "src/local-preemption-family-slice.mjs"
+      - "fixtures/local-preemption-family-vertical-slice.v1.mjs"
+      - "lenses/preemption-*.v1.json"
       - "test/platform-frontend-shell.test.mjs"
       - "test/persistence-plan.test.mjs"
+      - "test/local-preemption-family-slice.test.mjs"
       - "receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json"
       - "docs/KALEIDOSCOPE_PLATFORM_FRONTEND_V1.md"
       - ".github/workflows/kaleidoscope-platform-frontend.yml"
@@ -32,17 +36,19 @@ jobs:
           node --check src/server.mjs
           node --check src/platform-frontend-shell.mjs
           node --check src/persistence-plan.mjs
+          node --check src/local-preemption-family-slice.mjs
           node --check public/kaleidoscope-app.js
 
-      - name: Run platform frontend and persistence-preflight tests
+      - name: Run platform frontend, persistence-preflight, and second-slice tests
         run: |
           node --test test/platform-frontend-shell.test.mjs
           node --test test/persistence-plan.test.mjs
+          node --test test/local-preemption-family-slice.test.mjs
 
       - name: Run full foundation build
         run: npm run build
 
-      - name: Prove browser, machine, substrate, and persistence truth boundaries
+      - name: Prove browser, machine, scenario, substrate, and persistence truth boundaries
         run: |
           PORT=10080 node src/server.mjs >/tmp/kaleidoscope-platform-frontend.log 2>&1 &
           server_pid=$!
@@ -62,7 +68,7 @@ jobs:
             | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app'||v.database_table_count!==16||v.database_function_count!==3||v.database_trigger_count!==17||v.database_row_count!==0||v.persistence_preflight_state!=='deterministic_dry_run_mapping_only'||v.persistence_preflight_blocker_count!==5||v.persistence_live_write_authorized!==false)process.exit(1)})"
 
           curl --fail --silent http://127.0.0.1:10080/v1/platform/read-model \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);const p=v.persistence_preflight;if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41||v.summary.database_tables!==16||v.summary.database_rows!==0||v.database_substrate.function_count!==3||v.database_substrate.trigger_count!==17||v.database_substrate.migration_history.length!==2||v.database_substrate.runtime_database_write_path_proven!==false||!p||p.table_plan_count!==16||p.blocker_count!==5||p.live_write_authorized!==false||p.database_write_count!==0||p.credentials_required!==false||p.sql_emitted!==false||p.upstream_mutation!==false)process.exit(1)})"
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);const p=v.persistence_preflight;const lp=v.scenarios.find(x=>x.policy_family_id==='local_lgbtq_ordinance_preemption.v1');if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41||v.summary.scenario_count!==2||v.summary.lens_count!==7||v.summary.preserved_collision_count!==5||v.summary.database_tables!==16||v.summary.database_rows!==0||!lp||lp.mechanism_count!==5||lp.operation_count!==6||lp.lens_count!==4||lp.collision_count!==2||lp.href!==null||lp.receipt_href!==null||v.database_substrate.function_count!==3||v.database_substrate.trigger_count!==17||v.database_substrate.migration_history.length!==2||v.database_substrate.runtime_database_write_path_proven!==false||!p||p.table_plan_count!==16||p.blocker_count!==5||p.live_write_authorized!==false||p.database_write_count!==0||p.credentials_required!==false||p.sql_emitted!==false||p.upstream_mutation!==false)process.exit(1)})"
 
           curl --fail --silent http://127.0.0.1:10080/v1/status \
             | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.supabase_table_count!==16||v.supabase_function_count!==3||v.supabase_trigger_count!==17||v.supabase_row_count!==0||v.runtime_persistence_adapter_state!=='not_bound'||v.persistence_preflight_state!=='deterministic_dry_run_mapping_only'||v.persistence_live_write_authorized!==false||v.persistence_database_write_count!==0||v.persistence_credentials_required!==false||v.persistence_sql_emitted!==false||v.persistence_upstream_mutation!==false)process.exit(1)})"
