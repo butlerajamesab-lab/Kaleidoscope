@@ -1,0 +1,56 @@
+{
+  "lens_id": "preemption_operability.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Expose current operability differences inside the source-defined local nondiscrimination preemption family without converting family membership into a coordination claim.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "operative_preemption_persists_tn_ar",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TN", "AR"]},
+      "emit": {
+        "effect_type": "operative_preemption_persists",
+        "direction": "restriction_preserved",
+        "statement": "The source-described state-local nondiscrimination preemption remains operative in this jurisdiction."
+      }
+    },
+    {
+      "rule_id": "historical_preemption_expired_nc",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["NC"]},
+      "emit": {
+        "effect_type": "historical_preemption_expired",
+        "direction": "local_authority_available",
+        "statement": "The source-described HB2-era preemption is historical and remains expired in the represented current state.",
+        "unresolved_conditions": ["exact_expiration_date_not_bound_in_current_source_pack"]
+      }
+    },
+    {
+      "rule_id": "broad_preemption_instrument_present_tx",
+      "when": {"operations": ["modified"], "dimensions": ["state_preemption_instrument"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "broad_preemption_instrument_present",
+        "direction": "state_preemption_capacity_added_since_reference",
+        "statement": "The source pack identifies a broad Texas preemption instrument enacted after the reference state."
+      }
+    },
+    {
+      "rule_id": "lgbtq_application_unresolved_tx",
+      "when": {"operations": ["unresolved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "lgbtq_specific_application_unresolved",
+        "direction": "contested",
+        "statement": "The source pack reports an LGBTQ-ordinance application of the Texas preemption law while preserving the litigation outcome as unresolved.",
+        "unresolved_conditions": ["dallas_litigation_outcome_not_established_in_source_pack", "causal_coordination_not_asserted"]
+      }
+    },
+    {
+      "rule_id": "local_authority_preempted_ia",
+      "when": {"operations": ["preempted"], "dimensions": ["local_government_authority"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "local_authority_preempted",
+        "direction": "restricted",
+        "statement": "The represented Iowa local authority to maintain broader nondiscrimination categories is preempted in the changed state.",
+        "unresolved_conditions": ["complete_enrolled_sf579_text_not_independently_reviewed_line_by_line"]
+      }
+    }
+  ]
+}

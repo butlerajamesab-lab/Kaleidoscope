@@ -1,0 +1,139 @@
+{
+  "mechanisms": [
+    {
+      "mechanism_id": "PREEMPT-TN-2011",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "operative",
+      "implementation_route_types": ["state_legislation", "state_local_preemption"],
+      "model": {
+        "proposal": "Prevent local governments from imposing anti-discrimination provisions that deviate from or add to the state-law baseline.",
+        "claimed_authority": "Tennessee state legislative authority over local governments.",
+        "baseline": "Local governments otherwise exercise delegated local ordinance authority subject to state law.",
+        "required_instrument": "State statute restricting local anti-discrimination standards.",
+        "implementation_chain": ["state enactment in 2011", "local ordinance authority constrained to state-law baseline"],
+        "observed_evidence": ["Tenn. Code Ann. §7-51-1802 operative clause quoted in the family dossier", "dossier states the law remains operative"],
+        "jurisdictional_variation": ["Tennessee is identified as the earliest member of this source-defined family"],
+        "response_pathways": [],
+        "timing_dependencies": ["operative since 2011 according to the source pack"],
+        "unresolved_questions": ["full statutory context beyond the quoted operative section remains outstanding in the dossier"]
+      },
+      "source_bindings": [
+        {"source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md", "verification_state": "primary_verified"}
+      ]
+    },
+    {
+      "mechanism_id": "PREEMPT-AR-2015",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "operative",
+      "implementation_route_types": ["state_legislation", "state_local_preemption"],
+      "model": {
+        "proposal": "Prevent political subdivisions from creating protected classifications or discrimination prohibitions not contained in state law.",
+        "claimed_authority": "Arkansas state legislative authority over counties, municipalities, and other political subdivisions.",
+        "baseline": "Local governments otherwise exercise delegated local ordinance authority subject to state law.",
+        "required_instrument": "State statute restricting locally created protected classifications.",
+        "implementation_chain": ["state enactment in 2015", "local protected-class expansion constrained to state-law categories"],
+        "observed_evidence": ["Ark. Code Ann. §14-1-403 operative clause quoted in the family dossier", "dossier states no repeal was identified"],
+        "jurisdictional_variation": ["Arkansas followed Tennessee but used its own statutory vehicle"],
+        "response_pathways": [],
+        "timing_dependencies": ["operative since 2015 according to the source pack"],
+        "unresolved_questions": ["full statutory context beyond the quoted operative section remains outstanding in the dossier"]
+      },
+      "source_bindings": [
+        {"source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md", "verification_state": "primary_verified"}
+      ]
+    },
+    {
+      "mechanism_id": "PREEMPT-NC-HB2-HISTORICAL",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "unresolved",
+      "implementation_route_types": ["state_legislation", "state_local_preemption", "historical_expiration"],
+      "model": {
+        "proposal": "During the HB2 period, restrict local anti-discrimination authority through state preemption.",
+        "claimed_authority": "North Carolina state legislative authority over local governments.",
+        "baseline": "Local nondiscrimination authority before and after the source-described preemption period differs over time.",
+        "required_instrument": "HB2-era state preemption provision.",
+        "implementation_chain": ["HB2-era preemption became operative", "source-described preemption provision expired in 2020", "local governments subsequently enacted anti-bias policies"],
+        "observed_evidence": ["family dossier states the preemption provision expired in 2020 and local authority returned"],
+        "jurisdictional_variation": ["North Carolina is historical rather than currently operative in the source pass"],
+        "response_pathways": ["local governments may enact protections after expiration, as described by the source"],
+        "timing_dependencies": ["preemption period ended in 2020 according to the source pack"],
+        "unresolved_questions": ["engine implementation-state vocabulary v1 has no historical_expired state; the source fact is preserved in the component model rather than silently relabeled", "exact expiration date is not bound in the current source pack"]
+      },
+      "source_bindings": [
+        {"source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md", "verification_state": "secondary_verified"}
+      ]
+    },
+    {
+      "mechanism_id": "PREEMPT-TX-2023",
+      "implementation_match": "partial_structural_match",
+      "implementation_state": "contested",
+      "implementation_route_types": ["state_legislation", "broad_business_preemption", "third_party_litigation"],
+      "model": {
+        "proposal": "Use a broad 2023 state preemption statute to invalidate municipal ordinances within its covered fields.",
+        "claimed_authority": "Texas state legislative preemption authority, with application tested through private litigation.",
+        "baseline": "The source describes the 2023 statute as broad and not LGBTQ-specific in its original design.",
+        "required_instrument": "Broad state preemption statute plus a legal claim applying it to a specific municipal ordinance.",
+        "implementation_chain": ["broad statute enacted in 2023", "private plaintiffs filed suit in November 2025", "Dallas LGBTQ anti-bias ordinance included among challenged ordinances", "outcome unresolved in source pass"],
+        "observed_evidence": ["family dossier records the 2023 statute and the reported November 2025 Dallas litigation"],
+        "jurisdictional_variation": ["Texas mechanism is broader than LGBTQ policy and is only later reported as being applied to an LGBTQ ordinance"],
+        "response_pathways": ["litigation outcome may determine whether the ordinance remains enforceable"],
+        "timing_dependencies": ["statute predates the LGBTQ-specific lawsuit by roughly two years in the source account"],
+        "unresolved_questions": ["current outcome of Dallas litigation is not established in the source pack", "complete primary statutory text is not bound in this fixture"]
+      },
+      "source_bindings": [
+        {"source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md", "verification_state": "secondary_verified"}
+      ]
+    },
+    {
+      "mechanism_id": "P25-IA-01",
+      "implementation_match": "exact_structural_match",
+      "implementation_state": "operative_with_open_primary_source_items",
+      "implementation_route_types": ["state_legislation", "state_local_preemption", "procedural_bill_amendment"],
+      "model": {
+        "proposal": "Bar Iowa cities and local governments from enacting civil-rights ordinances broader than or containing different discrimination categories from state law.",
+        "claimed_authority": "Iowa General Assembly legislative authority over the Iowa Civil Rights Act and local-government ordinance authority.",
+        "baseline": "Local governments had broader gender-identity protections in 13 cities plus unincorporated Johnson County according to the corrected source pass.",
+        "required_instrument": "SF 579 as amended in the 2026 House session with preemption language derived from a separate proposal.",
+        "implementation_chain": ["SF 579 began in 2025 as a procedural civil-rights-complaint bill", "preemption language was added in the 2026 House session", "final amended bill passed", "Governor signed March 10, 2026 according to the source pass"],
+        "observed_evidence": ["P25-IA-01 dossier gives the preemption clause, legislative-history correction, signature date, and locality-count correction"],
+        "jurisdictional_variation": ["Iowa used a procedural-bill amendment vehicle rather than the same legislative vehicle as Tennessee or Arkansas"],
+        "response_pathways": ["federal Title VII protection remains separately available according to the Iowa dossier"],
+        "timing_dependencies": ["preemption follows Iowa's 2025 removal of gender identity from the state protected-class baseline"],
+        "unresolved_questions": ["complete enrolled SF 579 text has not been independently reviewed line by line", "litigation status is not established from a retrieved filing or opinion"]
+      },
+      "source_bindings": [
+        {"source_artifact_id": "P25-IA-01_mechanism_dossier-4.md", "verification_state": "secondary_verified_high_confidence"}
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "PREEMPT-TN-2011",
+      "target_id": "P25-IA-01",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "The family dossier treats Tennessee and Iowa as reuse of a similar state-local preemption mechanism across different times and legislative vehicles, not as proof of coordination."
+    },
+    {
+      "source_id": "PREEMPT-AR-2015",
+      "target_id": "P25-IA-01",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "The family dossier treats Arkansas and Iowa as structurally similar state-local preemption mechanisms without asserting a causal chain."
+    },
+    {
+      "source_id": "PREEMPT-NC-HB2-HISTORICAL",
+      "target_id": "P25-IA-01",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "North Carolina is preserved as a historical member whose preemption expired, demonstrating that family membership does not imply identical current state."
+    },
+    {
+      "source_id": "PREEMPT-TX-2023",
+      "target_id": "P25-IA-01",
+      "relationship_type": "produces_similar_effect",
+      "causal_claim_state": "not_asserted",
+      "evidence_note": "Texas uses a broad preemption statute later applied in litigation to an LGBTQ ordinance; the source explicitly distinguishes this vehicle from Iowa's legislation."
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "fixture_version": "1.0.0",
+  "fixture_state": "bounded_source_pack_test",
+  "scenario_id": "local_lgbtq_ordinance_preemption_vertical_slice.v1",
+  "policy_family_id": "local_lgbtq_ordinance_preemption.v1",
+  "source_artifact_ids": [
+    "P25-PREEMPT-FAMILY-01_dossier.md",
+    "P25-IA-01_mechanism_dossier-4.md"
+  ],
+  "upstream_processing": {
+    "docket_room": {
+      "state": "not_applicable",
+      "required": false,
+      "note": "This fixture is a governed source-pack comparison rather than a live bill-retrieval request."
+    },
+    "rosetta": {
+      "state": "not_run",
+      "required": false,
+      "note": "No Rosetta extraction is manufactured for source-pack statements that are already bounded by their dossier verification states."
+    },
+    "civic_genome": {
+      "state": "not_applicable",
+      "required": false,
+      "note": "No Civic Genome family or event record is manufactured for this source-pack fixture."
+    },
+    "prism": {
+      "state": "not_observed",
+      "required": false,
+      "note": "No Prism verification finding is manufactured."
+    },
+    "atlas": {
+      "state": "not_run",
+      "required": false,
+      "note": "The historical sequence is taken only from the governed dossier source; no Atlas historical comparison is claimed."
+    }
+  },
+  "lens_ids": [
+    "preemption_operability.v1",
+    "preemption_temporal_history.v1",
+    "preemption_jurisdictional_variation.v1",
+    "affected_populations.v1"
+  ],
+  "collision_rules": [
+    {
+      "collision_id": "collision_family_active_vs_expired",
+      "collision_type": "same_family_different_current_operability",
+      "left_effect_type": "operative_preemption_persists",
+      "right_effect_type": "historical_preemption_expired",
+      "statement": "The same source-defined mechanism family contains currently operative restrictions and a historical member whose preemption expired; those states remain separate rather than being collapsed into one family score."
+    },
+    {
+      "collision_id": "collision_texas_instrument_vs_application",
+      "collision_type": "operative_general_instrument_specific_application_unresolved",
+      "left_effect_type": "broad_preemption_instrument_present",
+      "right_effect_type": "lgbtq_specific_application_unresolved",
+      "statement": "The source pack identifies the broad Texas preemption instrument while preserving the outcome of its reported LGBTQ-ordinance application as unresolved.",
+      "unresolved_conditions": ["dallas_litigation_outcome_not_established_in_source_pack"]
+    }
+  ],
+  "assumptions": [],
+  "excluded_factors": [
+    "No centralized coordination among Tennessee, Arkansas, North Carolina, Texas, Iowa, Project 2025, or federal actors is assumed.",
+    "No litigation outcome after the source-pack reporting boundary is inferred.",
+    "No population magnitude, discrimination-rate change, or political intent score is computed.",
+    "Family membership does not imply identical legislative vehicle, authority chain, temporal state, or current operability."
+  ],
+  "unresolved_conditions": [
+    "Full statutory context for the quoted Tennessee and Arkansas operative clauses is not bound in the current source pack.",
+    "Exact North Carolina preemption expiration date is not bound in the current source pack.",
+    "Current outcome of the reported Dallas Texas preemption litigation is not established in the source pack.",
+    "Complete enrolled Iowa SF 579 text has not been independently reviewed line by line.",
+    "The source pack does not establish whether additional states belong to this mechanism family."
+  ]
+}
