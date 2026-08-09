@@ -14,6 +14,7 @@ import {
   KALEIDOSCOPE_APP_PATH,
   KALEIDOSCOPE_APP_READ_MODEL_PATH,
   KALEIDOSCOPE_APP_FRONTEND_VERSION,
+  kaleidoscopePlatformReadModel,
   resolveKaleidoscopePlatformFrontendRequest
 } from './platform-frontend-shell.mjs';
 
@@ -73,6 +74,11 @@ function handshakeConfiguration() {
   };
 }
 
+function substrateStatus() {
+  const platform = kaleidoscopePlatformReadModel();
+  return platform.database_substrate;
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url ?? '/', 'http://localhost').pathname;
@@ -91,6 +97,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && pathname === '/') {
+      const database = substrateStatus();
       return send(res, 200, {
         platform: 'kaleidoscope',
         environment: 'staging',
@@ -107,6 +114,10 @@ const server = http.createServer(async (req, res) => {
         frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+        database_state: database.canonical_persistence_state,
+        database_schema: database.schema_name,
+        database_table_count: database.table_count,
+        database_row_count: database.exact_total_rows,
         browser_root: KALEIDOSCOPE_APP_PATH,
         routes: [
           '/health',
@@ -122,6 +133,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
     if (req.method === 'GET' && pathname === '/health') {
+      const database = substrateStatus();
       return send(res, 200, {
         status: 'ok',
         platform: 'kaleidoscope',
@@ -136,10 +148,14 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        database_state: 'migration_not_applied'
+        database_state: database.canonical_persistence_state,
+        database_schema: database.schema_name,
+        database_table_count: database.table_count,
+        database_row_count: database.exact_total_rows
       });
     }
     if (req.method === 'GET' && pathname === '/v1/status') {
+      const database = substrateStatus();
       return send(res, 200, {
         platform: 'kaleidoscope',
         foundation_version: ENGINE_VERSION,
@@ -161,7 +177,12 @@ const server = http.createServer(async (req, res) => {
         frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
-        supabase_state: 'empty_project_migration_draft_only',
+        supabase_state: database.canonical_persistence_state,
+        supabase_schema: database.schema_name,
+        supabase_table_count: database.table_count,
+        supabase_row_count: database.exact_total_rows,
+        supabase_migration_count: database.migration_history.length,
+        runtime_database_write_path_proven: database.runtime_database_write_path_proven,
         unresolved_states_preserved: true
       });
     }
@@ -208,6 +229,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
+  const database = substrateStatus();
   console.log(JSON.stringify({
     event: 'kaleidoscope_started',
     port: PORT,
@@ -215,6 +237,9 @@ server.listen(PORT, '0.0.0.0', () => {
     runtime_revision: RUNTIME_REVISION,
     platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
     project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+    database_state: database.canonical_persistence_state,
+    database_table_count: database.table_count,
+    database_row_count: database.exact_total_rows,
     environment: 'staging'
   }));
 });
