@@ -1,0 +1,53 @@
+{
+  "lens_id": "preemption_jurisdictional_variation.v1",
+  "lens_version": "1.0.0",
+  "purpose": "Expose jurisdiction-specific current state and legislative-route variation inside the same source-defined mechanism family without flattening those differences into one label.",
+  "no_mutation": true,
+  "rules": [
+    {
+      "rule_id": "restricted_current_state_tn_ar",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TN", "AR"]},
+      "emit": {
+        "effect_type": "current_local_authority_restricted",
+        "direction": "restricted",
+        "statement": "The source-described current state preserves a restriction on broader local nondiscrimination authority in this jurisdiction."
+      }
+    },
+    {
+      "rule_id": "available_current_state_nc",
+      "when": {"operations": ["preserved"], "dimensions": ["local_government_authority"], "jurisdictions": ["NC"]},
+      "emit": {
+        "effect_type": "current_local_authority_available",
+        "direction": "available",
+        "statement": "The source-described current state preserves local nondiscrimination authority after expiration of the historical North Carolina preemption provision."
+      }
+    },
+    {
+      "rule_id": "general_preemption_capacity_tx",
+      "when": {"operations": ["modified"], "dimensions": ["state_preemption_instrument"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "general_preemption_capacity_present",
+        "direction": "broad_state_instrument",
+        "statement": "Texas is represented through a broad state preemption instrument rather than a statute originally designed only around LGBTQ nondiscrimination categories."
+      }
+    },
+    {
+      "rule_id": "specific_local_authority_contested_tx",
+      "when": {"operations": ["unresolved"], "dimensions": ["local_government_authority"], "jurisdictions": ["TX"]},
+      "emit": {
+        "effect_type": "specific_local_authority_contested",
+        "direction": "contested",
+        "statement": "The reported application to Dallas's LGBTQ ordinance is preserved as a jurisdiction-specific contested question rather than treated as a completed statewide effect."
+      }
+    },
+    {
+      "rule_id": "local_substitute_restricted_ia",
+      "when": {"operations": ["preempted"], "dimensions": ["local_government_authority"], "jurisdictions": ["IA"]},
+      "emit": {
+        "effect_type": "current_local_authority_restricted",
+        "direction": "restricted",
+        "statement": "Iowa's changed state restricts local governments from maintaining broader nondiscrimination categories than the represented state-law baseline."
+      }
+    }
+  ]
+}
