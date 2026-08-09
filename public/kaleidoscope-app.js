@@ -36,8 +36,10 @@ function statusTone(state) {
   if ([
     'executed_test_fixture',
     'source_controlled_test_fixture',
+    'source_controlled_no_projection',
     'external_owner',
-    'schema_present_empty',
+    'applied_empty_unbound',
+    'projection_substrate_applied_empty_unbound',
     'runtime_not_bound'
   ].includes(state)) return 'warning';
   if (['disabled', 'contract_not_established'].includes(state)) return 'restricted';
@@ -242,6 +244,12 @@ function renderReceipts(model) {
       ['Run ID', receipt.run_id],
       ['Snapshot hash', receipt.source_snapshot_hash],
       ['Binding state', receipt.binding_state],
+      ['Tables', receipt.table_count],
+      ['Functions', receipt.function_count],
+      ['Triggers', receipt.trigger_count],
+      ['Rows', receipt.row_count],
+      ['Migrations', receipt.migration_count],
+      ['Runtime adapter', receipt.runtime_adapter_proven === false ? 'not proven' : receipt.runtime_adapter_proven],
       ['Persisted', receipt.persisted],
       ['Projection', receipt.projection_executed]
     ].filter(([, value]) => value !== undefined && value !== null);
@@ -266,11 +274,15 @@ function renderReceipts(model) {
 function boundaryDisplay(key, value) {
   const labels = {
     database_schema: ['Database schema', value, 'The projection substrate is isolated in its own Kaleidoscope-owned schema.'],
-    database_tables: ['Database tables', value, 'All current projection-substrate tables are RLS enabled.'],
+    database_tables: ['Database tables', value, 'All 16 truth-bearing projection tables have RLS enabled.'],
+    database_functions: ['Governed database functions', value, 'Three substrate functions are present in the live schema.'],
+    database_triggers: ['Append-only triggers', value, 'Seventeen non-internal triggers enforce the update/delete boundary.'],
     database_rows: ['Canonical database rows', value, 'All 16 projection-substrate tables are currently empty.'],
-    database_migrations: ['Recorded migrations', value, 'The substrate and index migrations are present in Supabase migration history.'],
-    database_persistence: ['Runtime persistence', value ? 'Enabled' : 'Not bound', 'The schema exists, but the runtime has no proven canonical write path.'],
-    canonical_projection_execution: ['Canonical projection execution', value ? 'Enabled' : 'Disabled', 'Current execution remains a source-controlled test fixture, not canonical civic truth.'],
+    database_migrations: ['Recorded migrations', value, 'The substrate and index migrations are applied and recorded.'],
+    database_persistence: ['Runtime persistence', value ? 'Enabled' : 'Not bound', 'The governed substrate exists, but the runtime adapter is not proven.'],
+    canonical_projection_execution: ['Canonical projection execution', value ? 'Enabled' : 'Disabled', 'Current execution remains source-controlled test/specimen work, not canonical civic truth.'],
+    legislative_consequence_stage_1_2: ['Legislative Consequence · Stages 1–2', value ? 'Source-controlled' : 'Unavailable', 'Structural deltas and governed consequence edges are implemented for the EEOC specimen.'],
+    legislative_consequence_stages_3_6: ['Legislative Consequence · Stages 3–6', value ? 'Available' : 'Not executed', 'Impact surface, Atlas comparison, Lighthouse accountability, and checklist remain null.'],
     upstream_mutation: ['Upstream mutation', value ? 'Enabled' : 'Prohibited', 'Docket, Rosetta, Civic Genome, Prism, Atlas, and Esquire remain authoritative owners.'],
     hidden_composite_score: ['Hidden composite score', value ? 'Present' : 'None', 'Independent lens effects and collisions remain separate.'],
     runtime_ai_dependency: ['Runtime AI dependency', value ? 'Present' : 'None', 'The execution contract is deterministic code and declared math only.'],
