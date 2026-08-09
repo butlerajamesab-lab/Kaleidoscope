@@ -114,7 +114,7 @@ The consumer rejects:
 - accepted verification without a declared mapping rule;
 - any binding that permits upstream mutation.
 
-The contract remains `defined_unbound` until Lighthouse produces a live immutable source snapshot and the required verification mapping is declared. Validation capability is not the same as an accepted source binding.
+An authenticated Civic Genome snapshot delivery has been validated by Kaleidoscope, but the delivery remained non-persistent and unresolved. The contract therefore remains `defined_unbound` until an immutable source snapshot is accepted under a declared verification mapping and governed persistence contract. Authenticated validation is not the same as an accepted source binding.
 
 ## Complete source-corpus rule
 
@@ -244,6 +244,8 @@ Relationship:
 }
 ```
 
+The source-controlled Project 2025 Title VII vertical slice executes this bounded scenario through four declared lenses, preserves three cross-lens collisions, emits deterministic read-model and replay identities, and remains labeled `executed_test_fixture_not_canonical_fact`. Its execution does not make the fixture a canonical fact or production projection.
+
 ## Bounded demonstration 2: Local nondiscrimination preemption
 
 Policy family:
@@ -262,8 +264,28 @@ The source-defined family presently includes:
 
 The mechanism predates Project 2025 and appears through different legislative vehicles. Similar effect does not establish centralized coordination.
 
+## Persistence substrate
+
+On 2026-08-09 the source-controlled append-only projection substrate was applied to the Kaleidoscope Supabase project `iwmytuwofniybsmidtki`.
+
+The live substrate contains:
+
+- schema `kaleidoscope`;
+- 16 truth-bearing tables;
+- 3 governed functions;
+- 17 non-internal triggers;
+- RLS enabled on every truth-bearing table;
+- no table privileges for `public`, `anon`, or `authenticated`;
+- `service_role` limited to `select` and `insert`;
+- update/delete rejection through append-only triggers;
+- covering indexes for all foreign-key paths reported by the Supabase performance advisor.
+
+All 16 Kaleidoscope tables contained zero rows at the post-migration receipt boundary. No source binding, scenario, projection run, lens result, collision, or replay receipt was persisted by applying the schema. The live receipt is `receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json`.
+
+The substrate being present does not prove the runtime persistence adapter. Engine-to-database mapping, transactional persistence, replay from persisted state, and zero-upstream-mutation behavior remain separate required proofs.
+
 ## Acceptance gates
 
 Kaleidoscope is not operational until source, schema, kernel, determinism, provenance, boundary, unresolved-state, bridge, presentation, challenge/replay, rollback, and security proofs pass.
 
-Current v0.1.4 proves complete source custody, canonicalization, hashing, typed diff behavior, source-contract validation, and tamper rejection. Production lens execution, an applied Supabase state, a live accepted Civic Genome binding, persisted replay, and public user UI remain unproven.
+Current v0.1.4 source control proves complete source custody, canonicalization, hashing, typed diff behavior, Civic Genome source-contract validation and tamper rejection, authenticated non-persistent Civic Genome delivery validation, an executable bounded Project 2025 test fixture, and a read-only inspection surface. The append-only Supabase projection substrate and its foreign-key indexes are now live and empty. Production lens execution, a governed runtime persistence adapter, an accepted Civic Genome binding, persisted replay, full peer-platform bridge proofs, and a generally deployed user-facing Kaleidoscope interface remain unproven.
