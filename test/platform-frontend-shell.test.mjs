@@ -20,7 +20,9 @@ test('builds a deterministic platform read model over the current source-control
   assert.equal(model.summary.lens_count, 4);
   assert.equal(model.summary.preserved_collision_count, 3);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
-  assert.equal(model.summary.database_tables, 0);
+  assert.equal(model.summary.database_tables, 16);
+  assert.equal(model.summary.database_rows, 0);
+  assert.equal(model.summary.database_migrations, 2);
 
   const { read_model_hash: observedHash, ...basis } = model;
   assert.equal(observedHash, sha256Hex(basis));
@@ -38,7 +40,24 @@ test('preserves the constitutional ownership boundary across peer platforms', ()
   assert.equal(model.system_boundary.upstream_mutation, false);
 });
 
-test('does not overstate persistence, accepted binding, canonical projection, or AI runtime state', () => {
+test('represents the database as present and empty without inventing runtime persistence', () => {
+  const model = kaleidoscopePlatformReadModel();
+  assert.equal(model.database_substrate.schema_name, 'kaleidoscope');
+  assert.equal(model.database_substrate.table_count, 16);
+  assert.equal(model.database_substrate.table_names.length, 16);
+  assert.equal(model.database_substrate.exact_total_rows, 0);
+  assert.equal(model.database_substrate.all_tables_rls_enabled, true);
+  assert.equal(model.database_substrate.migration_history.length, 2);
+  assert.equal(model.database_substrate.runtime_database_write_path_proven, false);
+  assert.equal(model.database_substrate.canonical_persistence_state, 'schema_present_empty_runtime_not_bound');
+
+  const substrateCapability = model.capabilities.find((capability) => capability.capability_id === 'projection_substrate');
+  const persistenceCapability = model.capabilities.find((capability) => capability.capability_id === 'canonical_projection_persistence');
+  assert.equal(substrateCapability.state, 'schema_present_empty');
+  assert.equal(persistenceCapability.state, 'runtime_not_bound');
+});
+
+test('does not overstate accepted binding, canonical projection, or AI runtime state', () => {
   const model = kaleidoscopePlatformReadModel();
   assert.equal(model.system_boundary.database_persistence, false);
   assert.equal(model.system_boundary.canonical_projection_execution, false);
@@ -46,9 +65,6 @@ test('does not overstate persistence, accepted binding, canonical projection, or
   assert.equal(model.system_boundary.hidden_composite_score, false);
   assert.equal(model.system_boundary.unresolved_states_preserved, true);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
-
-  const databaseCapability = model.capabilities.find((capability) => capability.capability_id === 'canonical_projection_persistence');
-  assert.equal(databaseCapability.state, 'disabled');
 });
 
 test('surfaces the existing Project 2025 scenario as a child of the platform workspace', () => {
