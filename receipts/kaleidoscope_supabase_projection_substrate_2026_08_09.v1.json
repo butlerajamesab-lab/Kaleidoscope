@@ -1,12 +1,14 @@
 {
   "receipt_id": "kaleidoscope_supabase_projection_substrate_2026_08_09.v1",
-  "receipt_version": "1.0.0",
+  "receipt_version": "1.1.0",
   "platform": "kaleidoscope",
   "project_ref": "iwmytuwofniybsmidtki",
   "project_region": "us-east-1",
   "observed_date": "2026-08-09",
-  "state": "projection_substrate_applied_empty_unbound",
+  "state": "projection_substrate_and_source_artifact_custody_applied_empty_unbound",
   "canonical_persistence_state": "schema_present_empty_runtime_not_bound",
+  "migration_count": 3,
+  "migration_version_capture_state": "first_two_live_versions_pinned_third_name_and_source_version_verified_live_generated_version_not_embedded",
   "live_migrations": [
     {
       "live_version": "20260809144200",
@@ -19,19 +21,33 @@
       "name": "kaleidoscope_projection_substrate_indexes",
       "source_file": "supabase/migrations/20260809144457_kaleidoscope_projection_substrate_indexes.sql",
       "application_state": "applied"
+    },
+    {
+      "live_version": null,
+      "source_version": "20260809190000",
+      "name": "kaleidoscope_source_artifact_custody",
+      "source_file": "supabase/migrations/20260809190000_kaleidoscope_source_artifact_custody.sql",
+      "application_state": "applied",
+      "live_application_verified": true
     }
   ],
   "schema": {
     "name": "kaleidoscope",
-    "table_count": 16,
+    "table_count": 19,
     "function_count": 3,
-    "trigger_count": 17,
+    "trigger_count": 20,
     "public_schema_owned_table_count": 0,
     "public_anon_authenticated_table_privilege_rows": 0,
     "rls_state": "enabled_all_truth_bearing_tables",
     "rls_policy_state": "none_intentional_deny_by_default",
     "service_role_access": "select_insert_only",
-    "append_only_update_delete_boundary": "trigger_enforced"
+    "append_only_update_delete_boundary": "trigger_enforced",
+    "source_provenance_paths": {
+      "upstream_canonical_objects": "kaleidoscope.source_binding",
+      "direct_source_artifacts": "kaleidoscope.source_artifact",
+      "snapshot_artifact_links": "kaleidoscope.state_snapshot_artifact",
+      "component_artifact_links": "kaleidoscope.state_component_artifact"
+    }
   },
   "row_counts": {
     "change_operation": 0,
@@ -46,19 +62,33 @@
     "scenario": 0,
     "scenario_lens": 0,
     "source_binding": 0,
+    "source_artifact": 0,
     "state_component": 0,
+    "state_component_artifact": 0,
     "state_component_source": 0,
     "state_snapshot": 0,
+    "state_snapshot_artifact": 0,
     "state_snapshot_source": 0
   },
   "performance_advisor_state": {
     "unindexed_foreign_key_findings_before_index_migration": 20,
     "unindexed_foreign_key_findings_after_index_migration": 0,
+    "source_artifact_custody_covering_indexes_verified": 3,
     "new_index_usage_state": "unused_expected_while_all_tables_empty"
+  },
+  "source_artifact_custody_boundary": {
+    "table_count_added": 3,
+    "custody_tables_row_count": 0,
+    "upstream_identity_columns_present": false,
+    "content_owner_state": "not_asserted",
+    "upstream_binding_state": "not_declared",
+    "service_role_privileges": ["INSERT", "SELECT"],
+    "public_anon_authenticated_privileges": 0
   },
   "capability_boundaries": {
     "projection_enabled_by_this_change": false,
     "source_binding_persisted": false,
+    "source_artifact_persisted": false,
     "scenario_persisted": false,
     "projection_run_persisted": false,
     "replay_receipt_persisted": false,
@@ -66,5 +96,5 @@
     "runtime_database_adapter_proven": false,
     "render_deployment_performed": false
   },
-  "next_required_proof": "governed_runtime_persistence_adapter_with_deterministic_mapping_replay_and_zero_upstream_mutation"
+  "next_required_proof": "update_deterministic_persistence_mapping_to_use_direct_artifact_custody_without_repurposing_upstream_source_binding"
 }
