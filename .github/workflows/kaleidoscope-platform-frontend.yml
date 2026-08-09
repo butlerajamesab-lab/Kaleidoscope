@@ -1,0 +1,59 @@
+name: Kaleidoscope platform frontend
+
+on:
+  pull_request:
+    paths:
+      - "public/kaleidoscope-app.*"
+      - "src/platform-frontend-shell.mjs"
+      - "src/server.mjs"
+      - "test/platform-frontend-shell.test.mjs"
+      - "docs/KALEIDOSCOPE_PLATFORM_FRONTEND_V1.md"
+      - ".github/workflows/kaleidoscope-platform-frontend.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  platform-frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Check frontend and runtime syntax
+        run: |
+          node --check src/server.mjs
+          node --check src/platform-frontend-shell.mjs
+          node --check public/kaleidoscope-app.js
+
+      - name: Run platform frontend tests
+        run: node --test test/platform-frontend-shell.test.mjs
+
+      - name: Run full foundation build
+        run: npm run build
+
+      - name: Prove browser root and machine root remain distinct
+        run: |
+          PORT=10080 node src/server.mjs >/tmp/kaleidoscope-platform-frontend.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+
+          for attempt in $(seq 1 20); do
+            if curl --fail --silent http://127.0.0.1:10080/health >/dev/null; then
+              break
+            fi
+            sleep 0.25
+          done
+
+          curl --fail --silent -H 'Accept: text/html' http://127.0.0.1:10080/ \
+            | grep -q 'Inspect transformations, not conclusions'
+
+          curl --fail --silent -H 'Accept: application/json' http://127.0.0.1:10080/ \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app')process.exit(1)})"
+
+          curl --fail --silent http://127.0.0.1:10080/v1/platform/read-model \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41)process.exit(1)})"
