@@ -47,6 +47,11 @@ const CAPABILITY_PRESENTATION = new Map([
     detail: 'Separates the direct change in legal duties from possible downstream effects, and keeps unproven effects marked as unresolved.',
     technical: 'Legislative Consequence Engine · Stages 1–2'
   }],
+  ['legislative_consequence_stage_3', {
+    label: 'See who or what is directly touched by the legal change',
+    detail: 'Groups only already-established consequences by legal, operational, administrative, or economic impact. It does not add new causation, and this example reports zero economic impact items because none is declared.',
+    technical: 'Legislative Consequence Stage 3 · Impact Surface'
+  }],
   ['deterministic_persistence_preflight', {
     label: 'Check what could be saved safely before saving anything',
     detail: 'Maps an analysis to the governed record system, lists every blocker, and authorizes zero live writes until the missing rules are declared.',
@@ -457,6 +462,9 @@ function receiptPublicLabel(receipt) {
   if (String(receipt.receipt_id).startsWith('preempt-run-')) {
     return 'Replay proof for the state/local-authority example';
   }
+  if (String(receipt.receipt_id).startsWith('impact-run-')) {
+    return 'Replay proof for who or what is directly touched by the legal change';
+  }
   if (receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04') {
     return 'Proof of a validated Civic Genome handoff';
   }
@@ -508,8 +516,9 @@ function boundaryDisplay(key, value) {
     database_migrations: ['Storage versions applied', value, 'The storage structure and its indexing change are both recorded.'],
     database_persistence: ['Saving official results', value ? 'Enabled' : 'Not enabled', 'The storage exists, but the runtime has no proven authorized write path.'],
     canonical_projection_execution: ['Live official projections', value ? 'Enabled' : 'Not enabled', 'Current executions are bounded tested examples, not canonical civic truth.'],
-    legislative_consequence_stage_1_2: ['Legal-change analysis', value ? 'First two stages available' : 'Unavailable', 'Direct structural change and governed consequence relationships are available; later stages remain separate.'],
-    legislative_consequence_stages_3_6: ['Later consequence stages', value ? 'Available' : 'Not run', 'Kaleidoscope does not invent later-stage impact, historical comparison, accountability, or checklist output.'],
+    legislative_consequence_stage_1_2: ['Legal-change analysis', value ? 'First two stages available' : 'Unavailable', 'Direct structural change and governed consequence relationships are available.'],
+    legislative_consequence_stage_3: ['Who or what is directly touched?', value ? 'Available' : 'Unavailable', 'The current Stage 3 classification groups already-governed consequences without adding causation, actors, or unsupported economic effects.'],
+    legislative_consequence_stages_4_6: ['Historical comparison and later stages', value ? 'Available' : 'Not run', 'Atlas historical comparison, Lighthouse accountability presentation, and the later checklist are not executed.'],
     persistence_preflight_available: ['Safe-save check', value ? 'Available' : 'Unavailable', 'Kaleidoscope can identify what could map into storage and what still blocks a live write.'],
     persistence_live_write_authorized: ['Live database write', value ? 'Authorized' : 'Not authorized', 'A mapping check is not permission to save an official record.'],
     upstream_mutation: ['Changing source systems', value ? 'Enabled' : 'Prohibited', 'Kaleidoscope reads governed outputs but does not rewrite Docket Room, Rosetta, Civic Genome, Prism, Atlas, or Esquire.'],
