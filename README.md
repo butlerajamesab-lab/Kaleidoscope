@@ -1,6 +1,6 @@
 # Kaleidoscope
 
-**Status:** Staging foundation and deterministic scaffold v0.1.4. Typed diff, canonical hashing, complete source custody, authenticated Civic Genome snapshot validation, the Project 2025 Title VII executable test fixture and read-only inspection surface, the bounded EEOC Legislative Consequence Stage 1/2 specimen, and the first full read-only Kaleidoscope platform workspace are source-controlled. The append-only Kaleidoscope Supabase projection substrate is applied and empty. A governed runtime persistence adapter, production projection capability, and a live accepted Civic Genome binding are not yet claimed.
+**Status:** Staging foundation and deterministic scaffold v0.1.4. Typed diff, canonical hashing, complete source custody, authenticated Civic Genome snapshot validation, two bounded executable civic-change examples with citizen-first detail surfaces, Legislative Consequence Stages 1–3, deterministic no-write persistence preflight, and the read-only Kaleidoscope platform workspace are source-controlled. The append-only Kaleidoscope Supabase projection substrate is applied and empty. A governed runtime persistence adapter, production projection capability, Legislative Consequence Stages 4–6, and a live accepted Civic Genome binding are not yet claimed.
 
 Kaleidoscope is Luminari's independent deterministic policy-scenario projection platform.
 
@@ -21,20 +21,43 @@ The v0.1.4 source-controlled scaffold implements:
 - SHA-256 input/output hashing;
 - typed `added`, `removed`, `modified`, `preserved`, `superseded`, `preempted`, and `unresolved` state operations;
 - truthful `/`, `/health`, `/v1/status`, and `/v1/diff` machine routes;
-- an inspection-first platform workspace at `/app`, also served at `/` for normal browser HTML requests;
+- a citizen-first platform workspace at `/app`, also served at `/` for normal browser HTML requests;
 - a deterministic platform read model at `/v1/platform/read-model`;
 - exact Civic Genome source schema/contract identity validation;
 - complete Civic Genome component, snapshot, replay-key, and export-receipt rehashing;
 - rejection of modified source content and stale binding identities;
-- a bounded executable Project 2025 Title VII vertical slice with four independent lenses and preserved cross-lens collisions;
-- a read-only Project 2025 child inspection surface;
-- a bounded Legislative Consequence specimen with 12 structural deltas and 6 typed consequence edges, preserving downstream hypotheses and source-state conflicts without numeric weighting or silent resolution;
-- a read-only platform workspace that derives its database and Legislative Consequence status from source-controlled verified state;
-- explicit capability reporting that distinguishes source-controlled test/specimen execution from canonical or production projection.
+- an executable workplace-rights example covering Title VII, federal enforcement pathways, Iowa state protection, and local-government authority;
+- an executable five-jurisdiction state/local nondiscrimination-preemption example;
+- citizen detail surfaces for both current examples;
+- a bounded Legislative Consequence Stage 1 Structural Delta with 12 typed deltas;
+- a bounded Legislative Consequence Stage 2 Consequence Graph with 6 typed edges and preserved causal/evidence ceilings;
+- a bounded Legislative Consequence Stage 3 Impact Surface with 5 declared impact items, 14 source-declared actor identifiers, one historical reference deferred to Stage 4, and no manufactured economic impact where none is declared;
+- deterministic no-write persistence preflight for both bounded examples;
+- direct read-only technical endpoints for Stage 3 impact-surface and receipt inspection;
+- explicit capability reporting that distinguishes tested/source-controlled analysis from canonical or production projection.
 
 The Civic Genome contract remains `defined_unbound`. An authenticated snapshot has been validated without persistence, but no live baseline binding has been accepted.
 
-The Legislative Consequence specimen has Stage 1 structural delta and Stage 2 typed consequence edges. Stages 3 through 6 remain null; no projection is implied by the presence of those contracts.
+The Legislative Consequence workflow now has source-controlled executable Stages 1–3. The original Stage 1/2 fixture remains immutable with `impact_surface = null`; Stage 3 is a separate hashed composition artifact. Atlas historical comparison (Stage 4), Lighthouse accountability presentation (Stage 5), and the instantiated checklist (Stage 6) remain unexecuted. No production projection or canonical persistence is implied by the presence of Stages 1–3.
+
+## Citizen comprehension boundary
+
+The public surface follows the contract in `docs/LAYPERSON_COMPREHENSION_CONTRACT_V1.md`.
+
+People encounter ordinary-language questions before internal engineering or legal terms:
+
+```text
+What is happening?
+→ What changed?
+→ Why does it matter?
+→ Who or what may be affected?
+→ What does the evidence support?
+→ What is still unknown?
+→ Show the evidence
+→ Show the technical proof
+```
+
+Technical terms such as vertical slice, lens, collision, impact surface, engine IDs, hashes, and receipts remain inspectable but are not required for basic comprehension. Acronyms necessary to understand a page are expanded when first introduced.
 
 ## Persistence boundary
 
@@ -52,14 +75,16 @@ The Kaleidoscope Supabase project contains the source-controlled append-only pro
 - update/delete blocked by append-only triggers;
 - covering indexes present for the substrate foreign-key paths.
 
-All 16 Kaleidoscope tables contained **0 rows** immediately after application and verification on 2026-08-09. Applying the substrate did not persist a source binding, scenario, projection run, lens result, collision, or replay receipt, and did not enable projection.
+All 16 Kaleidoscope tables contained **0 rows** immediately after application and verification on 2026-08-09, and the row-empty state was rechecked during the source/runtime convergence work. Applying the substrate did not persist a source binding, scenario, projection run, lens result, collision, or replay receipt, and did not enable projection.
 
 Live migration history:
 
 - `20260809144200` — `kaleidoscope_projection_substrate`;
 - `20260809144457` — `kaleidoscope_projection_substrate_indexes`.
 
-The exact live database state is recorded in `receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json`. The frontend's read-only substrate snapshot is `fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json`.
+The exact live database state is recorded in `receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json`.
+
+The deterministic persistence preflight can map both bounded examples against all 16 substrate tables, but it explicitly authorizes zero live writes. It preserves blockers including undeclared upstream source ownership mapping, lack of authorization to persist tested-example projection claims as canonical state, undeclared collision-link/event semantics, and an unbound runtime database transport.
 
 A governed runtime persistence adapter is still required before engine outputs may be written to this substrate.
 
@@ -84,18 +109,23 @@ Kaleidoscope binds governed outputs from Docket Room, Rosetta, Atlas, Prism, Lig
 
 The EEOC consequence specimen demonstrates this boundary with Docket Room, Rosetta, and Civic Genome bindings while preserving the unresolved lifecycle disagreement among Docket `Governor Signed`, Civic Genome bill `introduced`, Civic Genome event `enacted`, and Civic Genome family enacted count `0`. Prism remains explicitly `not_observed` for that specimen.
 
-The platform workspace presents those ownership boundaries as read-only contracts. It does not add upstream mutation controls or a hidden composite score.
+Stage 3 does not weaken those ownership rules. It derives touched actors only from Stage 1 actor IDs and copies Stage 2 relationship type, causal state, evidence ceiling, source bindings, explanation, and unresolved conditions without strengthening them.
 
 ## Bounded demonstrations
 
 1. `gender_identity_title_vii_redefinition.v1`
 2. `local_lgbtq_ordinance_preemption.v1`
 
-The first has an executable source-controlled deterministic vertical-slice test fixture and read-only inspection surface. It remains labeled `executed_test_fixture_not_canonical_fact` and does not constitute production projection.
+Both now have executable deterministic test fixtures and citizen-first detail surfaces. Both remain labeled `executed_test_fixture_not_canonical_fact` and do not constitute production projection.
 
-The second remains a source-defined mechanism family and is not yet promoted to the same executable vertical-slice boundary.
+The workplace-rights detail surface is `/project2025/title-vii`.
 
-A separate bounded EEOC workforce-demographics rollback specimen exercises the Legislative Consequence Stage 1/2 contracts. It is a structural/consequence contract specimen, not a completed Kaleidoscope projection.
+The state/local-authority detail surface is `/state-local-protections`.
+
+A separate bounded EEOC workforce-demographics rollback specimen exercises Legislative Consequence Stages 1–3. It is a structural/consequence/impact-classification specimen, not a completed production projection. Its Stage 3 read-only technical endpoints are:
+
+- `/v1/legislative-consequence/eeoc/impact-surface`;
+- `/v1/legislative-consequence/eeoc/impact-surface/receipt`.
 
 ## Infrastructure
 
