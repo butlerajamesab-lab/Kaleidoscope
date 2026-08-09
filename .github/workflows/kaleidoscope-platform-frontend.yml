@@ -7,6 +7,7 @@ on:
       - "src/platform-frontend-shell.mjs"
       - "src/server.mjs"
       - "test/platform-frontend-shell.test.mjs"
+      - "fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json"
       - "docs/KALEIDOSCOPE_PLATFORM_FRONTEND_V1.md"
       - ".github/workflows/kaleidoscope-platform-frontend.yml"
   workflow_dispatch:
@@ -53,7 +54,7 @@ jobs:
             | grep -q 'Inspect transformations, not conclusions'
 
           curl --fail --silent -H 'Accept: application/json' http://127.0.0.1:10080/ \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app')process.exit(1)})"
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app'||v.database_table_count!==16||v.database_row_count!==0)process.exit(1)})"
 
           curl --fail --silent http://127.0.0.1:10080/v1/platform/read-model \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41)process.exit(1)})"
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41||v.summary.database_tables!==16||v.summary.database_rows!==0||v.database_substrate.migration_history.length!==2||v.database_substrate.runtime_database_write_path_proven!==false)process.exit(1)})"
