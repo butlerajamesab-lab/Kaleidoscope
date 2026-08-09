@@ -14,8 +14,10 @@ import {
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
 const FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'project2025_frontend_shell.v1';
+const RUNTIME_REVISION = 'legislative_consequence_stage2_supabase_substrate.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
+const DATABASE_STATE = 'projection_substrate_applied_empty_runtime_adapter_not_bound';
+const LEGISLATIVE_CONSEQUENCE_STATE = 'stage_1_2_source_controlled_stages_3_6_null_no_projection';
 
 function send(res, statusCode, body) {
   const payload = JSON.stringify(body);
@@ -81,8 +83,10 @@ const server = http.createServer(async (req, res) => {
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: 41,
         projection_capability: 'source_controlled_test_fixture_only',
+        database_state: DATABASE_STATE,
+        legislative_consequence_state: LEGISLATIVE_CONSEQUENCE_STATE,
         civic_genome_binding_contract: 'defined_unbound',
-        civic_genome_source_validation: 'contract_and_tamper_tests_passed_live_source_not_accepted',
+        civic_genome_source_validation: 'contract_and_tamper_tests_passed_live_source_validated_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
@@ -108,13 +112,14 @@ const server = http.createServer(async (req, res) => {
         runtime_revision: RUNTIME_REVISION,
         deterministic: true,
         projection_capability: 'source_controlled_test_fixture_only',
+        legislative_consequence_state: LEGISLATIVE_CONSEQUENCE_STATE,
         frontend_state: 'read_only_project2025_vertical_slice_shell',
         frontend_shell_version: FRONTEND_SHELL_VERSION,
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        database_state: 'migration_not_applied'
+        database_state: DATABASE_STATE
       });
     }
     if (req.method === 'GET' && pathname === '/v1/status') {
@@ -123,7 +128,7 @@ const server = http.createServer(async (req, res) => {
         foundation_version: ENGINE_VERSION,
         runtime_revision: RUNTIME_REVISION,
         environment: 'staging',
-        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_and_project2025_vertical_slice',
+        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_project2025_vertical_slice_and_legislative_consequence_stage2',
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: 41,
         source_corpus_state: 'all_uploaded_documents_active',
@@ -136,9 +141,15 @@ const server = http.createServer(async (req, res) => {
         civic_genome_live_binding_state: 'not_accepted',
         lens_state: 'project2025_vertical_slice_fixture_with_four_declared_lenses',
         projection_state: 'executed_test_fixture_not_canonical_fact',
+        legislative_consequence_state: LEGISLATIVE_CONSEQUENCE_STATE,
         frontend_state: 'read_only_project2025_vertical_slice_shell',
         frontend_shell_version: FRONTEND_SHELL_VERSION,
-        supabase_state: 'empty_project_migration_draft_only',
+        supabase_state: DATABASE_STATE,
+        persisted_source_binding_count: 0,
+        persisted_scenario_count: 0,
+        persisted_projection_run_count: 0,
+        persisted_replay_receipt_count: 0,
+        runtime_persistence_adapter_state: 'not_bound',
         unresolved_states_preserved: true
       });
     }
@@ -191,6 +202,8 @@ server.listen(PORT, '0.0.0.0', () => {
     engine_version: ENGINE_VERSION,
     runtime_revision: RUNTIME_REVISION,
     frontend_shell_version: FRONTEND_SHELL_VERSION,
+    legislative_consequence_state: LEGISLATIVE_CONSEQUENCE_STATE,
+    database_state: DATABASE_STATE,
     environment: 'staging'
   }));
 });
