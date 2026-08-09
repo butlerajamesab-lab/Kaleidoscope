@@ -4,11 +4,17 @@ on:
   pull_request:
     paths:
       - "public/kaleidoscope-app.*"
+      - "public/project2025-title-vii.*"
+      - "public/local-preemption.*"
       - "src/platform-frontend-shell.mjs"
+      - "src/project2025-frontend-shell.mjs"
+      - "src/local-preemption-frontend-shell.mjs"
       - "src/server.mjs"
       - "src/persistence-plan.mjs"
       - "src/local-preemption-family-slice.mjs"
       - "test/platform-frontend-shell.test.mjs"
+      - "test/project2025-frontend-shell.test.mjs"
+      - "test/local-preemption-frontend-shell.test.mjs"
       - "fixtures/project2025-title-vii-*"
       - "fixtures/local-preemption-family-*"
       - "lenses/*.v1.json"
@@ -36,15 +42,22 @@ jobs:
         run: |
           node --check src/server.mjs
           node --check src/platform-frontend-shell.mjs
+          node --check src/project2025-frontend-shell.mjs
+          node --check src/local-preemption-frontend-shell.mjs
           node --check public/kaleidoscope-app.js
+          node --check public/project2025-title-vii.js
+          node --check public/local-preemption.js
 
-      - name: Run platform frontend tests
-        run: node --test test/platform-frontend-shell.test.mjs
+      - name: Run citizen frontend tests
+        run: |
+          node --test test/platform-frontend-shell.test.mjs
+          node --test test/project2025-frontend-shell.test.mjs
+          node --test test/local-preemption-frontend-shell.test.mjs
 
       - name: Run full foundation build
         run: npm run build
 
-      - name: Prove citizen browser root and technical machine root remain distinct
+      - name: Prove workspace, both citizen detail surfaces, and machine root agree
         run: |
           PORT=10080 node src/server.mjs >/tmp/kaleidoscope-platform-frontend.log 2>&1 &
           server_pid=$!
@@ -60,8 +73,24 @@ jobs:
           curl --fail --silent -H 'Accept: text/html' http://127.0.0.1:10080/ \
             | grep -q 'Understand the change before judging the conclusion'
 
+          curl --fail --silent http://127.0.0.1:10080/project2025/title-vii \
+            | grep -q 'Employment discrimination and gender identity'
+          curl --fail --silent http://127.0.0.1:10080/project2025/title-vii \
+            | grep -q 'U.S. Equal Employment Opportunity Commission'
+
+          curl --fail --silent http://127.0.0.1:10080/state-local-protections \
+            | grep -q 'When states limit local nondiscrimination protections'
+          curl --fail --silent http://127.0.0.1:10080/state-local-protections \
+            | grep -q 'Similar legal techniques do not prove coordination'
+
           curl --fail --silent -H 'Accept: application/json' http://127.0.0.1:10080/ \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app'||v.bounded_scenario_count!==2||v.persistence_preflight_state!=='available_no_write'||v.persistence_live_write_authorized!==false||v.database_table_count!==16||v.database_row_count!==0)process.exit(1)})"
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.browser_root!=='/app'||v.bounded_scenario_count!==2||v.citizen_detail_surface_count!==2||v.persistence_preflight_state!=='available_no_write'||v.persistence_live_write_authorized!==false||v.database_table_count!==16||v.database_row_count!==0)process.exit(1)})"
 
           curl --fail --silent http://127.0.0.1:10080/v1/platform/read-model \
-            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41||v.summary.scenario_count!==2||v.summary.lens_count!==7||v.summary.preserved_collision_count!==5||v.summary.database_tables!==16||v.summary.database_rows!==0||v.database_substrate.receipt_id!=='kaleidoscope_supabase_projection_substrate_2026_08_09.v1'||v.database_substrate.migration_history.length!==2||v.database_substrate.runtime_database_write_path_proven!==false||v.persistence_preflight.scenario_plans.length!==2||v.persistence_preflight.live_write_authorized!==false)process.exit(1)})"
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);const p=v.scenarios.find(x=>x.policy_family_id==='local_lgbtq_ordinance_preemption.v1');if(v.platform!=='kaleidoscope'||v.deterministic!==true||v.summary.active_source_artifacts!==41||v.summary.scenario_count!==2||v.summary.lens_count!==7||v.summary.preserved_collision_count!==5||v.summary.database_tables!==16||v.summary.database_rows!==0||v.database_substrate.receipt_id!=='kaleidoscope_supabase_projection_substrate_2026_08_09.v1'||v.database_substrate.migration_history.length!==2||v.database_substrate.runtime_database_write_path_proven!==false||v.persistence_preflight.scenario_plans.length!==2||v.persistence_preflight.live_write_authorized!==false||!p||p.href!=='/state-local-protections'||p.receipt_href!=='/v1/scenarios/state-local-protections/receipt'||p.inspection_state!=='detailed_route_available')process.exit(1)})"
+
+          curl --fail --silent http://127.0.0.1:10080/v1/project2025/title-vii/receipt \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.no_mutation!==true||v.database_write_count!==0)process.exit(1)})"
+
+          curl --fail --silent http://127.0.0.1:10080/v1/scenarios/state-local-protections/receipt \
+            | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const v=JSON.parse(s);if(v.no_mutation!==true||v.database_write_count!==0)process.exit(1)})"
