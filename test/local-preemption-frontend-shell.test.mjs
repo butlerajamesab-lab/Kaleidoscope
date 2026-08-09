@@ -26,6 +26,7 @@ test('serves a five-jurisdiction citizen-readable local-protection example', asy
   assert.equal(response.contentType, 'text/html; charset=utf-8');
   assert.match(response.body, /When states limit local nondiscrimination protections/);
   assert.match(response.body, /Similar legal techniques do not prove coordination/);
+  assert.match(response.body, /A state rule that limits what local governments/);
   assert.doesNotMatch(response.body, /vertical slice/i);
   assert.doesNotMatch(response.body, /Lens outputs/);
 });
@@ -53,11 +54,10 @@ test('serves matching deterministic read model and receipt with zero writes', as
   assert.deepEqual(JSON.parse(receiptResponse.body), receipt);
 });
 
-test('browser copy explains preemption and never injects dynamic HTML', () => {
-  assert.match(html, /A state rule that limits what local governments/);
+test('browser JavaScript renders source-controlled state without dynamic HTML injection', () => {
   assert.match(browserJs, /Tennessee/);
   assert.match(browserJs, /North Carolina/);
-  assert.match(browserJs, /Similar legal techniques/);
+  assert.match(browserJs, /The outcome is not established in this source pack/);
   assert.match(browserJs, /textContent/);
   assert.match(browserJs, /replaceChildren/);
   assert.doesNotMatch(browserJs, /innerHTML/);
