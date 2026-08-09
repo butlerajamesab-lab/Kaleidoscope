@@ -21,7 +21,7 @@ import {
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
 const PROJECT2025_FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'kaleidoscope_platform_frontend_persistence_preflight.v1';
+const RUNTIME_REVISION = 'kaleidoscope_platform_frontend_multi_slice.v2';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
 
 function send(res, statusCode, body) {
@@ -78,6 +78,10 @@ function platformStatus() {
   return kaleidoscopePlatformReadModel();
 }
 
+function localPreemptionStatus(platform) {
+  return platform.scenarios.find((scenario) => scenario.policy_family_id === 'local_lgbtq_ordinance_preemption.v1') ?? null;
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url ?? '/', 'http://localhost').pathname;
@@ -100,6 +104,7 @@ const server = http.createServer(async (req, res) => {
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const preflight = platform.persistence_preflight;
+      const localPreemption = localPreemptionStatus(platform);
       return send(res, 200, {
         platform: 'kaleidoscope',
         environment: 'staging',
@@ -107,7 +112,15 @@ const server = http.createServer(async (req, res) => {
         runtime_revision: RUNTIME_REVISION,
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: 41,
+        scenario_count: platform.summary.scenario_count,
+        lens_registry_count: platform.summary.lens_count,
+        preserved_collision_count: platform.summary.preserved_collision_count,
         projection_capability: 'source_controlled_test_fixture_only',
+        title_vii_vertical_slice_state: platform.scenarios[0]?.state ?? 'not_observed',
+        local_preemption_vertical_slice_state: localPreemption?.state ?? 'not_observed',
+        local_preemption_operation_count: localPreemption?.operation_count ?? 0,
+        local_preemption_lens_count: localPreemption?.lens_count ?? 0,
+        local_preemption_collision_count: localPreemption?.collision_count ?? 0,
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
         legislative_consequence_edge_count: consequence.consequence_edge_count,
@@ -119,7 +132,7 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        frontend_state: 'kaleidoscope_platform_workspace_multi_slice_inspection',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
         database_state: database.canonical_persistence_state,
@@ -148,6 +161,7 @@ const server = http.createServer(async (req, res) => {
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const preflight = platform.persistence_preflight;
+      const localPreemption = localPreemptionStatus(platform);
       return send(res, 200, {
         status: 'ok',
         platform: 'kaleidoscope',
@@ -155,11 +169,14 @@ const server = http.createServer(async (req, res) => {
         engine_version: ENGINE_VERSION,
         runtime_revision: RUNTIME_REVISION,
         deterministic: true,
+        scenario_count: platform.summary.scenario_count,
+        lens_registry_count: platform.summary.lens_count,
         projection_capability: 'source_controlled_test_fixture_only',
+        local_preemption_vertical_slice_state: localPreemption?.state ?? 'not_observed',
         legislative_consequence_state: consequence.state,
         persistence_preflight_state: preflight.state,
         persistence_live_write_authorized: preflight.live_write_authorized,
-        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        frontend_state: 'kaleidoscope_platform_workspace_multi_slice_inspection',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
@@ -179,15 +196,25 @@ const server = http.createServer(async (req, res) => {
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const preflight = platform.persistence_preflight;
+      const localPreemption = localPreemptionStatus(platform);
       return send(res, 200, {
         platform: 'kaleidoscope',
         foundation_version: ENGINE_VERSION,
         runtime_revision: RUNTIME_REVISION,
         environment: 'staging',
-        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_project2025_vertical_slice_legislative_consequence_stage2_and_persistence_preflight',
+        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_two_executable_vertical_slices_legislative_consequence_stage2_and_persistence_preflight',
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: 41,
         source_corpus_state: 'all_uploaded_documents_active',
+        executable_scenario_count: platform.summary.scenario_count,
+        unique_lens_count: platform.summary.lens_count,
+        preserved_collision_count: platform.summary.preserved_collision_count,
+        title_vii_vertical_slice_state: platform.scenarios[0]?.state ?? 'not_observed',
+        local_preemption_vertical_slice_state: localPreemption?.state ?? 'not_observed',
+        local_preemption_mechanism_count: localPreemption?.mechanism_count ?? 0,
+        local_preemption_operation_count: localPreemption?.operation_count ?? 0,
+        local_preemption_lens_count: localPreemption?.lens_count ?? 0,
+        local_preemption_collision_count: localPreemption?.collision_count ?? 0,
         civic_genome_source_schema_id: 'https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json',
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_validation_state: 'component_snapshot_replay_receipt_and_hmac_validation_passed',
@@ -195,7 +222,7 @@ const server = http.createServer(async (req, res) => {
           ? 'authenticated_validation_ready_no_persistence'
           : 'not_configured',
         civic_genome_live_binding_state: 'not_accepted',
-        lens_state: 'project2025_vertical_slice_fixture_with_four_declared_lenses',
+        lens_state: 'two_executable_vertical_slices_seven_unique_lenses',
         projection_state: 'executed_test_fixture_not_canonical_fact',
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
@@ -212,7 +239,7 @@ const server = http.createServer(async (req, res) => {
         persistence_credentials_required: preflight.credentials_required,
         persistence_sql_emitted: preflight.sql_emitted,
         persistence_upstream_mutation: preflight.upstream_mutation,
-        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        frontend_state: 'kaleidoscope_platform_workspace_multi_slice_inspection',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
         supabase_state: database.canonical_persistence_state,
@@ -275,6 +302,7 @@ server.listen(PORT, '0.0.0.0', () => {
   const database = platform.database_substrate;
   const consequence = platform.legislative_consequence;
   const preflight = platform.persistence_preflight;
+  const localPreemption = localPreemptionStatus(platform);
   console.log(JSON.stringify({
     event: 'kaleidoscope_started',
     port: PORT,
@@ -282,6 +310,10 @@ server.listen(PORT, '0.0.0.0', () => {
     runtime_revision: RUNTIME_REVISION,
     platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
     project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+    scenario_count: platform.summary.scenario_count,
+    lens_registry_count: platform.summary.lens_count,
+    preserved_collision_count: platform.summary.preserved_collision_count,
+    local_preemption_vertical_slice_state: localPreemption?.state ?? 'not_observed',
     legislative_consequence_state: consequence.state,
     persistence_preflight_state: preflight.state,
     persistence_live_write_authorized: preflight.live_write_authorized,
