@@ -18,27 +18,35 @@ test('accepts the deterministic EEOC structural delta and typed consequence grap
   assert.equal(fixture.database_persisted, false);
 });
 
-test('binds legislation through Docket Room and Civic Genome without collapsing ownership', () => {
+test('binds legislation through Docket Room, Rosetta, and Civic Genome without collapsing ownership', () => {
   const bindings = assertLegislationPlatformBindings(fixture.legislation_platform_bindings);
-  assert.equal(bindings.binding_count, 4);
+  assert.equal(bindings.binding_count, 6);
   const docket = bindings.bindings.find((entry) => entry.binding_id === 'docket_room:legiscan:2115794');
+  const rosetta = bindings.bindings.find((entry) => entry.binding_id === 'rosetta:extraction_run:26');
   const genomeBill = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410');
+  const genomeAssembly = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:assembly:6c5b1326-3c96-41d3-8950-ddc46cb5ebf5');
   const genomeEvent = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:event:a8b3889c-9bb0-4c02-8d88-242bebe0eba8');
   assert.equal(docket.source_last_action, 'Governor Signed');
+  assert.equal(rosetta.verification_state, 'complete');
   assert.equal(genomeBill.current_state_position, 'introduced');
+  assert.equal(genomeAssembly.run_status, 'completed');
   assert.equal(genomeEvent.event_type, 'enacted');
   assert.equal(bindings.conflicts[0].resolution_state, 'unresolved_preserved');
   assert.equal(bindings.conflicts[0].prohibited_resolution, 'do_not_silently_choose_or_overwrite_any_source_record');
 });
 
-test('preserves missing Rosetta assembly as an explicit Civic Genome limitation', () => {
+test('preserves completed Rosetta assembly and Prism absence as explicit source state', () => {
   const genomeBill = fixture.legislation_platform_bindings.bindings.find(
     (entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410'
   );
-  assert.equal(genomeBill.rosetta_source_binding_count, 0);
-  assert.equal(genomeBill.completed_assembly_count, 0);
-  assert.equal(genomeBill.trait_count, 0);
-  assert.ok(genomeBill.unresolved_conditions.includes('no_rosetta_source_binding_or_structural_trait_assembly'));
+  assert.equal(fixture.legislation_platform_bindings.run_transition.post_run_observation.rosetta_source_binding_count, 1);
+  assert.equal(fixture.legislation_platform_bindings.run_transition.post_run_observation.completed_assembly_count, 1);
+  assert.equal(fixture.legislation_platform_bindings.run_transition.post_run_observation.trait_count, 7);
+  assert.equal(genomeBill.rosetta_source_binding_count, 1);
+  assert.equal(genomeBill.completed_assembly_count, 1);
+  assert.equal(genomeBill.trait_count, 7);
+  assert.equal(genomeBill.prism_binding_count, 0);
+  assert.ok(genomeBill.unresolved_conditions.includes('prism_verification_not_observed'));
 });
 
 test('replay preserves exact bundle and graph hashes', () => {
