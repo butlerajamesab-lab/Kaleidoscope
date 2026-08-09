@@ -11,6 +11,13 @@ import {
   resolveProject2025FrontendRequest
 } from './project2025-frontend-shell.mjs';
 import {
+  LOCAL_PREEMPTION_FRONTEND_PATH,
+  LOCAL_PREEMPTION_READ_MODEL_PATH,
+  LOCAL_PREEMPTION_RECEIPT_PATH,
+  LOCAL_PREEMPTION_FRONTEND_VERSION,
+  resolveLocalPreemptionFrontendRequest
+} from './local-preemption-frontend-shell.mjs';
+import {
   KALEIDOSCOPE_APP_PATH,
   KALEIDOSCOPE_APP_READ_MODEL_PATH,
   KALEIDOSCOPE_APP_FRONTEND_VERSION,
@@ -21,7 +28,7 @@ import {
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
 const PROJECT2025_FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'kaleidoscope_citizen_first_two_scenarios_preflight.v1';
+const RUNTIME_REVISION = 'kaleidoscope_citizen_scenario_detail_surfaces.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
 
 function send(res, statusCode, body) {
@@ -100,6 +107,9 @@ const server = http.createServer(async (req, res) => {
       const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname);
       if (platformResponse) return sendRaw(res, platformResponse);
 
+      const localPreemptionResponse = await resolveLocalPreemptionFrontendRequest(pathname);
+      if (localPreemptionResponse) return sendRaw(res, localPreemptionResponse);
+
       const project2025Response = await resolveProject2025FrontendRequest(pathname);
       if (project2025Response) return sendRaw(res, project2025Response);
     }
@@ -119,6 +129,7 @@ const server = http.createServer(async (req, res) => {
         projection_capability: 'bounded_source_controlled_test_fixtures_only',
         bounded_scenario_count: platform.summary.scenario_count,
         bounded_scenarios: boundedScenarioState(platform),
+        citizen_detail_surface_count: 2,
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
         legislative_consequence_edge_count: consequence.consequence_edge_count,
@@ -129,9 +140,10 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        frontend_state: 'citizen_first_workspace_two_bounded_scenarios',
+        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+        local_preemption_frontend_version: LOCAL_PREEMPTION_FRONTEND_VERSION,
         database_state: database.canonical_persistence_state,
         database_schema: database.schema_name,
         database_table_count: database.table_count,
@@ -146,7 +158,10 @@ const server = http.createServer(async (req, res) => {
           KALEIDOSCOPE_APP_READ_MODEL_PATH,
           PROJECT2025_FRONTEND_PATH,
           PROJECT2025_FRONTEND_READ_MODEL_PATH,
-          PROJECT2025_FRONTEND_RECEIPT_PATH
+          PROJECT2025_FRONTEND_RECEIPT_PATH,
+          LOCAL_PREEMPTION_FRONTEND_PATH,
+          LOCAL_PREEMPTION_READ_MODEL_PATH,
+          LOCAL_PREEMPTION_RECEIPT_PATH
         ]
       });
     }
@@ -164,10 +179,11 @@ const server = http.createServer(async (req, res) => {
         deterministic: true,
         projection_capability: 'bounded_source_controlled_test_fixtures_only',
         bounded_scenario_count: platform.summary.scenario_count,
+        citizen_detail_surface_count: 2,
         legislative_consequence_state: consequence.state,
         persistence_preflight_state: persistence.state,
         persistence_live_write_authorized: persistence.live_write_authorized,
-        frontend_state: 'citizen_first_workspace_two_bounded_scenarios',
+        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
@@ -189,12 +205,14 @@ const server = http.createServer(async (req, res) => {
         foundation_version: ENGINE_VERSION,
         runtime_revision: RUNTIME_REVISION,
         environment: 'staging',
-        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_two_bounded_scenario_classes_legislative_consequence_stage2_and_persistence_preflight',
+        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_two_bounded_scenario_classes_legislative_consequence_stage2_persistence_preflight_and_two_citizen_detail_surfaces',
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: platform.summary.active_source_artifacts,
         source_corpus_state: 'all_uploaded_documents_active',
         bounded_scenario_count: platform.summary.scenario_count,
         bounded_scenarios: boundedScenarioState(platform),
+        citizen_detail_surface_count: 2,
+        citizen_detail_routes: [PROJECT2025_FRONTEND_PATH, LOCAL_PREEMPTION_FRONTEND_PATH],
         governed_lens_count: platform.summary.lens_count,
         preserved_collision_count: platform.summary.preserved_collision_count,
         civic_genome_source_schema_id: 'https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json',
@@ -217,10 +235,11 @@ const server = http.createServer(async (req, res) => {
         persistence_live_write_authorized: persistence.live_write_authorized,
         persistence_credentials_required: persistence.credentials_required,
         persistence_sql_emitted: persistence.sql_emitted,
-        frontend_state: 'citizen_first_workspace_two_bounded_scenarios',
+        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         layperson_comprehension_contract: 'v1',
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+        local_preemption_frontend_version: LOCAL_PREEMPTION_FRONTEND_VERSION,
         supabase_state: database.canonical_persistence_state,
         supabase_schema: database.schema_name,
         supabase_table_count: database.table_count,
@@ -286,8 +305,10 @@ server.listen(PORT, '0.0.0.0', () => {
     runtime_revision: RUNTIME_REVISION,
     platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
     bounded_scenario_count: platform.summary.scenario_count,
+    citizen_detail_surface_count: 2,
     governed_lens_count: platform.summary.lens_count,
     project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+    local_preemption_frontend_version: LOCAL_PREEMPTION_FRONTEND_VERSION,
     legislative_consequence_state: consequence.state,
     persistence_preflight_state: persistence.state,
     persistence_live_write_authorized: persistence.live_write_authorized,

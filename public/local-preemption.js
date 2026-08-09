@@ -1,26 +1,45 @@
-const READ_MODEL_URL = '/v1/project2025/title-vii/read-model';
-const RECEIPT_URL = '/v1/project2025/title-vii/receipt';
+const READ_MODEL_URL = '/v1/scenarios/state-local-protections/read-model';
+const RECEIPT_URL = '/v1/scenarios/state-local-protections/receipt';
 
 const MECHANISM_PRESENTATION = new Map([
-  ['P25-DOL-01', {
-    title: 'Federal court, executive, litigation, and EEOC pathway',
-    summary: 'The represented federal path keeps the Supreme Court’s Title VII protection separate from changes in executive interpretation, litigation over agency guidance, court action affecting that guidance, and later EEOC action.'
+  ['PREEMPT-TN-2011', {
+    place: 'Tennessee',
+    status: 'Currently operative in the represented source state',
+    summary: 'The source record describes a 2011 state law restricting local anti-discrimination standards that differ from or add to the state-law baseline.'
+  }],
+  ['PREEMPT-AR-2015', {
+    place: 'Arkansas',
+    status: 'Currently operative in the represented source state',
+    summary: 'The source record describes a 2015 state law restricting local governments from creating protected classifications or discrimination rules beyond state law.'
+  }],
+  ['PREEMPT-NC-HB2-HISTORICAL', {
+    place: 'North Carolina',
+    status: 'Historical — the represented preemption period expired',
+    summary: 'The source record treats North Carolina as a historical member of this family: the represented restriction expired in 2020 and local authority later returned.'
+  }],
+  ['PREEMPT-TX-2023', {
+    place: 'Texas',
+    status: 'Contested / unresolved application',
+    summary: 'The source record describes a broad 2023 preemption law that was later invoked in litigation involving a Dallas LGBTQ anti-bias ordinance. The outcome is not established in this source pack.'
   }],
   ['P25-IA-01', {
-    title: 'Iowa state-law and local-government pathway',
-    summary: 'The represented Iowa path removes gender identity from the state protected-class structure and later limits local governments from maintaining broader or different discrimination categories.'
+    place: 'Iowa',
+    status: 'Operative with open primary-source items',
+    summary: 'The source record describes a 2026 restriction preventing Iowa local governments from maintaining civil-rights categories broader than or different from state law.'
   }]
 ]);
 
 const LENS_PRESENTATION = new Map([
-  ['civil_rights.v1', ['What legal protections remain or change?', 'Looks only at formal rights and protected-class coverage.']],
-  ['enforcement_pathways.v1', ['What ways to enforce the right remain?', 'Separates agency, court, private-action, and administrative pathways instead of treating them as one thing.']],
-  ['local_government_preemption.v1', ['What can local governments still do?', 'Looks at whether state law restricts a city or county from maintaining broader local protections.']],
-  ['affected_populations.v1', ['Who is structurally affected?', 'Identifies source-declared populations connected to a change without forecasting population outcomes.']]
+  ['preemption_operability.v1', ['Is the restriction in force now?', 'Separates currently operative restrictions from historical, contested, or unresolved ones.']],
+  ['preemption_temporal_history.v1', ['How has the rule changed over time?', 'Keeps historical and current legal states separate instead of flattening them into one present-day description.']],
+  ['preemption_jurisdictional_variation.v1', ['How does it differ from state to state?', 'Compares scope, legal vehicle, timing, and unresolved state across jurisdictions.']],
+  ['affected_populations.v1', ['Who is structurally affected?', 'Identifies source-declared populations connected to a change without predicting population outcomes.']]
 ]);
 
 const STATE_LABELS = new Map([
-  ['partially_implemented_or_contested', 'Partly implemented or contested'],
+  ['operative', 'Operative'],
+  ['unresolved', 'Unresolved'],
+  ['contested', 'Contested'],
   ['operative_with_open_primary_source_items', 'Operative · some primary-source review still open'],
   ['executed_test_fixture_not_canonical_fact', 'Tested example · not official civic fact'],
   ['preserved_not_averaged', 'Both findings preserved — not averaged']
@@ -68,7 +87,7 @@ function technicalDetails(rows) {
 function renderSummary(model) {
   const summary = model.summary;
   const values = [
-    ['Major paths compared', summary.mechanism_count],
+    ['Jurisdictions compared', summary.mechanism_count],
     ['Changes represented', summary.operation_count],
     ['Separate questions asked', summary.lens_count],
     ['Conflicts kept visible', summary.collision_count],
@@ -83,13 +102,13 @@ function renderSummary(model) {
   }
 
   const operationLabels = new Map([
-    ['preserved', 'Represented protection or path kept'],
-    ['modified', 'Represented state changed'],
-    ['removed', 'Represented protection or path removed'],
-    ['superseded', 'Replaced by a later represented state'],
     ['preempted', 'Local authority restricted'],
+    ['preserved', 'Represented state kept'],
+    ['modified', 'Represented state changed'],
     ['unresolved', 'Not settled by the sources'],
-    ['added', 'New represented state added']
+    ['removed', 'Represented protection or path removed'],
+    ['added', 'New represented state added'],
+    ['superseded', 'Replaced by a later represented state']
   ]);
   const operations = document.querySelector('#operation-counts');
   operations.replaceChildren();
@@ -106,37 +125,29 @@ function renderMechanisms(model) {
 
   for (const mechanism of model.mechanism_paths) {
     const presentation = MECHANISM_PRESENTATION.get(mechanism.mechanism_id) ?? {
-      title: mechanism.mechanism_id,
-      summary: 'A governed implementation path in this example.'
+      place: mechanism.mechanism_id,
+      status: stateLabel(mechanism.implementation_state),
+      summary: 'A governed implementation path in this source-defined family.'
     };
     const card = element('article', 'mechanism-card');
     const header = element('div', 'card-header');
     const titleBlock = element('div');
     titleBlock.append(
-      element('p', 'card-kicker', stateLabel(mechanism.implementation_state)),
-      element('h3', '', presentation.title)
+      element('p', 'card-kicker', presentation.status),
+      element('h3', '', presentation.place)
     );
     header.append(titleBlock, badge(mechanism.implementation_state));
 
+    const explanation = element('p', '', presentation.summary);
     const chainHeading = element('h4', '', 'How the represented path developed');
     const chain = element('ol', 'chain-list');
     for (const step of mechanism.implementation_chain) {
-      const item = element('li');
-      if (typeof step === 'string') {
-        item.append(element('span', 'chain-event', step));
-      } else {
-        item.append(
-          element('span', 'chain-actor', `${step.step}. ${step.actor}`),
-          element('span', 'chain-event', step.event),
-          badge(step.route_type)
-        );
-      }
-      chain.append(item);
+      chain.append(element('li', 'chain-event', typeof step === 'string' ? step : JSON.stringify(step)));
     }
 
     card.append(
       header,
-      element('p', '', presentation.summary),
+      explanation,
       chainHeading,
       chain,
       technicalDetails([
@@ -176,7 +187,10 @@ function renderLenses(model) {
         badge(effect.direction),
         badge(effect.evidence_ceiling, effect.evidence_ceiling === 'primary_verified' ? '' : 'warning')
       );
-      item.append(topline, element('p', 'effect-title', effect.statement));
+      item.append(
+        topline,
+        element('p', 'effect-title', effect.statement)
+      );
       if (effect.unresolved_conditions.length > 0) {
         item.append(element('p', 'effect-meta', `Still unresolved: ${effect.unresolved_conditions.map(humanize).join(' · ')}`));
       }

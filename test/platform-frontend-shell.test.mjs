@@ -18,6 +18,8 @@ test('builds one deterministic platform read model over both bounded examples', 
   assert.equal(model.platform, 'kaleidoscope');
   assert.equal(model.environment, 'staging');
   assert.equal(model.frontend_version, KALEIDOSCOPE_APP_FRONTEND_VERSION);
+  assert.equal(model.frontend_version, '1.2.0');
+  assert.equal(model.read_model_version, '1.2.0');
   assert.equal(model.deterministic, true);
   assert.equal(model.summary.active_source_artifacts, 41);
   assert.equal(model.summary.scenario_count, 2);
@@ -101,7 +103,7 @@ test('runs persistence preflight for both examples while authorizing zero writes
   }
 });
 
-test('surfaces both bounded examples without inventing a second detail route', () => {
+test('surfaces both bounded examples with truthful detail and receipt routes', () => {
   const model = kaleidoscopePlatformReadModel();
   const titleVii = model.scenarios.find((scenario) => scenario.policy_family_id === 'gender_identity_title_vii_redefinition.v1');
   const preemption = model.scenarios.find((scenario) => scenario.policy_family_id === 'local_lgbtq_ordinance_preemption.v1');
@@ -115,9 +117,10 @@ test('surfaces both bounded examples without inventing a second detail route', (
   assert.equal(preemption.mechanism_count, 5);
   assert.equal(preemption.lens_count, 4);
   assert.equal(preemption.collision_count, 2);
-  assert.equal(preemption.href, null);
-  assert.equal(preemption.receipt_href, null);
-  assert.equal(preemption.inspection_state, 'workspace_summary_only_detailed_route_not_published');
+  assert.equal(preemption.href, '/state-local-protections');
+  assert.equal(preemption.receipt_href, '/v1/scenarios/state-local-protections/receipt');
+  assert.equal(preemption.inspection_state, 'detailed_route_available');
+  assert.equal(model.routes.local_preemption_scenario_detail, '/state-local-protections');
 });
 
 test('keeps technical terminology secondary to plain-language public headings', () => {
@@ -137,11 +140,11 @@ test('keeps technical terminology secondary to plain-language public headings', 
   assert.match(browserJs, /Technical details/);
 });
 
-test('never turns missing detail routes into fake browser links', () => {
+test('browser link rendering remains conditional even though both current examples now have routes', () => {
   assert.match(browserJs, /if \(scenario\.href\)/);
-  assert.match(browserJs, /Detailed evidence page not published yet/);
   assert.match(browserJs, /if \(scenario\.receipt_href\)/);
   assert.match(browserJs, /if \(lens\.href\)/);
+  assert.match(browserJs, /Detailed evidence page not published yet/);
   assert.match(browserJs, /Detailed findings page not published yet/);
 });
 
@@ -175,11 +178,13 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.match(css.body, /prefers-reduced-motion/);
 });
 
-test('serves four proof records and the exact platform read model', async () => {
+test('serves four proof records and both scenario receipts are inspectable', async () => {
   const model = kaleidoscopePlatformReadModel();
   assert.equal(model.receipts.length, 4);
-  assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1'));
-  assert.ok(model.receipts.some((receipt) => String(receipt.receipt_id).startsWith('preempt-run-')));
+  const titleReceipt = model.receipts.find((receipt) => receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1');
+  const preemptionReceipt = model.receipts.find((receipt) => String(receipt.receipt_id).startsWith('preempt-run-'));
+  assert.equal(titleReceipt.href, '/v1/project2025/title-vii/receipt');
+  assert.equal(preemptionReceipt.href, '/v1/scenarios/state-local-protections/receipt');
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04'));
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1'));
 

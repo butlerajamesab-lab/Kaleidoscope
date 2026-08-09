@@ -28,24 +28,32 @@ test('serves a matching deterministic receipt with zero writes', () => {
   assert.equal(receipt.database_write_count, 0);
 });
 
-test('returns the inspection-first HTML shell with strict browser boundaries', async () => {
+test('returns the citizen-first workplace-rights page with strict browser boundaries', async () => {
   const response = await resolveProject2025FrontendRequest(PROJECT2025_FRONTEND_PATH);
   assert.equal(response.statusCode, 200);
   assert.equal(response.contentType, 'text/html; charset=utf-8');
-  assert.match(response.body, /Executed test fixture — not canonical fact/);
-  assert.match(response.body, /Preserved collisions/);
-  assert.match(response.body, /Open deterministic receipt/);
+  assert.match(response.body, /Employment discrimination and gender identity/);
+  assert.match(response.body, /What this page can claim/);
+  assert.match(response.body, /U\.S\. Equal Employment Opportunity Commission/);
+  assert.match(response.body, /Ways to examine the same change/);
+  assert.match(response.body, /Technical replay proof/);
+  assert.doesNotMatch(response.body, /Project 2025 vertical slice/);
+  assert.doesNotMatch(response.body, /<h2[^>]*>Lens outputs<\/h2>/);
   assert.match(response.headers['content-security-policy'], /default-src 'self'/);
   assert.equal(response.headers['x-content-type-options'], 'nosniff');
 });
 
-test('frontend JavaScript renders with textContent and never injects dynamic HTML', async () => {
+test('frontend JavaScript keeps technical terms secondary and never injects dynamic HTML', async () => {
   const response = await resolveProject2025FrontendRequest('/project2025/title-vii.js');
   assert.equal(response.statusCode, 200);
   assert.equal(response.contentType, 'text/javascript; charset=utf-8');
+  assert.match(response.body, /Federal court, executive, litigation, and EEOC pathway/);
+  assert.match(response.body, /What legal protections remain or change/);
+  assert.match(response.body, /Technical details/);
   assert.match(response.body, /textContent/);
   assert.match(response.body, /replaceChildren/);
   assert.doesNotMatch(response.body, /innerHTML/);
+  assert.doesNotMatch(response.body, /eval\(/);
   assert.match(response.body, /\/v1\/project2025\/title-vii\/read-model/);
   assert.match(response.body, /\/v1\/project2025\/title-vii\/receipt/);
 });
