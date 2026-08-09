@@ -14,8 +14,9 @@ import {
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
 const FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'project2025_frontend_shell.v1';
+const RUNTIME_REVISION = 'project2025_frontend_shell_supabase_substrate.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
+const DATABASE_STATE = 'projection_substrate_applied_empty_runtime_adapter_not_bound';
 
 function send(res, statusCode, body) {
   const payload = JSON.stringify(body);
@@ -81,8 +82,9 @@ const server = http.createServer(async (req, res) => {
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: 41,
         projection_capability: 'source_controlled_test_fixture_only',
+        database_state: DATABASE_STATE,
         civic_genome_binding_contract: 'defined_unbound',
-        civic_genome_source_validation: 'contract_and_tamper_tests_passed_live_source_not_accepted',
+        civic_genome_source_validation: 'contract_and_tamper_tests_passed_live_source_validated_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
@@ -114,7 +116,7 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        database_state: 'migration_not_applied'
+        database_state: DATABASE_STATE
       });
     }
     if (req.method === 'GET' && pathname === '/v1/status') {
@@ -138,7 +140,12 @@ const server = http.createServer(async (req, res) => {
         projection_state: 'executed_test_fixture_not_canonical_fact',
         frontend_state: 'read_only_project2025_vertical_slice_shell',
         frontend_shell_version: FRONTEND_SHELL_VERSION,
-        supabase_state: 'empty_project_migration_draft_only',
+        supabase_state: DATABASE_STATE,
+        persisted_source_binding_count: 0,
+        persisted_scenario_count: 0,
+        persisted_projection_run_count: 0,
+        persisted_replay_receipt_count: 0,
+        runtime_persistence_adapter_state: 'not_bound',
         unresolved_states_preserved: true
       });
     }
@@ -191,6 +198,7 @@ server.listen(PORT, '0.0.0.0', () => {
     engine_version: ENGINE_VERSION,
     runtime_revision: RUNTIME_REVISION,
     frontend_shell_version: FRONTEND_SHELL_VERSION,
+    database_state: DATABASE_STATE,
     environment: 'staging'
   }));
 });
