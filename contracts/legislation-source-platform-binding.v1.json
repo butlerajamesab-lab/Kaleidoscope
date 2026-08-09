@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luminari.org/kaleidoscope/contracts/legislation-source-platform-binding.v1.json",
+  "title": "Legislation Source Platform Binding v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "platform_binding_bundle_id",
+    "platform_binding_bundle_version",
+    "scenario_id",
+    "observed_state_date",
+    "bindings",
+    "binding_count",
+    "conflicts",
+    "conflict_count",
+    "usage_boundary",
+    "unresolved_conditions",
+    "platform_binding_bundle_hash"
+  ],
+  "properties": {
+    "platform_binding_bundle_id": {"type":"string","minLength":1},
+    "platform_binding_bundle_version": {"const":"1.0.0"},
+    "scenario_id": {"type":"string","minLength":1},
+    "observed_state_date": {"type":"string","format":"date"},
+    "run_transition": {"type":"object"},
+    "bindings": {"type":"array","minItems":2,"items":{"$ref":"#/$defs/binding"}},
+    "binding_count": {"type":"integer","minimum":2},
+    "conflicts": {"type":"array","items":{"$ref":"#/$defs/conflict"}},
+    "conflict_count": {"type":"integer","minimum":0},
+    "usage_boundary": {
+      "type":"object",
+      "additionalProperties":false,
+      "required":["docket_room_owns","rosetta_owns","civic_genome_owns","kaleidoscope_may_use","kaleidoscope_must_not_do"],
+      "properties": {
+        "docket_room_owns":{"$ref":"#/$defs/string_set"},
+        "rosetta_owns":{"$ref":"#/$defs/string_set"},
+        "civic_genome_owns":{"$ref":"#/$defs/string_set"},
+        "kaleidoscope_may_use":{"$ref":"#/$defs/string_set"},
+        "kaleidoscope_must_not_do":{"$ref":"#/$defs/string_set"}
+      }
+    },
+    "unresolved_conditions":{"$ref":"#/$defs/string_set"},
+    "platform_binding_bundle_hash":{"$ref":"#/$defs/hash"}
+  },
+  "$defs": {
+    "hash":{"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "string_set":{"type":"array","items":{"type":"string","minLength":1},"uniqueItems":true},
+    "binding": {
+      "type":"object",
+      "required":["binding_id","owner_platform","binding_type","verification_state","unresolved_conditions"],
+      "properties": {
+        "binding_id":{"type":"string","minLength":1},
+        "owner_platform":{"enum":["docket_room","rosetta","civic_genome"]},
+        "binding_type":{"enum":["official_legislation_source_identity","deterministic_legal_decomposition","persistent_legislation_identity","structural_assembly_receipt","legislation_lifecycle_event","legislation_family_identity"]},
+        "verification_state":{"type":"string","minLength":1},
+        "unresolved_conditions":{"$ref":"#/$defs/string_set"}
+      },
+      "allOf": [
+        {
+          "if":{"properties":{"owner_platform":{"const":"docket_room"}}},
+          "then":{"required":["source_bill_id","source_bill_number","source_bill_title","source_last_action","source_change_hash"]}
+        },
+        {
+          "if":{"properties":{"owner_platform":{"const":"rosetta"}}},
+          "then":{"required":["source_document_id","extraction_run_id","source_identity_hash","source_byte_hash","source_content_hash","output_content_hash","engine_version","rule_set_version"]}
+        },
+        {
+          "if":{"properties":{"owner_platform":{"const":"civic_genome"}}},
+          "then":{"anyOf":[{"required":["genome_bill_id"]},{"required":["assembly_run_id"]},{"required":["event_id"]},{"required":["family_id"]}]}
+        }
+      ],
+      "additionalProperties":true
+    },
+    "conflict": {
+      "type":"object",
+      "additionalProperties":false,
+      "required":["conflict_id","conflict_type","binding_ids","observed_states","resolution_state","prohibited_resolution"],
+      "properties": {
+        "conflict_id":{"type":"string","minLength":1},
+        "conflict_type":{"type":"string","minLength":1},
+        "binding_ids":{"$ref":"#/$defs/string_set"},
+        "observed_states":{"$ref":"#/$defs/string_set"},
+        "resolution_state":{"const":"unresolved_preserved"},
+        "prohibited_resolution":{"const":"do_not_silently_choose_or_overwrite_any_source_record"}
+      }
+    }
+  }
+}
