@@ -40,21 +40,49 @@ test('preserves the constitutional ownership boundary across peer platforms', ()
   assert.equal(model.system_boundary.upstream_mutation, false);
 });
 
-test('represents the database as present and empty without inventing runtime persistence', () => {
+test('represents the governed database substrate as applied, empty, and runtime-unbound', () => {
   const model = kaleidoscopePlatformReadModel();
+  assert.equal(model.database_substrate.receipt_id, 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1');
   assert.equal(model.database_substrate.schema_name, 'kaleidoscope');
   assert.equal(model.database_substrate.table_count, 16);
   assert.equal(model.database_substrate.table_names.length, 16);
+  assert.equal(model.database_substrate.function_count, 3);
+  assert.equal(model.database_substrate.trigger_count, 17);
   assert.equal(model.database_substrate.exact_total_rows, 0);
   assert.equal(model.database_substrate.all_tables_rls_enabled, true);
+  assert.equal(model.database_substrate.rls_policy_state, 'none_intentional_deny_by_default');
+  assert.equal(model.database_substrate.service_role_access, 'select_insert_only');
+  assert.equal(model.database_substrate.append_only_update_delete_boundary, 'trigger_enforced');
   assert.equal(model.database_substrate.migration_history.length, 2);
   assert.equal(model.database_substrate.runtime_database_write_path_proven, false);
-  assert.equal(model.database_substrate.canonical_persistence_state, 'schema_present_empty_runtime_not_bound');
+  assert.equal(model.database_substrate.substrate_state, 'projection_substrate_applied_empty_unbound');
 
   const substrateCapability = model.capabilities.find((capability) => capability.capability_id === 'projection_substrate');
   const persistenceCapability = model.capabilities.find((capability) => capability.capability_id === 'canonical_projection_persistence');
-  assert.equal(substrateCapability.state, 'schema_present_empty');
+  assert.equal(substrateCapability.state, 'applied_empty_unbound');
   assert.equal(persistenceCapability.state, 'runtime_not_bound');
+});
+
+test('surfaces the deterministic persistence preflight while hard-locking live writes off', () => {
+  const model = kaleidoscopePlatformReadModel();
+  const capability = model.capabilities.find((entry) => entry.capability_id === 'deterministic_persistence_preflight');
+  const plan = model.persistence_preflight;
+
+  assert.equal(capability.state, 'no_write_plan_available');
+  assert.equal(plan.plan_version, '1.0.0');
+  assert.equal(plan.state, 'deterministic_dry_run_mapping_only');
+  assert.equal(plan.target_schema, 'kaleidoscope');
+  assert.equal(plan.table_plan_count, 16);
+  assert.equal(plan.blocker_count, 5);
+  assert.equal(plan.blockers.length, 5);
+  assert.match(plan.persistence_plan_hash, /^[0-9a-f]{64}$/);
+  assert.equal(plan.live_write_authorized, false);
+  assert.equal(plan.database_write_count, 0);
+  assert.equal(plan.upstream_mutation, false);
+  assert.equal(plan.credentials_required, false);
+  assert.equal(plan.sql_emitted, false);
+  assert.equal(model.system_boundary.persistence_preflight_available, true);
+  assert.equal(model.system_boundary.persistence_live_write_authorized, false);
 });
 
 test('derives Legislative Consequence Stage 1/2 from the source-controlled specimen without claiming projection', () => {
@@ -66,6 +94,7 @@ test('derives Legislative Consequence Stage 1/2 from the source-controlled speci
   assert.equal(model.legislative_consequence.consequence_edge_count, 6);
   assert.equal(model.legislative_consequence.platform_binding_count, 6);
   assert.equal(model.legislative_consequence.preserved_conflict_count, 1);
+  assert.equal(model.legislative_consequence.upstream_trigger, 'user_initiated_rosetta_run');
   assert.equal(model.legislative_consequence.projection_executed, false);
   assert.equal(model.legislative_consequence.database_persisted, false);
   assert.equal(model.system_boundary.legislative_consequence_projection_execution, false);
@@ -120,6 +149,14 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.match(css.body, /@media \(max-width: 900px\)/);
   assert.match(css.body, /@media \(max-width: 640px\)/);
   assert.match(css.body, /prefers-reduced-motion/);
+});
+
+test('serves Project 2025, Civic Genome handoff, and Supabase substrate receipts', () => {
+  const model = kaleidoscopePlatformReadModel();
+  assert.equal(model.receipts.length, 3);
+  assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1'));
+  assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04'));
+  assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1'));
 });
 
 test('serves the exact platform read model as JSON and fails closed on unrelated routes', async () => {
