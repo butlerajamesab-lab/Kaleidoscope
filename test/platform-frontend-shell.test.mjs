@@ -16,9 +16,10 @@ test('builds a deterministic platform read model over the current source-control
   assert.equal(model.frontend_version, KALEIDOSCOPE_APP_FRONTEND_VERSION);
   assert.equal(model.deterministic, true);
   assert.equal(model.summary.active_source_artifacts, 41);
-  assert.equal(model.summary.scenario_count, 1);
-  assert.equal(model.summary.lens_count, 4);
-  assert.equal(model.summary.preserved_collision_count, 3);
+  assert.equal(model.summary.scenario_count, 2);
+  assert.equal(model.summary.lens_count, 7);
+  assert.equal(model.summary.preserved_collision_count, 5);
+  assert.ok(model.summary.unresolved_condition_count >= 0);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
   assert.equal(model.summary.database_tables, 16);
   assert.equal(model.summary.database_rows, 0);
@@ -100,6 +101,48 @@ test('derives Legislative Consequence Stage 1/2 from the source-controlled speci
   assert.equal(model.system_boundary.legislative_consequence_projection_execution, false);
 });
 
+test('surfaces both executable vertical slices without overstating their presentation state', () => {
+  const model = kaleidoscopePlatformReadModel();
+  assert.equal(model.scenarios.length, 2);
+
+  const titleVii = model.scenarios.find((scenario) => scenario.policy_family_id === 'gender_identity_title_vii_redefinition.v1');
+  assert.ok(titleVii);
+  assert.equal(titleVii.state, 'executed_test_fixture_not_canonical_fact');
+  assert.equal(titleVii.mechanism_count, 2);
+  assert.equal(titleVii.operation_count, 7);
+  assert.equal(titleVii.lens_count, 4);
+  assert.equal(titleVii.collision_count, 3);
+  assert.equal(titleVii.href, '/project2025/title-vii');
+  assert.equal(titleVii.inspection_state, 'dedicated_detail_route_available');
+
+  const preemption = model.scenarios.find((scenario) => scenario.policy_family_id === 'local_lgbtq_ordinance_preemption.v1');
+  assert.ok(preemption);
+  assert.equal(preemption.scenario_id, 'local_lgbtq_ordinance_preemption_vertical_slice.v1');
+  assert.equal(preemption.state, 'executed_test_fixture_not_canonical_fact');
+  assert.equal(preemption.mechanism_count, 5);
+  assert.equal(preemption.operation_count, 6);
+  assert.equal(preemption.lens_count, 4);
+  assert.equal(preemption.collision_count, 2);
+  assert.equal(preemption.href, null);
+  assert.equal(preemption.receipt_href, null);
+  assert.equal(preemption.inspection_state, 'workspace_summary_only_no_dedicated_detail_route');
+
+  const capability = model.capabilities.find((entry) => entry.capability_id === 'local_preemption_vertical_slice');
+  assert.equal(capability.state, 'executed_test_fixture');
+});
+
+test('unifies the seven unique lenses across both executable slices without averaging collisions', () => {
+  const model = kaleidoscopePlatformReadModel();
+  const ids = model.lens_registry.map((lens) => lens.lens_id);
+  assert.equal(ids.length, 7);
+  assert.equal(new Set(ids).size, 7);
+  assert.ok(ids.includes('affected_populations.v1'));
+  assert.ok(ids.includes('preemption_operability.v1'));
+  assert.ok(ids.includes('preemption_temporal_history.v1'));
+  assert.ok(ids.includes('preemption_jurisdictional_variation.v1'));
+  assert.equal(model.summary.preserved_collision_count, 5);
+});
+
 test('does not overstate accepted binding, canonical projection, or AI runtime state', () => {
   const model = kaleidoscopePlatformReadModel();
   assert.equal(model.system_boundary.database_persistence, false);
@@ -108,17 +151,6 @@ test('does not overstate accepted binding, canonical projection, or AI runtime s
   assert.equal(model.system_boundary.hidden_composite_score, false);
   assert.equal(model.system_boundary.unresolved_states_preserved, true);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
-});
-
-test('surfaces the existing Project 2025 scenario as a child of the platform workspace', () => {
-  const model = kaleidoscopePlatformReadModel();
-  const scenario = model.scenarios[0];
-  assert.equal(scenario.policy_family_id, 'gender_identity_title_vii_redefinition.v1');
-  assert.equal(scenario.state, 'executed_test_fixture_not_canonical_fact');
-  assert.equal(scenario.mechanism_count, 2);
-  assert.equal(scenario.lens_count, 4);
-  assert.equal(scenario.collision_count, 3);
-  assert.equal(scenario.href, '/project2025/title-vii');
 });
 
 test('serves the platform HTML with strict self-only browser boundaries', async () => {
@@ -133,7 +165,7 @@ test('serves the platform HTML with strict self-only browser boundaries', async 
   assert.match(response.headers['permissions-policy'], /camera=\(\)/);
 });
 
-test('serves browser assets without dynamic HTML injection primitives', async () => {
+test('serves browser assets without dynamic HTML injection or fake null links', async () => {
   const js = await resolveKaleidoscopePlatformFrontendRequest('/app.js');
   const css = await resolveKaleidoscopePlatformFrontendRequest('/app.css');
 
@@ -143,6 +175,9 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.match(js.body, /replaceChildren/);
   assert.doesNotMatch(js.body, /innerHTML/);
   assert.doesNotMatch(js.body, /eval\(/);
+  assert.match(js.body, /actionCount === 0/);
+  assert.match(js.body, /typeof scenario\.href === 'string'/);
+  assert.match(js.body, /typeof lens\.href === 'string'/);
   assert.match(js.body, /\/v1\/platform\/read-model/);
 
   assert.equal(css.statusCode, 200);
@@ -151,10 +186,14 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.match(css.body, /prefers-reduced-motion/);
 });
 
-test('serves Project 2025, Civic Genome handoff, and Supabase substrate receipts', () => {
+test('serves deterministic receipts for both slices, Civic Genome handoff, and Supabase substrate', () => {
   const model = kaleidoscopePlatformReadModel();
-  assert.equal(model.receipts.length, 3);
+  assert.equal(model.receipts.length, 4);
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1'));
+  const preemption = model.receipts.find((receipt) => receipt.receipt_id === 'local_lgbtq_ordinance_preemption_vertical_slice.v1');
+  assert.ok(preemption);
+  assert.match(preemption.receipt_hash, /^[0-9a-f]{64}$/);
+  assert.match(preemption.run_id, /^preempt-run-/);
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04'));
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1'));
 });
