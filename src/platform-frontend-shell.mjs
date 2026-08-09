@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import sourceManifest from '../source_manifests/source_pack_2026_08_03_v3.json' with { type: 'json' };
 import project2025ReadModel from '../fixtures/project2025-title-vii-read-model.v1.json' with { type: 'json' };
 import project2025Receipt from '../fixtures/project2025-title-vii-receipt.v1.json' with { type: 'json' };
+import substrateState from '../fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json' with { type: 'json' };
 import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
@@ -54,6 +55,21 @@ function assertSourceControlledState() {
   }
   if (project2025Receipt.no_mutation !== true || project2025Receipt.database_write_count !== 0) {
     fail('project2025_write_boundary_mismatch');
+  }
+
+  if (substrateState.schema_name !== 'kaleidoscope'
+      || substrateState.table_count !== 16
+      || substrateState.table_names?.length !== 16) {
+    fail('substrate_shape_mismatch');
+  }
+  if (substrateState.exact_total_rows !== 0
+      || substrateState.all_tables_rls_enabled !== true
+      || substrateState.migration_history?.length !== 2) {
+    fail('substrate_state_mismatch');
+  }
+  if (substrateState.runtime_database_write_path_proven !== false
+      || substrateState.canonical_persistence_state !== 'schema_present_empty_runtime_not_bound') {
+    fail('substrate_runtime_boundary_mismatch');
   }
 
   if (civicGenomeHandoffReceipt.proof_state !== 'completed') {
@@ -148,10 +164,16 @@ function capabilities() {
       detail: 'Authenticated 62-component snapshot validation proved without persistence or projection.'
     },
     {
+      capability_id: 'projection_substrate',
+      label: 'Projection substrate',
+      state: 'schema_present_empty',
+      detail: 'The Kaleidoscope schema contains 16 RLS-enabled projection tables and two recorded migrations; all tables are empty.'
+    },
+    {
       capability_id: 'canonical_projection_persistence',
       label: 'Canonical projection persistence',
-      state: 'disabled',
-      detail: 'No Kaleidoscope database substrate has been promoted.'
+      state: 'runtime_not_bound',
+      detail: 'The database substrate exists, but the runtime has no proven write path and no canonical rows have been persisted.'
     }
   ];
 }
@@ -183,7 +205,9 @@ export function kaleidoscopePlatformReadModel() {
       preserved_collision_count: project2025ReadModel.summary.collision_count,
       unresolved_condition_count: project2025ReadModel.summary.unresolved_count,
       accepted_civic_genome_bindings: 0,
-      database_tables: 0
+      database_tables: substrateState.table_count,
+      database_rows: substrateState.exact_total_rows,
+      database_migrations: substrateState.migration_history.length
     },
     capabilities: capabilities(),
     scenarios: [
@@ -212,6 +236,19 @@ export function kaleidoscopePlatformReadModel() {
       embedded_in_runtime: false,
       selected_subset: false
     },
+    database_substrate: {
+      snapshot_id: substrateState.snapshot_id,
+      observed_date: substrateState.observed_date,
+      supabase_project_id: substrateState.supabase_project_id,
+      schema_name: substrateState.schema_name,
+      table_count: substrateState.table_count,
+      table_names: substrateState.table_names,
+      exact_total_rows: substrateState.exact_total_rows,
+      all_tables_rls_enabled: substrateState.all_tables_rls_enabled,
+      migration_history: substrateState.migration_history,
+      canonical_persistence_state: substrateState.canonical_persistence_state,
+      runtime_database_write_path_proven: substrateState.runtime_database_write_path_proven
+    },
     platform_contracts: platformContracts(),
     receipts: [
       {
@@ -234,6 +271,10 @@ export function kaleidoscopePlatformReadModel() {
       }
     ],
     system_boundary: {
+      database_schema: substrateState.schema_name,
+      database_tables: substrateState.table_count,
+      database_rows: substrateState.exact_total_rows,
+      database_migrations: substrateState.migration_history.length,
       database_persistence: false,
       canonical_projection_execution: false,
       upstream_mutation: false,
