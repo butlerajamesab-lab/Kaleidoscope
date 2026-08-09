@@ -134,7 +134,7 @@ test('rejects a rehashed attempt to strengthen a copied causal state', () => {
 });
 
 test('accepts the exact generated Stage 3 surface and keeps later stages null', () => {
-  assert.equal(
+  assert.deepEqual(
     assertLegislativeImpactSurface(
       impactFixture.impact_surface,
       legislativeConsequenceFixture,
