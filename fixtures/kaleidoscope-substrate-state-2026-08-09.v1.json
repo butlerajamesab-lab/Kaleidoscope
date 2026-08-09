@@ -1,0 +1,47 @@
+{
+  "snapshot_id": "kaleidoscope_projection_substrate_state_2026_08_09.v1",
+  "snapshot_version": "1.0.0",
+  "observed_date": "2026-08-09",
+  "supabase_project_id": "iwmytuwofniybsmidtki",
+  "schema_name": "kaleidoscope",
+  "migration_history": [
+    {
+      "version": "20260809144200",
+      "name": "kaleidoscope_projection_substrate"
+    },
+    {
+      "version": "20260809144457",
+      "name": "kaleidoscope_projection_substrate_indexes"
+    }
+  ],
+  "table_names": [
+    "change_operation",
+    "change_set",
+    "collision_lens_result",
+    "cross_lens_collision",
+    "lens_manifest",
+    "lens_result",
+    "projection_run",
+    "projection_run_event",
+    "replay_receipt",
+    "scenario",
+    "scenario_lens",
+    "source_binding",
+    "state_component",
+    "state_component_source",
+    "state_snapshot",
+    "state_snapshot_source"
+  ],
+  "table_count": 16,
+  "exact_total_rows": 0,
+  "all_tables_rls_enabled": true,
+  "public_schema_owned_table_count": 0,
+  "runtime_database_write_path_proven": false,
+  "canonical_persistence_state": "schema_present_empty_runtime_not_bound",
+  "observation_basis": [
+    "Supabase migration history",
+    "information_schema table enumeration",
+    "exact count(*) across all 16 kaleidoscope tables",
+    "pg_class row-level-security flags"
+  ]
+}
