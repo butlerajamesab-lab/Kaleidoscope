@@ -1,0 +1,69 @@
+{
+  "receipt_id": "kaleidoscope_supabase_projection_substrate_2026_08_09.v1",
+  "receipt_version": "1.0.0",
+  "platform": "kaleidoscope",
+  "project_ref": "iwmytuwofniybsmidtki",
+  "project_region": "us-east-1",
+  "observed_date": "2026-08-09",
+  "state": "projection_substrate_applied_empty_unbound",
+  "live_migrations": [
+    {
+      "live_version": "20260809144200",
+      "name": "kaleidoscope_projection_substrate",
+      "source_file": "supabase/migrations/20260803160000_kaleidoscope_projection_substrate.sql",
+      "application_state": "applied"
+    },
+    {
+      "live_version": "20260809144457",
+      "name": "kaleidoscope_projection_substrate_indexes",
+      "source_file": "supabase/migrations/20260809144457_kaleidoscope_projection_substrate_indexes.sql",
+      "application_state": "applied"
+    }
+  ],
+  "schema": {
+    "name": "kaleidoscope",
+    "table_count": 16,
+    "function_count": 3,
+    "trigger_count": 17,
+    "public_schema_owned_table_count": 0,
+    "public_anon_authenticated_table_privilege_rows": 0,
+    "rls_state": "enabled_all_truth_bearing_tables",
+    "rls_policy_state": "none_intentional_deny_by_default",
+    "service_role_access": "select_insert_only",
+    "append_only_update_delete_boundary": "trigger_enforced"
+  },
+  "row_counts": {
+    "change_operation": 0,
+    "change_set": 0,
+    "collision_lens_result": 0,
+    "cross_lens_collision": 0,
+    "lens_manifest": 0,
+    "lens_result": 0,
+    "projection_run": 0,
+    "projection_run_event": 0,
+    "replay_receipt": 0,
+    "scenario": 0,
+    "scenario_lens": 0,
+    "source_binding": 0,
+    "state_component": 0,
+    "state_component_source": 0,
+    "state_snapshot": 0,
+    "state_snapshot_source": 0
+  },
+  "performance_advisor_state": {
+    "unindexed_foreign_key_findings_before_index_migration": 20,
+    "unindexed_foreign_key_findings_after_index_migration": 0,
+    "new_index_usage_state": "unused_expected_while_all_tables_empty"
+  },
+  "capability_boundaries": {
+    "projection_enabled_by_this_change": false,
+    "source_binding_persisted": false,
+    "scenario_persisted": false,
+    "projection_run_persisted": false,
+    "replay_receipt_persisted": false,
+    "upstream_platform_mutated": false,
+    "runtime_database_adapter_proven": false,
+    "render_deployment_performed": false
+  },
+  "next_required_proof": "governed_runtime_persistence_adapter_with_deterministic_mapping_replay_and_zero_upstream_mutation"
+}
