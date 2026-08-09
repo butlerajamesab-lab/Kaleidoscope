@@ -10,11 +10,17 @@ import {
   PROJECT2025_FRONTEND_RECEIPT_PATH,
   resolveProject2025FrontendRequest
 } from './project2025-frontend-shell.mjs';
+import {
+  KALEIDOSCOPE_APP_PATH,
+  KALEIDOSCOPE_APP_READ_MODEL_PATH,
+  KALEIDOSCOPE_APP_FRONTEND_VERSION,
+  resolveKaleidoscopePlatformFrontendRequest
+} from './platform-frontend-shell.mjs';
 
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
-const FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'project2025_frontend_shell.v1';
+const PROJECT2025_FRONTEND_SHELL_VERSION = '1.0.0';
+const RUNTIME_REVISION = 'kaleidoscope_platform_frontend.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
 
 function send(res, statusCode, body) {
@@ -53,6 +59,10 @@ function header(req, name) {
   return Array.isArray(value) ? value[0] ?? '' : value ?? '';
 }
 
+function acceptsHtml(req) {
+  return header(req, 'accept').toLowerCase().includes('text/html');
+}
+
 function handshakeConfiguration() {
   const keyId = process.env.KALEIDOSCOPE_CIVIC_GENOME_HANDSHAKE_KEY_ID?.trim() ?? '';
   const secret = process.env.KALEIDOSCOPE_CIVIC_GENOME_HANDSHAKE_SECRET?.trim() ?? '';
@@ -68,8 +78,16 @@ const server = http.createServer(async (req, res) => {
     const pathname = new URL(req.url ?? '/', 'http://localhost').pathname;
 
     if (req.method === 'GET') {
-      const frontendResponse = await resolveProject2025FrontendRequest(pathname);
-      if (frontendResponse) return sendRaw(res, frontendResponse);
+      if (pathname === '/' && acceptsHtml(req)) {
+        const appResponse = await resolveKaleidoscopePlatformFrontendRequest(KALEIDOSCOPE_APP_PATH);
+        return sendRaw(res, appResponse);
+      }
+
+      const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname);
+      if (platformResponse) return sendRaw(res, platformResponse);
+
+      const project2025Response = await resolveProject2025FrontendRequest(pathname);
+      if (project2025Response) return sendRaw(res, project2025Response);
     }
 
     if (req.method === 'GET' && pathname === '/') {
@@ -86,13 +104,17 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        frontend_state: 'read_only_project2025_vertical_slice_shell',
-        frontend_shell_version: FRONTEND_SHELL_VERSION,
+        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
+        project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
+        browser_root: KALEIDOSCOPE_APP_PATH,
         routes: [
           '/health',
           '/v1/status',
           '/v1/diff',
           CIVIC_GENOME_DELIVERY_PATH,
+          KALEIDOSCOPE_APP_PATH,
+          KALEIDOSCOPE_APP_READ_MODEL_PATH,
           PROJECT2025_FRONTEND_PATH,
           PROJECT2025_FRONTEND_READ_MODEL_PATH,
           PROJECT2025_FRONTEND_RECEIPT_PATH
@@ -108,8 +130,8 @@ const server = http.createServer(async (req, res) => {
         runtime_revision: RUNTIME_REVISION,
         deterministic: true,
         projection_capability: 'source_controlled_test_fixture_only',
-        frontend_state: 'read_only_project2025_vertical_slice_shell',
-        frontend_shell_version: FRONTEND_SHELL_VERSION,
+        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
@@ -136,8 +158,9 @@ const server = http.createServer(async (req, res) => {
         civic_genome_live_binding_state: 'not_accepted',
         lens_state: 'project2025_vertical_slice_fixture_with_four_declared_lenses',
         projection_state: 'executed_test_fixture_not_canonical_fact',
-        frontend_state: 'read_only_project2025_vertical_slice_shell',
-        frontend_shell_version: FRONTEND_SHELL_VERSION,
+        frontend_state: 'kaleidoscope_platform_workspace_with_project2025_inspection',
+        platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
+        project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
         supabase_state: 'empty_project_migration_draft_only',
         unresolved_states_preserved: true
       });
@@ -190,7 +213,8 @@ server.listen(PORT, '0.0.0.0', () => {
     port: PORT,
     engine_version: ENGINE_VERSION,
     runtime_revision: RUNTIME_REVISION,
-    frontend_shell_version: FRONTEND_SHELL_VERSION,
+    platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
+    project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
     environment: 'staging'
   }));
 });
