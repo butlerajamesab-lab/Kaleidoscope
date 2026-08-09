@@ -1,0 +1,113 @@
+{
+  "state_snapshot_id": "local_preemption_family_reference_2020_12_31.v1",
+  "components": [
+    {
+      "component_id": "tn_local_nondiscrimination_preemption",
+      "component_type": "local_government_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "TN",
+      "affected_population_ids": ["lgbtq_residents"],
+      "status": "state_preemption_operative",
+      "temporal_state": "operative_since_2011",
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "primary_verified",
+          "support_statement": "The dossier quotes Tenn. Code Ann. §7-51-1802, states enactment in 2011, and states the mechanism remains operative."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "ar_local_nondiscrimination_preemption",
+      "component_type": "local_government_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "AR",
+      "affected_population_ids": ["lgbtq_residents"],
+      "status": "state_preemption_operative",
+      "temporal_state": "operative_since_2015",
+      "declared_verification_state": "primary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "primary_verified",
+          "support_statement": "The dossier quotes Ark. Code Ann. §14-1-403, states enactment in 2015, and states no repeal was identified."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "nc_local_nondiscrimination_preemption",
+      "component_type": "local_government_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "NC",
+      "affected_population_ids": ["lgbtq_residents"],
+      "status": "historical_preemption_expired",
+      "temporal_state": "expired_in_2020_local_authority_restored",
+      "declared_verification_state": "secondary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The dossier states the HB2-era preemption provision expired in 2020 and local governments subsequently enacted anti-bias policies."
+        }
+      ],
+      "unresolved_conditions": ["exact_expiration_date_not_bound_in_current_source_pack"]
+    },
+    {
+      "component_id": "tx_broad_preemption_instrument",
+      "component_type": "state_preemption_instrument",
+      "dimension": "state_preemption_instrument",
+      "jurisdiction": "TX",
+      "affected_population_ids": ["municipal_residents"],
+      "status": "not_yet_enacted_for_this_instrument",
+      "temporal_state": "reference_precedes_2023_statute",
+      "declared_verification_state": "secondary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The dossier identifies the relevant broad Texas preemption law as a 2023 enactment; this reference component is limited to that identified instrument."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "tx_lgbtq_ordinance_application",
+      "component_type": "local_government_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "TX",
+      "affected_population_ids": ["lgbtq_residents"],
+      "status": "application_not_yet_available_under_identified_2023_instrument",
+      "temporal_state": "reference_precedes_2023_statute_and_2025_litigation",
+      "declared_verification_state": "secondary_verified",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-PREEMPT-FAMILY-01_dossier.md",
+          "verification_state": "secondary_verified",
+          "support_statement": "The dossier states the identified statute dates to 2023 and the first reported LGBTQ-ordinance lawsuit under it began in November 2025."
+        }
+      ],
+      "unresolved_conditions": []
+    },
+    {
+      "component_id": "ia_local_nondiscrimination_authority",
+      "component_type": "local_government_authority",
+      "dimension": "local_government_authority",
+      "jurisdiction": "IA",
+      "affected_population_ids": ["transgender_iowans", "lgbtq_residents_in_protected_localities"],
+      "status": "broader_local_categories_available",
+      "temporal_state": "reference_precedes_sf579_preemption",
+      "declared_verification_state": "secondary_verified_high_confidence",
+      "source_bindings": [
+        {
+          "source_artifact_id": "P25-IA-01_mechanism_dossier-4.md",
+          "verification_state": "secondary_verified_high_confidence",
+          "support_statement": "The dossier states that before SF 579, 13 cities plus unincorporated Johnson County had local gender-identity civil-rights protections broader than the post-SF418 state baseline."
+        }
+      ],
+      "unresolved_conditions": []
+    }
+  ]
+}
