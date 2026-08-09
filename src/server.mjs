@@ -90,9 +90,7 @@ function boundedScenarioState(platform) {
     scenario_id: scenario.scenario_id,
     policy_family_id: scenario.policy_family_id,
     state: scenario.state,
-    inspection_state: scenario.policy_family_id === 'local_lgbtq_ordinance_preemption.v1'
-      ? 'detailed_route_available'
-      : scenario.inspection_state
+    inspection_state: scenario.inspection_state
   }));
 }
 
