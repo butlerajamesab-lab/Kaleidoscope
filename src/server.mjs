@@ -18,6 +18,11 @@ import {
   resolveLocalPreemptionFrontendRequest
 } from './local-preemption-frontend-shell.mjs';
 import {
+  LEGISLATIVE_IMPACT_SURFACE_PATH,
+  LEGISLATIVE_IMPACT_RECEIPT_PATH,
+  resolveLegislativeImpactRequest
+} from './legislative-impact-api.mjs';
+import {
   KALEIDOSCOPE_APP_PATH,
   KALEIDOSCOPE_APP_READ_MODEL_PATH,
   KALEIDOSCOPE_APP_FRONTEND_VERSION,
@@ -28,7 +33,7 @@ import {
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
 const PROJECT2025_FRONTEND_SHELL_VERSION = '1.0.0';
-const RUNTIME_REVISION = 'kaleidoscope_citizen_scenario_detail_surfaces.v1';
+const RUNTIME_REVISION = 'kaleidoscope_legislative_consequence_stage3.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
 
 function send(res, statusCode, body) {
@@ -107,6 +112,9 @@ const server = http.createServer(async (req, res) => {
       const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname);
       if (platformResponse) return sendRaw(res, platformResponse);
 
+      const impactResponse = resolveLegislativeImpactRequest(pathname);
+      if (impactResponse) return sendRaw(res, impactResponse);
+
       const localPreemptionResponse = await resolveLocalPreemptionFrontendRequest(pathname);
       if (localPreemptionResponse) return sendRaw(res, localPreemptionResponse);
 
@@ -118,6 +126,7 @@ const server = http.createServer(async (req, res) => {
       const platform = platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
+      const impact = consequence.impact_surface;
       const persistence = platform.persistence_preflight;
       return send(res, 200, {
         platform: 'kaleidoscope',
@@ -133,6 +142,10 @@ const server = http.createServer(async (req, res) => {
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
         legislative_consequence_edge_count: consequence.consequence_edge_count,
+        legislative_consequence_stage_3_executed: true,
+        legislative_consequence_stage_3_impact_item_count: impact.impact_item_count,
+        legislative_consequence_stage_3_touched_actor_count: impact.touched_actor_count,
+        legislative_consequence_stages_4_6_executed: false,
         persistence_preflight_state: persistence.state,
         persistence_live_write_authorized: persistence.live_write_authorized,
         civic_genome_binding_contract: 'defined_unbound',
@@ -140,7 +153,7 @@ const server = http.createServer(async (req, res) => {
         civic_genome_handoff_state: handshakeConfiguration().ready
           ? 'authenticated_validation_ready'
           : 'not_configured',
-        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
+        frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
         local_preemption_frontend_version: LOCAL_PREEMPTION_FRONTEND_VERSION,
@@ -161,7 +174,9 @@ const server = http.createServer(async (req, res) => {
           PROJECT2025_FRONTEND_RECEIPT_PATH,
           LOCAL_PREEMPTION_FRONTEND_PATH,
           LOCAL_PREEMPTION_READ_MODEL_PATH,
-          LOCAL_PREEMPTION_RECEIPT_PATH
+          LOCAL_PREEMPTION_RECEIPT_PATH,
+          LEGISLATIVE_IMPACT_SURFACE_PATH,
+          LEGISLATIVE_IMPACT_RECEIPT_PATH
         ]
       });
     }
@@ -169,6 +184,7 @@ const server = http.createServer(async (req, res) => {
       const platform = platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
+      const impact = consequence.impact_surface;
       const persistence = platform.persistence_preflight;
       return send(res, 200, {
         status: 'ok',
@@ -181,9 +197,12 @@ const server = http.createServer(async (req, res) => {
         bounded_scenario_count: platform.summary.scenario_count,
         citizen_detail_surface_count: 2,
         legislative_consequence_state: consequence.state,
+        legislative_consequence_stage_3_executed: true,
+        legislative_consequence_stage_3_impact_item_count: impact.impact_item_count,
+        legislative_consequence_stages_4_6_executed: false,
         persistence_preflight_state: persistence.state,
         persistence_live_write_authorized: persistence.live_write_authorized,
-        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
+        frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         civic_genome_binding_contract: 'defined_unbound',
         civic_genome_handoff_state: handshakeConfiguration().ready
@@ -199,13 +218,14 @@ const server = http.createServer(async (req, res) => {
       const platform = platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
+      const impact = consequence.impact_surface;
       const persistence = platform.persistence_preflight;
       return send(res, 200, {
         platform: 'kaleidoscope',
         foundation_version: ENGINE_VERSION,
         runtime_revision: RUNTIME_REVISION,
         environment: 'staging',
-        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_two_bounded_scenario_classes_legislative_consequence_stage2_persistence_preflight_and_two_citizen_detail_surfaces',
+        kernel_state: 'typed_diff_hashing_source_tamper_validation_authenticated_handoff_two_bounded_scenario_classes_legislative_consequence_stage3_persistence_preflight_and_two_citizen_detail_surfaces',
         source_manifest_id: SOURCE_MANIFEST_ID,
         source_entry_count: platform.summary.active_source_artifacts,
         source_corpus_state: 'all_uploaded_documents_active',
@@ -228,14 +248,25 @@ const server = http.createServer(async (req, res) => {
         legislative_consequence_edge_count: consequence.consequence_edge_count,
         legislative_consequence_platform_binding_count: consequence.platform_binding_count,
         legislative_consequence_preserved_conflict_count: consequence.preserved_conflict_count,
+        legislative_consequence_stage_3_executed: true,
+        legislative_consequence_stage_3_impact_item_count: impact.impact_item_count,
+        legislative_consequence_stage_3_touched_actor_count: impact.touched_actor_count,
+        legislative_consequence_stage_3_effect_class_counts: impact.effect_class_counts,
+        legislative_consequence_stage_3_deferred_reference_count: impact.deferred_reference_count,
+        legislative_consequence_stage_3_impact_surface_hash: impact.impact_surface_hash,
+        legislative_consequence_stage_3_run_id: impact.run_id,
+        legislative_consequence_stage_3_receipt_hash: impact.receipt_hash,
+        legislative_consequence_stage_4_atlas_executed: impact.atlas_historical_comparison_executed,
+        legislative_consequence_stage_5_lighthouse_executed: impact.lighthouse_accountability_executed,
+        legislative_consequence_stage_6_checklist_instantiated: impact.checklist_instantiated,
         legislative_consequence_projection_executed: consequence.projection_executed,
-        legislative_consequence_stages_3_6_executed: false,
+        legislative_consequence_stages_4_6_executed: false,
         persistence_preflight_state: persistence.state,
         persistence_preflight_scenario_count: persistence.scenario_plans.length,
         persistence_live_write_authorized: persistence.live_write_authorized,
         persistence_credentials_required: persistence.credentials_required,
         persistence_sql_emitted: persistence.sql_emitted,
-        frontend_state: 'citizen_first_workspace_with_two_detail_surfaces',
+        frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         layperson_comprehension_contract: 'v1',
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
@@ -297,6 +328,7 @@ server.listen(PORT, '0.0.0.0', () => {
   const platform = platformStatus();
   const database = platform.database_substrate;
   const consequence = platform.legislative_consequence;
+  const impact = consequence.impact_surface;
   const persistence = platform.persistence_preflight;
   console.log(JSON.stringify({
     event: 'kaleidoscope_started',
@@ -310,6 +342,9 @@ server.listen(PORT, '0.0.0.0', () => {
     project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
     local_preemption_frontend_version: LOCAL_PREEMPTION_FRONTEND_VERSION,
     legislative_consequence_state: consequence.state,
+    legislative_consequence_stage_3_executed: true,
+    legislative_consequence_stage_3_impact_item_count: impact.impact_item_count,
+    legislative_consequence_stages_4_6_executed: false,
     persistence_preflight_state: persistence.state,
     persistence_live_write_authorized: persistence.live_write_authorized,
     database_state: database.canonical_persistence_state,
