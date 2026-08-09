@@ -7,6 +7,7 @@ import localPreemptionFixture from '../fixtures/local-preemption-family-vertical
 import substrateReceipt from '../receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json' with { type: 'json' };
 import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
 import legislativeConsequenceFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
+import legislativeImpactFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.impact_surface.v1.mjs';
 import affectedPopulations from '../lenses/affected_populations.v1.json' with { type: 'json' };
 import civilRights from '../lenses/civil_rights.v1.json' with { type: 'json' };
 import enforcementPathways from '../lenses/enforcement_pathways.v1.json' with { type: 'json' };
@@ -20,12 +21,16 @@ import {
   LOCAL_PREEMPTION_FRONTEND_PATH,
   LOCAL_PREEMPTION_RECEIPT_PATH
 } from './local-preemption-frontend-shell.mjs';
+import {
+  LEGISLATIVE_IMPACT_SURFACE_PATH,
+  LEGISLATIVE_IMPACT_RECEIPT_PATH
+} from './legislative-impact-api.mjs';
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
 
 export const KALEIDOSCOPE_APP_PATH = '/app';
 export const KALEIDOSCOPE_APP_READ_MODEL_PATH = '/v1/platform/read-model';
-export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.2.0';
+export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.3.0';
 
 const HTML_ASSET = {
   file: '../public/kaleidoscope-app.html',
@@ -101,6 +106,52 @@ function derivedRuntimeState() {
   };
 }
 
+function assertLegislativeImpactState() {
+  const surface = legislativeImpactFixture.impact_surface;
+  const receipt = legislativeImpactFixture.receipt;
+  if (legislativeImpactFixture.stage !== 3
+      || legislativeImpactFixture.stage_name !== 'impact_surface'
+      || legislativeImpactFixture.source_stage_1_2_fixture_id !== legislativeConsequenceFixture.fixture_id) {
+    fail('legislative_impact_stage_identity_mismatch');
+  }
+  if (surface.source_consequence_graph_hash !== legislativeConsequenceFixture.consequence_graph.graph_hash
+      || surface.source_structural_delta_bundle_hash !== legislativeConsequenceFixture.structural_delta_bundle.bundle_hash) {
+    fail('legislative_impact_source_identity_mismatch');
+  }
+  if (surface.impact_item_count !== 5
+      || surface.deferred_reference_count !== 1
+      || surface.touched_actor_count !== 14
+      || surface.effect_class_counts.legal !== 3
+      || surface.effect_class_counts.operational !== 2
+      || surface.effect_class_counts.economic !== 0
+      || surface.effect_class_counts.administrative !== 1) {
+    fail('legislative_impact_shape_mismatch');
+  }
+  if (surface.atlas_historical_comparison_executed !== false
+      || surface.lighthouse_accountability_executed !== false
+      || surface.checklist_instantiated !== false
+      || surface.no_mutation !== true
+      || surface.database_write_count !== 0) {
+    fail('legislative_impact_boundary_mismatch');
+  }
+  if (receipt.impact_surface_hash !== surface.impact_surface_hash
+      || receipt.atlas_historical_comparison_executed !== false
+      || receipt.lighthouse_accountability_executed !== false
+      || receipt.checklist_instantiated !== false
+      || receipt.no_mutation !== true
+      || receipt.database_write_count !== 0) {
+    fail('legislative_impact_receipt_mismatch');
+  }
+  if (legislativeImpactFixture.atlas_historical_compare !== null
+      || legislativeImpactFixture.lighthouse_accountability_view !== null
+      || legislativeImpactFixture.instantiated_checklist !== null
+      || legislativeImpactFixture.projection_executed !== false
+      || legislativeImpactFixture.database_persisted !== false) {
+    fail('legislative_impact_later_stage_boundary_mismatch');
+  }
+  return { surface, receipt };
+}
+
 function assertSourceControlledState(derived) {
   if (!Array.isArray(sourceManifest.entries) || sourceManifest.entries.length !== 41) {
     fail('source_manifest_count_mismatch');
@@ -154,8 +205,9 @@ function assertSourceControlledState(derived) {
       || legislativeConsequenceFixture.atlas_historical_compare !== null
       || legislativeConsequenceFixture.lighthouse_accountability_view !== null
       || legislativeConsequenceFixture.instantiated_checklist !== null) {
-    fail('legislative_consequence_boundary_mismatch');
+    fail('legislative_consequence_stage_1_2_boundary_mismatch');
   }
+  assertLegislativeImpactState();
 
   if (substrateReceipt.platform !== 'kaleidoscope'
       || substrateReceipt.project_ref !== 'iwmytuwofniybsmidtki'
@@ -270,6 +322,7 @@ function platformContracts() {
 }
 
 function capabilities(derived) {
+  const impact = assertLegislativeImpactState().surface;
   return [
     {
       capability_id: 'typed_state_diff',
@@ -293,7 +346,13 @@ function capabilities(derived) {
       capability_id: 'legislative_consequence_stage_1_2',
       label: 'Legislative Consequence · Stages 1–2',
       state: 'source_controlled_no_projection',
-      detail: `${legislativeConsequenceFixture.structural_delta_bundle.delta_count} structural deltas, ${legislativeConsequenceFixture.consequence_graph.edge_count} governed consequence edges, ${legislativeConsequenceFixture.legislation_platform_bindings.binding_count} Docket/Rosetta/Civic Genome bindings, and ${legislativeConsequenceFixture.legislation_platform_bindings.conflict_count} preserved lifecycle conflict; stages 3–6 remain null.`
+      detail: `${legislativeConsequenceFixture.structural_delta_bundle.delta_count} structural deltas, ${legislativeConsequenceFixture.consequence_graph.edge_count} governed consequence edges, ${legislativeConsequenceFixture.legislation_platform_bindings.binding_count} Docket/Rosetta/Civic Genome bindings, and ${legislativeConsequenceFixture.legislation_platform_bindings.conflict_count} preserved lifecycle conflict.`
+    },
+    {
+      capability_id: 'legislative_consequence_stage_3',
+      label: 'Legislative Consequence · Stage 3 Impact Surface',
+      state: 'source_controlled_no_projection',
+      detail: `${impact.impact_item_count} declared impact items touch ${impact.touched_actor_count} Stage 1 actor identifiers; one historical reference is deferred to Stage 4, and no economic effect is manufactured where none is declared.`
     },
     {
       capability_id: 'deterministic_persistence_preflight',
@@ -353,11 +412,12 @@ export function kaleidoscopePlatformReadModel() {
   assertSourceControlledState(derived);
 
   const localPreemption = derived.localPreemption;
+  const legislativeImpact = assertLegislativeImpactState();
   const lensRegistry = combinedLensRegistry(localPreemption);
   const rowCount = substrateRowCount();
 
   const basis = {
-    read_model_version: '1.2.0',
+    read_model_version: '1.3.0',
     platform: 'kaleidoscope',
     platform_label: 'Kaleidoscope',
     environment: 'staging',
@@ -415,18 +475,33 @@ export function kaleidoscopePlatformReadModel() {
     legislative_consequence: {
       specimen_id: legislativeConsequenceFixture.fixture_id,
       scenario_id: legislativeConsequenceFixture.structural_delta_bundle.scenario_id,
-      state: 'stage_1_2_source_controlled_stages_3_6_null_no_projection',
+      state: 'stage_1_3_source_controlled_stages_4_6_null_no_projection',
       structural_delta_count: legislativeConsequenceFixture.structural_delta_bundle.delta_count,
       consequence_edge_count: legislativeConsequenceFixture.consequence_graph.edge_count,
       platform_binding_count: legislativeConsequenceFixture.legislation_platform_bindings.binding_count,
       preserved_conflict_count: legislativeConsequenceFixture.legislation_platform_bindings.conflict_count,
       upstream_trigger: legislativeConsequenceFixture.legislation_platform_bindings.run_transition.trigger,
-      impact_surface: legislativeConsequenceFixture.impact_surface,
-      atlas_historical_compare: legislativeConsequenceFixture.atlas_historical_compare,
-      lighthouse_accountability_view: legislativeConsequenceFixture.lighthouse_accountability_view,
-      instantiated_checklist: legislativeConsequenceFixture.instantiated_checklist,
-      projection_executed: legislativeConsequenceFixture.projection_executed,
-      database_persisted: legislativeConsequenceFixture.database_persisted
+      stage_1_2_fixture_impact_surface: legislativeConsequenceFixture.impact_surface,
+      impact_surface: {
+        state: 'stage_3_source_controlled_no_projection',
+        impact_item_count: legislativeImpact.surface.impact_item_count,
+        touched_actor_count: legislativeImpact.surface.touched_actor_count,
+        effect_class_counts: legislativeImpact.surface.effect_class_counts,
+        deferred_reference_count: legislativeImpact.surface.deferred_reference_count,
+        atlas_historical_comparison_executed: legislativeImpact.surface.atlas_historical_comparison_executed,
+        lighthouse_accountability_executed: legislativeImpact.surface.lighthouse_accountability_executed,
+        checklist_instantiated: legislativeImpact.surface.checklist_instantiated,
+        impact_surface_hash: legislativeImpact.surface.impact_surface_hash,
+        run_id: legislativeImpact.receipt.run_id,
+        receipt_hash: legislativeImpact.receipt.receipt_hash,
+        href: LEGISLATIVE_IMPACT_SURFACE_PATH,
+        receipt_href: LEGISLATIVE_IMPACT_RECEIPT_PATH
+      },
+      atlas_historical_compare: legislativeImpactFixture.atlas_historical_compare,
+      lighthouse_accountability_view: legislativeImpactFixture.lighthouse_accountability_view,
+      instantiated_checklist: legislativeImpactFixture.instantiated_checklist,
+      projection_executed: legislativeImpactFixture.projection_executed,
+      database_persisted: legislativeImpactFixture.database_persisted
     },
     persistence_preflight: {
       state: 'available_no_write',
@@ -500,6 +575,14 @@ export function kaleidoscopePlatformReadModel() {
         href: LOCAL_PREEMPTION_RECEIPT_PATH
       },
       {
+        receipt_id: legislativeImpact.receipt.run_id,
+        label: 'Legislative Consequence Stage 3 impact surface',
+        state: 'source_controlled_no_projection',
+        receipt_hash: legislativeImpact.receipt.receipt_hash,
+        run_id: legislativeImpact.receipt.run_id,
+        href: LEGISLATIVE_IMPACT_RECEIPT_PATH
+      },
+      {
         receipt_id: civicGenomeHandoffReceipt.receipt_id,
         label: 'Civic Genome authenticated handoff — WA HB2487',
         state: civicGenomeHandoffReceipt.delivery_receipt.validation_state,
@@ -531,7 +614,8 @@ export function kaleidoscopePlatformReadModel() {
       database_persistence: false,
       canonical_projection_execution: false,
       legislative_consequence_stage_1_2: true,
-      legislative_consequence_stages_3_6: false,
+      legislative_consequence_stage_3: true,
+      legislative_consequence_stages_4_6: false,
       persistence_preflight_available: true,
       persistence_live_write_authorized: false,
       upstream_mutation: false,
@@ -545,6 +629,8 @@ export function kaleidoscopePlatformReadModel() {
       platform_read_model: KALEIDOSCOPE_APP_READ_MODEL_PATH,
       project2025_scenario: '/project2025/title-vii',
       local_preemption_scenario_detail: LOCAL_PREEMPTION_FRONTEND_PATH,
+      legislative_consequence_stage_3: LEGISLATIVE_IMPACT_SURFACE_PATH,
+      legislative_consequence_stage_3_receipt: LEGISLATIVE_IMPACT_RECEIPT_PATH,
       health: '/health',
       status: '/v1/status'
     }

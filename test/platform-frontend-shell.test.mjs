@@ -18,8 +18,8 @@ test('builds one deterministic platform read model over both bounded examples', 
   assert.equal(model.platform, 'kaleidoscope');
   assert.equal(model.environment, 'staging');
   assert.equal(model.frontend_version, KALEIDOSCOPE_APP_FRONTEND_VERSION);
-  assert.equal(model.frontend_version, '1.2.0');
-  assert.equal(model.read_model_version, '1.2.0');
+  assert.equal(model.frontend_version, '1.3.0');
+  assert.equal(model.read_model_version, '1.3.0');
   assert.equal(model.deterministic, true);
   assert.equal(model.summary.active_source_artifacts, 41);
   assert.equal(model.summary.scenario_count, 2);
@@ -66,23 +66,42 @@ test('reads the canonical live Supabase receipt and preserves an empty runtime-u
   assert.equal(model.database_substrate.runtime_database_write_path_proven, false);
 });
 
-test('derives Legislative Consequence stages 1 and 2 without inventing later stages or projection', () => {
+test('derives Legislative Consequence stages 1 through 3 without inventing later stages or projection', () => {
   const model = kaleidoscopePlatformReadModel();
-  const capability = model.capabilities.find((entry) => entry.capability_id === 'legislative_consequence_stage_1_2');
-  assert.equal(capability.state, 'source_controlled_no_projection');
-  assert.equal(model.legislative_consequence.structural_delta_count, 12);
-  assert.equal(model.legislative_consequence.consequence_edge_count, 6);
-  assert.equal(model.legislative_consequence.platform_binding_count, 6);
-  assert.equal(model.legislative_consequence.preserved_conflict_count, 1);
-  assert.equal(model.legislative_consequence.upstream_trigger, 'user_initiated_rosetta_run');
-  assert.equal(model.legislative_consequence.impact_surface, null);
-  assert.equal(model.legislative_consequence.atlas_historical_compare, null);
-  assert.equal(model.legislative_consequence.lighthouse_accountability_view, null);
-  assert.equal(model.legislative_consequence.instantiated_checklist, null);
-  assert.equal(model.legislative_consequence.projection_executed, false);
-  assert.equal(model.legislative_consequence.database_persisted, false);
+  const stage12 = model.capabilities.find((entry) => entry.capability_id === 'legislative_consequence_stage_1_2');
+  const stage3 = model.capabilities.find((entry) => entry.capability_id === 'legislative_consequence_stage_3');
+  const consequence = model.legislative_consequence;
+  const impact = consequence.impact_surface;
+
+  assert.equal(stage12.state, 'source_controlled_no_projection');
+  assert.equal(stage3.state, 'source_controlled_no_projection');
+  assert.equal(consequence.state, 'stage_1_3_source_controlled_stages_4_6_null_no_projection');
+  assert.equal(consequence.structural_delta_count, 12);
+  assert.equal(consequence.consequence_edge_count, 6);
+  assert.equal(consequence.platform_binding_count, 6);
+  assert.equal(consequence.preserved_conflict_count, 1);
+  assert.equal(consequence.upstream_trigger, 'user_initiated_rosetta_run');
+  assert.equal(consequence.stage_1_2_fixture_impact_surface, null);
+  assert.equal(impact.state, 'stage_3_source_controlled_no_projection');
+  assert.equal(impact.impact_item_count, 5);
+  assert.equal(impact.touched_actor_count, 14);
+  assert.deepEqual(impact.effect_class_counts, { legal: 3, operational: 2, economic: 0, administrative: 1 });
+  assert.equal(impact.deferred_reference_count, 1);
+  assert.equal(impact.atlas_historical_comparison_executed, false);
+  assert.equal(impact.lighthouse_accountability_executed, false);
+  assert.equal(impact.checklist_instantiated, false);
+  assert.match(impact.impact_surface_hash, /^[0-9a-f]{64}$/);
+  assert.match(impact.receipt_hash, /^[0-9a-f]{64}$/);
+  assert.equal(impact.href, '/v1/legislative-consequence/eeoc/impact-surface');
+  assert.equal(impact.receipt_href, '/v1/legislative-consequence/eeoc/impact-surface/receipt');
+  assert.equal(consequence.atlas_historical_compare, null);
+  assert.equal(consequence.lighthouse_accountability_view, null);
+  assert.equal(consequence.instantiated_checklist, null);
+  assert.equal(consequence.projection_executed, false);
+  assert.equal(consequence.database_persisted, false);
   assert.equal(model.system_boundary.legislative_consequence_stage_1_2, true);
-  assert.equal(model.system_boundary.legislative_consequence_stages_3_6, false);
+  assert.equal(model.system_boundary.legislative_consequence_stage_3, true);
+  assert.equal(model.system_boundary.legislative_consequence_stages_4_6, false);
 });
 
 test('runs persistence preflight for both examples while authorizing zero writes', () => {
@@ -121,6 +140,15 @@ test('surfaces both bounded examples with truthful detail and receipt routes', (
   assert.equal(preemption.receipt_href, '/v1/scenarios/state-local-protections/receipt');
   assert.equal(preemption.inspection_state, 'detailed_route_available');
   assert.equal(model.routes.local_preemption_scenario_detail, '/state-local-protections');
+});
+
+test('keeps Stage 3 citizen language primary and the technical Impact Surface term secondary', () => {
+  assert.match(browserJs, /See who or what is directly touched by the legal change/);
+  assert.match(browserJs, /It does not add new causation/);
+  assert.match(browserJs, /zero economic impact items because none is declared/);
+  assert.match(browserJs, /Legislative Consequence Stage 3 · Impact Surface/);
+  assert.match(browserJs, /Who or what is directly touched\?/);
+  assert.match(browserJs, /Historical comparison and later stages/);
 });
 
 test('keeps technical terminology secondary to plain-language public headings', () => {
@@ -178,13 +206,16 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.match(css.body, /prefers-reduced-motion/);
 });
 
-test('serves four proof records and both scenario receipts are inspectable', async () => {
+test('serves five proof records including Stage 3 and both scenario receipts', async () => {
   const model = kaleidoscopePlatformReadModel();
-  assert.equal(model.receipts.length, 4);
+  assert.equal(model.receipts.length, 5);
   const titleReceipt = model.receipts.find((receipt) => receipt.receipt_id === 'project2025_title_vii_vertical_slice.v1');
   const preemptionReceipt = model.receipts.find((receipt) => String(receipt.receipt_id).startsWith('preempt-run-'));
+  const impactReceipt = model.receipts.find((receipt) => String(receipt.receipt_id).startsWith('impact-run-'));
   assert.equal(titleReceipt.href, '/v1/project2025/title-vii/receipt');
   assert.equal(preemptionReceipt.href, '/v1/scenarios/state-local-protections/receipt');
+  assert.equal(impactReceipt.href, '/v1/legislative-consequence/eeoc/impact-surface/receipt');
+  assert.equal(impactReceipt.state, 'source_controlled_no_projection');
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'civic_genome_kaleidoscope_authenticated_handoff_hb2487_2026_08_04'));
   assert.ok(model.receipts.some((receipt) => receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1'));
 
