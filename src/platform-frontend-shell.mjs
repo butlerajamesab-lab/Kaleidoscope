@@ -3,6 +3,7 @@ import sourceManifest from '../source_manifests/source_pack_2026_08_03_v3.json' 
 import project2025ReadModel from '../fixtures/project2025-title-vii-read-model.v1.json' with { type: 'json' };
 import project2025Receipt from '../fixtures/project2025-title-vii-receipt.v1.json' with { type: 'json' };
 import project2025Fixture from '../fixtures/project2025-title-vii-vertical-slice.v1.mjs';
+import localPreemptionFixture from '../fixtures/local-preemption-family-vertical-slice.v1.mjs';
 import legislativeConsequenceFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
 import substrateReceipt from '../receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json' with { type: 'json' };
 import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
@@ -10,6 +11,10 @@ import affectedPopulations from '../lenses/affected_populations.v1.json' with { 
 import civilRights from '../lenses/civil_rights.v1.json' with { type: 'json' };
 import enforcementPathways from '../lenses/enforcement_pathways.v1.json' with { type: 'json' };
 import localGovernmentPreemption from '../lenses/local_government_preemption.v1.json' with { type: 'json' };
+import preemptionOperability from '../lenses/preemption_operability.v1.json' with { type: 'json' };
+import preemptionTemporalHistory from '../lenses/preemption_temporal_history.v1.json' with { type: 'json' };
+import preemptionJurisdictionalVariation from '../lenses/preemption_jurisdictional_variation.v1.json' with { type: 'json' };
+import { executeLocalPreemptionFamilyVerticalSlice } from './local-preemption-family-slice.mjs';
 import { buildDeterministicPersistencePlan } from './persistence-plan.mjs';
 import { canonicalValue } from './canonical-json.mjs';
 import { sha256Hex } from './hash.mjs';
@@ -23,6 +28,13 @@ const PERSISTENCE_LENS_MANIFESTS = [
   civilRights,
   enforcementPathways,
   localGovernmentPreemption
+];
+
+const PREEMPTION_LENS_MANIFESTS = [
+  affectedPopulations,
+  preemptionOperability,
+  preemptionTemporalHistory,
+  preemptionJurisdictionalVariation
 ];
 
 const HTML_ASSET = {
@@ -64,7 +76,14 @@ function currentPersistencePlan() {
   });
 }
 
-function assertSourceControlledState(persistencePlan) {
+function currentLocalPreemptionRun() {
+  return executeLocalPreemptionFamilyVerticalSlice(
+    localPreemptionFixture,
+    PREEMPTION_LENS_MANIFESTS
+  );
+}
+
+function assertSourceControlledState(persistencePlan, localPreemptionRun) {
   if (!Array.isArray(sourceManifest.entries) || sourceManifest.entries.length !== 41) {
     fail('source_manifest_count_mismatch');
   }
@@ -81,6 +100,25 @@ function assertSourceControlledState(persistencePlan) {
   }
   if (project2025Receipt.no_mutation !== true || project2025Receipt.database_write_count !== 0) {
     fail('project2025_write_boundary_mismatch');
+  }
+
+  if (localPreemptionRun.bundle?.policy_family_id !== 'local_lgbtq_ordinance_preemption.v1'
+      || localPreemptionRun.bundle?.scenario_id !== 'local_lgbtq_ordinance_preemption_vertical_slice.v1'
+      || localPreemptionRun.bundle?.projection_claim_state !== 'not_prediction_not_canonical_fact') {
+    fail('local_preemption_identity_mismatch');
+  }
+  if (localPreemptionRun.bundle?.diff?.operations?.length !== 6
+      || localPreemptionRun.bundle?.lens_results?.length !== 4
+      || localPreemptionRun.bundle?.collisions?.length !== 2) {
+    fail('local_preemption_shape_mismatch');
+  }
+  if (localPreemptionRun.bundle?.no_mutation !== true
+      || localPreemptionRun.bundle?.database_write_count !== 0
+      || localPreemptionRun.read_model?.status !== 'executed_test_fixture_not_canonical_fact') {
+    fail('local_preemption_execution_boundary_mismatch');
+  }
+  if (!/^[0-9a-f]{64}$/.test(localPreemptionRun.receipt?.receipt_hash ?? '')) {
+    fail('local_preemption_receipt_hash_invalid');
   }
 
   if (legislativeConsequenceFixture.structural_delta_bundle?.delta_count !== 12
@@ -218,9 +256,15 @@ function capabilities(persistencePlan) {
     },
     {
       capability_id: 'project2025_vertical_slice',
-      label: 'Project 2025 vertical slice',
+      label: 'Project 2025 Title VII vertical slice',
       state: 'executed_test_fixture',
-      detail: 'Four independent lenses with deterministic replay and preserved collisions.'
+      detail: 'Four independent lenses with deterministic replay and three preserved collisions.'
+    },
+    {
+      capability_id: 'local_preemption_vertical_slice',
+      label: 'Local preemption family vertical slice',
+      state: 'executed_test_fixture',
+      detail: 'Five-jurisdiction deterministic stress-test with six typed operations, four independent lenses, two preserved collisions, zero writes, and no asserted centralized coordination.'
     },
     {
       capability_id: 'legislative_consequence_stage_1_2',
@@ -255,17 +299,41 @@ function capabilities(persistencePlan) {
   ];
 }
 
+function buildLensRegistry(localPreemptionRun) {
+  const registry = new Map();
+  const add = (lensId, effectCount, href) => {
+    const existing = registry.get(lensId);
+    if (existing) {
+      existing.effect_count += effectCount;
+      existing.scenario_count += 1;
+      return;
+    }
+    registry.set(lensId, {
+      lens_id: lensId,
+      effect_count: effectCount,
+      scenario_count: 1,
+      state: 'source_controlled_test_fixture',
+      href: href ?? null
+    });
+  };
+
+  for (const lens of project2025ReadModel.lens_panels) {
+    add(lens.lens_id, lens.effect_count, '/project2025/title-vii#lenses');
+  }
+  for (const lens of localPreemptionRun.bundle.lens_results) {
+    add(lens.lens_id, lens.effect_count, null);
+  }
+  return [...registry.values()].sort((a, b) => a.lens_id.localeCompare(b.lens_id));
+}
+
 export function kaleidoscopePlatformReadModel() {
   const persistencePlan = currentPersistencePlan();
-  assertSourceControlledState(persistencePlan);
+  const localPreemptionRun = currentLocalPreemptionRun();
+  assertSourceControlledState(persistencePlan, localPreemptionRun);
 
-  const lensRegistry = project2025ReadModel.lens_panels.map((lens) => ({
-    lens_id: lens.lens_id,
-    effect_count: lens.effect_count,
-    state: 'source_controlled_test_fixture',
-    href: '/project2025/title-vii#lenses'
-  }));
+  const lensRegistry = buildLensRegistry(localPreemptionRun);
   const rowCount = substrateRowCount();
+  const localUnresolvedCount = localPreemptionRun.read_model.summary?.unresolved_count ?? 0;
 
   const basis = {
     read_model_version: '1.0.0',
@@ -279,10 +347,10 @@ export function kaleidoscopePlatformReadModel() {
     mission: 'Compare declared civic states through inspectable deterministic lenses while preserving provenance, uncertainty, and disagreement.',
     summary: {
       active_source_artifacts: sourceManifest.entries.length,
-      scenario_count: 1,
+      scenario_count: 2,
       lens_count: lensRegistry.length,
-      preserved_collision_count: project2025ReadModel.summary.collision_count,
-      unresolved_condition_count: project2025ReadModel.summary.unresolved_count,
+      preserved_collision_count: project2025ReadModel.summary.collision_count + localPreemptionRun.bundle.collisions.length,
+      unresolved_condition_count: project2025ReadModel.summary.unresolved_count + localUnresolvedCount,
       accepted_civic_genome_bindings: 0,
       database_tables: substrateReceipt.schema.table_count,
       database_rows: rowCount,
@@ -303,7 +371,24 @@ export function kaleidoscopePlatformReadModel() {
         unresolved_count: project2025ReadModel.summary.unresolved_count,
         href: '/project2025/title-vii',
         receipt_href: '/v1/project2025/title-vii/receipt',
-        read_model_hash: project2025ReadModel.read_model_hash
+        read_model_hash: project2025ReadModel.read_model_hash,
+        inspection_state: 'dedicated_detail_route_available'
+      },
+      {
+        scenario_id: localPreemptionRun.bundle.scenario_id,
+        policy_family_id: localPreemptionRun.bundle.policy_family_id,
+        title: localPreemptionRun.read_model.title,
+        subtitle: localPreemptionRun.read_model.subtitle,
+        state: localPreemptionRun.read_model.status,
+        mechanism_count: localPreemptionFixture.mechanisms.length,
+        operation_count: localPreemptionRun.bundle.diff.operations.length,
+        lens_count: localPreemptionRun.bundle.lens_results.length,
+        collision_count: localPreemptionRun.bundle.collisions.length,
+        unresolved_count: localUnresolvedCount,
+        href: null,
+        receipt_href: null,
+        read_model_hash: localPreemptionRun.read_model.read_model_hash,
+        inspection_state: 'workspace_summary_only_no_dedicated_detail_route'
       }
     ],
     legislative_consequence: {
@@ -369,6 +454,14 @@ export function kaleidoscopePlatformReadModel() {
         receipt_hash: project2025Receipt.receipt_hash,
         run_id: project2025Receipt.run_id,
         href: '/v1/project2025/title-vii/receipt'
+      },
+      {
+        receipt_id: 'local_lgbtq_ordinance_preemption_vertical_slice.v1',
+        label: 'Local LGBTQ-Ordinance Preemption deterministic run',
+        state: 'executed_test_fixture',
+        receipt_hash: localPreemptionRun.receipt.receipt_hash,
+        run_id: localPreemptionRun.receipt.run_id,
+        href: null
       },
       {
         receipt_id: civicGenomeHandoffReceipt.receipt_id,
