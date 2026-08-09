@@ -29,31 +29,31 @@
         </button>
         <button class="nav-item" type="button" data-view-target="scenarios">
           <span class="nav-index">02</span>
-          <span>Scenarios</span>
+          <span>What changes</span>
         </button>
         <button class="nav-item" type="button" data-view-target="lenses">
           <span class="nav-index">03</span>
-          <span>Lenses</span>
+          <span>Ways to examine it</span>
         </button>
         <button class="nav-item" type="button" data-view-target="sources">
           <span class="nav-index">04</span>
-          <span>Sources</span>
+          <span>Evidence</span>
         </button>
         <button class="nav-item" type="button" data-view-target="receipts">
           <span class="nav-index">05</span>
-          <span>Receipts</span>
+          <span>Proof &amp; history</span>
         </button>
         <button class="nav-item" type="button" data-view-target="system">
           <span class="nav-index">06</span>
-          <span>System</span>
+          <span>System details</span>
         </button>
       </nav>
 
       <div class="sidebar-boundary">
-        <p class="boundary-label">Operating boundary</p>
-        <p>Deterministic only</p>
-        <p>No hidden score</p>
-        <p>No upstream mutation</p>
+        <p class="boundary-label">How Kaleidoscope works</p>
+        <p>Same inputs → same result</p>
+        <p>No hidden all-in-one score</p>
+        <p>Source systems stay authoritative</p>
       </div>
 
       <div class="sidebar-footer">
@@ -66,12 +66,12 @@
     <div class="workspace">
       <header class="topbar">
         <div>
-          <p class="topbar-kicker">Deterministic policy-scenario projection</p>
+          <p class="topbar-kicker">Inspect civic changes with evidence</p>
           <p id="current-view-title" class="topbar-title">Overview</p>
         </div>
         <div class="topbar-actions">
-          <a class="quiet-link" href="/v1/platform/read-model">Raw platform model</a>
-          <a class="button button-secondary" href="/project2025/title-vii">Open first scenario</a>
+          <a class="quiet-link" href="/v1/platform/read-model">Technical data</a>
+          <a class="button button-secondary" href="/project2025/title-vii">Explore first example</a>
         </div>
       </header>
 
@@ -80,14 +80,14 @@
           <div class="hero-grid">
             <article class="hero-panel">
               <div class="hero-copy">
-                <p class="eyebrow">Inspect transformations, not conclusions</p>
+                <p class="eyebrow">Understand the change before judging the conclusion</p>
                 <h1 id="overview-title">See exactly what changes when civic rules change.</h1>
                 <p id="platform-mission" class="hero-text">Loading the governed Kaleidoscope read model.</p>
               </div>
               <div class="truth-boundary" role="status">
                 <span class="truth-icon" aria-hidden="true">∴</span>
                 <div>
-                  <p class="truth-title">Truth boundary</p>
+                  <p class="truth-title">What this page can claim</p>
                   <p id="truth-label">Staging workspace — loading deterministic state.</p>
                 </div>
               </div>
@@ -97,9 +97,9 @@
               <p class="eyebrow">Current state</p>
               <dl class="compact-status-list">
                 <div><dt>Environment</dt><dd id="hero-environment">—</dd></div>
-                <div><dt>Determinism</dt><dd id="hero-determinism">—</dd></div>
-                <div><dt>Persistence</dt><dd id="hero-persistence">—</dd></div>
-                <div><dt>Canonical projection</dt><dd id="hero-projection">—</dd></div>
+                <div><dt>Repeatability</dt><dd id="hero-determinism">—</dd></div>
+                <div><dt>Saving official results</dt><dd id="hero-persistence">—</dd></div>
+                <div><dt>Live official projections</dt><dd id="hero-projection">—</dd></div>
               </dl>
             </article>
           </div>
@@ -110,10 +110,10 @@
             <section class="surface" aria-labelledby="capabilities-title">
               <div class="section-heading">
                 <div>
-                  <p class="eyebrow">Runtime truth</p>
-                  <h2 id="capabilities-title">Capabilities</h2>
+                  <p class="eyebrow">What works right now</p>
+                  <h2 id="capabilities-title">What Kaleidoscope can do</h2>
                 </div>
-                <span class="section-meta">Only implemented state is shown</span>
+                <span class="section-meta">Anything unfinished stays labeled unfinished</span>
               </div>
               <div id="capability-list" class="capability-list"></div>
             </section>
@@ -121,8 +121,8 @@
             <section class="surface scenario-spotlight" aria-labelledby="spotlight-title">
               <div class="section-heading">
                 <div>
-                  <p class="eyebrow">First vertical slice</p>
-                  <h2 id="spotlight-title">Scenario spotlight</h2>
+                  <p class="eyebrow">Example in plain language</p>
+                  <h2 id="spotlight-title">See one civic change from several angles</h2>
                 </div>
               </div>
               <div id="scenario-spotlight"></div>
@@ -132,18 +132,18 @@
           <section class="surface topology-surface" aria-labelledby="topology-title">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Constitutional architecture</p>
-                <h2 id="topology-title">Platform ownership map</h2>
+                <p class="eyebrow">Where the information comes from</p>
+                <h2 id="topology-title">Who owns what information</h2>
               </div>
-              <span class="section-meta">Kaleidoscope reads; upstream owners remain authoritative</span>
+              <span class="section-meta">Kaleidoscope can read governed outputs; it cannot silently rewrite the source systems</span>
             </div>
             <div class="topology-stage">
               <div id="upstream-contracts" class="upstream-grid"></div>
               <div class="topology-connector" aria-hidden="true"><span></span></div>
               <div class="kaleidoscope-node">
-                <span class="node-kicker">Transformation space</span>
+                <span class="node-kicker">Kaleidoscope compares change</span>
                 <strong>Kaleidoscope</strong>
-                <span>Scenarios · lenses · collisions · replay</span>
+                <span>Before and after · separate questions · visible conflicts · replayable proof</span>
               </div>
             </div>
           </section>
@@ -152,11 +152,11 @@
         <section class="view" data-view="scenarios" aria-labelledby="scenarios-title" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Declared state changes</p>
-              <h1 id="scenarios-title">Scenarios</h1>
-              <p>Each scenario binds a baseline, a declared changed state, explicit assumptions, independent lenses, and a replayable receipt.</p>
+              <p class="eyebrow">Before and after</p>
+              <h1 id="scenarios-title">What changes?</h1>
+              <p>Each example starts with a documented baseline, applies a declared change, and shows the different effects separately. Assumptions and unanswered questions remain visible.</p>
             </div>
-            <span id="scenario-count-badge" class="count-badge">0 scenarios</span>
+            <span id="scenario-count-badge" class="count-badge">0 examples</span>
           </div>
           <div id="scenario-grid" class="scenario-grid"></div>
         </section>
@@ -164,17 +164,17 @@
         <section class="view" data-view="lenses" aria-labelledby="lenses-title" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Independent transformations</p>
-              <h1 id="lenses-title">Lens registry</h1>
-              <p>Lenses do not vote, average, or collapse disagreement. Every result remains independently inspectable.</p>
+              <p class="eyebrow">Different questions, same change</p>
+              <h1 id="lenses-title">Ways to examine the change</h1>
+              <p>Kaleidoscope asks several separate questions of the same before-and-after state. Internally these are called <strong>lenses</strong>. They do not vote or average disagreement into one score.</p>
             </div>
           </div>
           <div id="lens-registry" class="lens-registry"></div>
           <aside class="principle-callout">
             <span class="callout-symbol" aria-hidden="true">≠</span>
             <div>
-              <strong>Collisions remain visible.</strong>
-              <p>A formal right can remain intact while an enforcement pathway narrows. Kaleidoscope preserves both effects instead of manufacturing one composite score.</p>
+              <strong>Two things can be true at the same time.</strong>
+              <p>A formal legal protection can remain while one enforcement path becomes narrower. Kaleidoscope keeps both facts visible instead of manufacturing one simplified score.</p>
             </div>
           </aside>
         </section>
@@ -182,33 +182,33 @@
         <section class="view" data-view="sources" aria-labelledby="sources-title" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Evidence custody</p>
-              <h1 id="sources-title">Source corpus</h1>
-              <p>Filename similarity is not identity. Source artifacts remain distinct by exact bytes and SHA-256.</p>
+              <p class="eyebrow">Show the evidence</p>
+              <h1 id="sources-title">Evidence and source custody</h1>
+              <p>Kaleidoscope keeps source files, revisions, duplicates, contradictions, and corrections visible. Exact file identity is checked technically so two files are not treated as the same merely because their names look alike.</p>
             </div>
           </div>
           <div class="source-overview-grid">
             <section class="surface source-stat-card">
-              <span class="source-stat-label">Active artifacts</span>
+              <span class="source-stat-label">Evidence files</span>
               <strong id="source-count">—</strong>
-              <span>preserved in the current source manifest</span>
+              <span>preserved in the current source record</span>
             </section>
             <section class="surface source-stat-card">
-              <span class="source-stat-label">Selected subset</span>
+              <span class="source-stat-label">Silently selected subset</span>
               <strong id="source-subset">—</strong>
-              <span>Kaleidoscope does not silently discard inconvenient sources</span>
+              <span>conflicting or inconvenient sources are not silently discarded</span>
             </section>
             <section class="surface source-stat-card">
-              <span class="source-stat-label">Runtime embedding</span>
+              <span class="source-stat-label">Source files inside the runtime</span>
               <strong id="source-embedding">—</strong>
-              <span>custody and runtime payload are kept distinct</span>
+              <span>source custody and the running application stay distinct</span>
             </section>
           </div>
           <section class="surface source-contract-card">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Manifest contract</p>
-                <h2>Corpus rules</h2>
+                <p class="eyebrow">Technical source rules</p>
+                <h2>How evidence identity is preserved</h2>
               </div>
             </div>
             <dl id="source-contract" class="definition-grid"></dl>
@@ -218,9 +218,9 @@
         <section class="view" data-view="receipts" aria-labelledby="receipts-title" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Replay and challenge</p>
-              <h1 id="receipts-title">Deterministic receipts</h1>
-              <p>Receipts bind outputs to exact inputs, engine versions, hashes, and write boundaries.</p>
+              <p class="eyebrow">Do not ask for blind trust</p>
+              <h1 id="receipts-title">Proof and history</h1>
+              <p>Every important result should be tied to the exact inputs, rules, engine version, and write boundary that produced it. Internally, those replayable proof records are called <strong>deterministic receipts</strong>.</p>
             </div>
           </div>
           <div id="receipt-list" class="receipt-list"></div>
@@ -229,16 +229,16 @@
         <section class="view" data-view="system" aria-labelledby="system-title" hidden>
           <div class="page-heading">
             <div>
-              <p class="eyebrow">Operational boundary</p>
-              <h1 id="system-title">System</h1>
-              <p>This page distinguishes what exists from what remains deliberately disabled or unresolved.</p>
+              <p class="eyebrow">For people who want the machinery</p>
+              <h1 id="system-title">System details</h1>
+              <p>This section shows what exists, what remains disabled, and which technical boundaries are still unresolved.</p>
             </div>
           </div>
           <div id="system-boundary-grid" class="system-boundary-grid"></div>
           <section class="surface api-surface">
             <div class="section-heading">
               <div>
-                <p class="eyebrow">Inspectable interfaces</p>
+                <p class="eyebrow">Technical interfaces</p>
                 <h2>Runtime endpoints</h2>
               </div>
             </div>
@@ -252,15 +252,15 @@
         </section>
 
         <section id="workspace-error" class="workspace-error" hidden aria-live="assertive">
-          <p class="eyebrow">Fail closed</p>
-          <h1>Platform read model unavailable</h1>
-          <p id="workspace-error-message">Kaleidoscope refused to render an unverified frontend state.</p>
+          <p class="eyebrow">Stopped rather than guessed</p>
+          <h1>Verified platform information is unavailable</h1>
+          <p id="workspace-error-message">Kaleidoscope refused to display an unverified frontend state.</p>
         </section>
       </main>
 
       <footer class="workspace-footer">
         <p>Do not trust a conclusion that cannot be inspected.</p>
-        <p id="footer-model-hash">Read model hash loading…</p>
+        <p id="footer-model-hash">Technical read-model hash loading…</p>
       </footer>
     </div>
   </div>
