@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This is the first platform-level Kaleidoscope workspace. It does not replace the deterministic engine, create new upstream authority, or activate canonical database persistence. It presents the source-controlled system state that already exists and provides a stable front door for scenario inspection.
+This is the first platform-level Kaleidoscope workspace. It does not replace the deterministic engine, create new upstream authority, or activate canonical database persistence. It presents the source-controlled system state that already exists and provides a stable front door for scenario and engine inspection.
 
 The design principle is:
 
@@ -17,18 +17,18 @@ The design principle is:
 - `GET /app.js` — source-controlled renderer.
 - `GET /v1/platform/read-model` — deterministic platform read model.
 
-The existing Project 2025 inspection surface remains available at `/project2025/title-vii`.
+The detailed Project 2025 inspection surface remains available at `/project2025/title-vii`.
 
 ## Workspace sections
 
 The workspace exposes six bounded surfaces:
 
-1. **Overview** — runtime truth, platform metrics, capability state, first scenario, and peer-platform ownership map.
-2. **Scenarios** — declared scenario library. The Project 2025 Title VII vertical slice is currently the only source-controlled scenario.
+1. **Overview** — runtime truth, platform metrics, current capability state, first scenario, and peer-platform ownership map.
+2. **Scenarios** — declared scenario library. The Project 2025 Title VII vertical slice is currently the only executable source-controlled scenario.
 3. **Lenses** — current independent lens registry. Lens results are not averaged into a composite score.
 4. **Sources** — active source-manifest count and custody rules. The UI does not claim all 41 sources were read line by line.
-5. **Receipts** — deterministic Project 2025 run receipt and authenticated Civic Genome handoff proof.
-6. **System** — explicit enabled/disabled boundaries, the current empty projection substrate, and inspectable runtime routes.
+5. **Receipts** — deterministic Project 2025 run receipt, authenticated Civic Genome handoff proof, and live Supabase substrate receipt.
+6. **System** — explicit enabled/disabled boundaries, current Legislative Consequence stage boundary, governed empty projection substrate, and inspectable runtime routes.
 
 ## Read-model construction
 
@@ -37,8 +37,11 @@ The workspace exposes six bounded surfaces:
 - `source_manifests/source_pack_2026_08_03_v3.json`;
 - `fixtures/project2025-title-vii-read-model.v1.json`;
 - `fixtures/project2025-title-vii-receipt.v1.json`;
-- `fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json`;
+- `fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs`;
+- `receipts/kaleidoscope_supabase_projection_substrate_2026_08_09.v1.json`;
 - `docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json`.
+
+The earlier `fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json` remains preserved as the frontend-build observation that first identified the live non-`public` schema. The stronger canonical runtime source is now the governed receipt under `receipts/`.
 
 Before serving the workspace, the adapter verifies:
 
@@ -46,7 +49,10 @@ Before serving the workspace, the adapter verifies:
 - Project 2025 read-model hash;
 - Project 2025 receipt-to-read-model continuity;
 - zero-write and no-mutation declarations for the source-controlled Project 2025 run;
-- the current projection-substrate shape: schema `kaleidoscope`, 16 tables, 2 recorded migrations, zero rows, RLS enabled on all 16 tables, and no proven runtime write path;
+- Legislative Consequence Stage 1/2 shape: 12 structural deltas, 6 typed consequence edges, 6 Docket/Rosetta/Civic Genome bindings, and 1 preserved lifecycle conflict;
+- the source-controlled user-triggered Rosetta transition rather than treating the prior `not_run` state as an error;
+- Legislative Consequence stages 3 through 6 remain null with no projection or persistence;
+- the governed projection-substrate receipt: schema `kaleidoscope`, 16 truth-bearing tables, 3 governed functions, 17 append-only triggers, 2 applied migrations, zero rows, RLS enabled, and no proven runtime persistence adapter;
 - completed Civic Genome handoff proof;
 - `validated_unbound` delivery state;
 - unresolved Civic Genome binding state;
@@ -56,27 +62,50 @@ Any mismatch fails closed.
 
 ## Current Supabase substrate
 
-The Kaleidoscope Supabase project now contains a dedicated `kaleidoscope` schema. This is materially different from the earlier state where only the empty `public` schema had been inspected.
+The Kaleidoscope Supabase project contains a dedicated governed `kaleidoscope` schema. This is materially different from the earlier state where only the empty `public` schema had been inspected.
 
 Current observed substrate:
 
 - Supabase project: `iwmytuwofniybsmidtki`;
 - schema: `kaleidoscope`;
-- migration `20260809144200_kaleidoscope_projection_substrate` recorded;
-- migration `20260809144457_kaleidoscope_projection_substrate_indexes` recorded;
-- 16 owned projection-substrate tables;
-- all 16 tables have row-level security enabled;
+- migration `20260809144200_kaleidoscope_projection_substrate` applied;
+- migration `20260809144457_kaleidoscope_projection_substrate_indexes` applied;
+- 16 truth-bearing projection-substrate tables;
+- 3 governed functions;
+- 17 non-internal append-only triggers;
+- row-level security enabled on all truth-bearing tables;
+- no table privileges for `public`, `anon`, or `authenticated`;
+- `service_role` limited to `select` and `insert`;
+- update/delete rejected by append-only triggers;
 - exact total canonical rows across all 16 tables: `0`;
-- `public` contains no Kaleidoscope-owned tables;
-- no runtime database write path has been proven or enabled by this frontend.
+- no runtime database adapter has been proven or enabled.
 
 The correct staging description is therefore:
 
 ```text
-schema_present_empty_runtime_not_bound
+projection_substrate_applied_empty_runtime_adapter_not_bound
 ```
 
-This frontend applies no new Supabase migration and writes no database rows.
+This frontend reconciliation applies no new Supabase migration and writes no database rows.
+
+## Legislative Consequence boundary
+
+The workspace reports the merged EEOC workforce-demographics specimen as a bounded engine capability, not as a completed projection:
+
+- Stage 1: 12 deterministic structural deltas;
+- Stage 2: 6 typed consequence edges with explicit causal states;
+- Docket/Rosetta/Civic Genome bindings: 6;
+- preserved lifecycle conflict: 1;
+- Rosetta transition trigger: `user_initiated_rosetta_run`;
+- Prism: `not_observed` for the specimen;
+- Stage 3 impact surface: `null`;
+- Stage 4 Atlas historical comparison: `null`;
+- Stage 5 Lighthouse accountability view: `null`;
+- Stage 6 instantiated checklist: `null`;
+- projection executed: `false`;
+- database persisted: `false`.
+
+The prior pre-run Rosetta state is preserved as chronology, not treated as a missing integration or failure.
 
 ## Platform ownership boundary
 
@@ -98,15 +127,18 @@ The frontend must continue to show the current staging boundary:
 
 - foundation version `0.1.4`;
 - deterministic runtime;
-- one source-controlled Project 2025 test scenario;
-- four current lenses;
-- three preserved collisions;
+- one executable source-controlled Project 2025 test scenario;
+- Legislative Consequence Stage 1/2 source-controlled, stages 3–6 not executed;
+- four current Project 2025 lenses;
+- three preserved Project 2025 collisions;
 - 41 active source artifacts;
 - zero accepted Civic Genome bindings;
 - 16 RLS-enabled Kaleidoscope projection-substrate tables;
+- 3 governed database functions;
+- 17 append-only triggers;
 - zero canonical rows in those tables;
 - two recorded projection-substrate migrations;
-- runtime persistence not bound;
+- runtime persistence adapter not bound;
 - canonical projection execution disabled;
 - no runtime AI dependency;
 - no hidden composite score.
@@ -125,6 +157,6 @@ The frontend uses:
 
 ## Deployment boundary
 
-The repository currently auto-deploys `main` to the Kaleidoscope Render service. A merge of this frontend therefore may trigger a deployment automatically. Deployment must be verified after merge; it must never be described as source-only unless Render confirms no deployment occurred.
+The repository auto-deploys `main` to the Kaleidoscope Render service. A merge may therefore trigger a deployment automatically. Deployment must be verified after merge; source-control state alone is never represented as a live runtime proof.
 
-This frontend changes presentation and truthful runtime status only. It does not apply, alter, or populate the existing projection substrate.
+The platform frontend changes presentation and truthful runtime status only. It does not apply, alter, or populate the existing projection substrate.
