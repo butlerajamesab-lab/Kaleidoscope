@@ -2,6 +2,7 @@ import { readFile } from 'node:fs/promises';
 import sourceManifest from '../source_manifests/source_pack_2026_08_03_v3.json' with { type: 'json' };
 import project2025ReadModel from '../fixtures/project2025-title-vii-read-model.v1.json' with { type: 'json' };
 import project2025Receipt from '../fixtures/project2025-title-vii-receipt.v1.json' with { type: 'json' };
+import legislativeConsequenceFixture from '../fixtures/eeoc_demographics_reporting_rollback_2026.complete.v1.mjs';
 import substrateState from '../fixtures/kaleidoscope-substrate-state-2026-08-09.v1.json' with { type: 'json' };
 import civicGenomeHandoffReceipt from '../docs/receipts/CIVIC_GENOME_KALEIDOSCOPE_AUTHENTICATED_HANDOFF_HB2487_2026-08-04.json' with { type: 'json' };
 import { canonicalValue } from './canonical-json.mjs';
@@ -55,6 +56,24 @@ function assertSourceControlledState() {
   }
   if (project2025Receipt.no_mutation !== true || project2025Receipt.database_write_count !== 0) {
     fail('project2025_write_boundary_mismatch');
+  }
+
+  if (legislativeConsequenceFixture.structural_delta_bundle?.delta_count !== 12
+      || legislativeConsequenceFixture.consequence_graph?.edge_count !== 6
+      || legislativeConsequenceFixture.legislation_platform_bindings?.binding_count !== 6) {
+    fail('legislative_consequence_stage_1_2_shape_mismatch');
+  }
+  if (legislativeConsequenceFixture.legislation_platform_bindings?.conflict_count !== 1
+      || legislativeConsequenceFixture.legislation_platform_bindings?.run_transition?.trigger !== 'user_initiated_rosetta_run') {
+    fail('legislative_consequence_upstream_transition_mismatch');
+  }
+  if (legislativeConsequenceFixture.projection_executed !== false
+      || legislativeConsequenceFixture.database_persisted !== false
+      || legislativeConsequenceFixture.impact_surface !== null
+      || legislativeConsequenceFixture.atlas_historical_compare !== null
+      || legislativeConsequenceFixture.lighthouse_accountability_view !== null
+      || legislativeConsequenceFixture.instantiated_checklist !== null) {
+    fail('legislative_consequence_boundary_mismatch');
   }
 
   if (substrateState.schema_name !== 'kaleidoscope'
@@ -158,6 +177,12 @@ function capabilities() {
       detail: 'Four independent lenses with deterministic replay and preserved collisions.'
     },
     {
+      capability_id: 'legislative_consequence_stage_1_2',
+      label: 'Legislative Consequence · Stages 1–2',
+      state: 'source_controlled_no_projection',
+      detail: 'EEOC specimen: 12 structural deltas, 6 governed consequence edges, 6 Docket/Rosetta/Civic Genome bindings, and 1 preserved lifecycle conflict. Stages 3–6 remain null.'
+    },
+    {
       capability_id: 'civic_genome_snapshot_validation',
       label: 'Civic Genome snapshot validation',
       state: 'live_proven_unbound',
@@ -210,6 +235,21 @@ export function kaleidoscopePlatformReadModel() {
       database_migrations: substrateState.migration_history.length
     },
     capabilities: capabilities(),
+    engine_specimens: [
+      {
+        specimen_id: legislativeConsequenceFixture.fixture_id,
+        label: 'EEOC Demographics Reporting Rollback',
+        engine_id: legislativeConsequenceFixture.structural_delta_bundle.engine_id,
+        state: 'stage_1_2_source_controlled_stages_3_6_null_no_projection',
+        structural_delta_count: legislativeConsequenceFixture.structural_delta_bundle.delta_count,
+        consequence_edge_count: legislativeConsequenceFixture.consequence_graph.edge_count,
+        platform_binding_count: legislativeConsequenceFixture.legislation_platform_bindings.binding_count,
+        preserved_conflict_count: legislativeConsequenceFixture.legislation_platform_bindings.conflict_count,
+        upstream_trigger: legislativeConsequenceFixture.legislation_platform_bindings.run_transition.trigger,
+        projection_executed: legislativeConsequenceFixture.projection_executed,
+        database_persisted: legislativeConsequenceFixture.database_persisted
+      }
+    ],
     scenarios: [
       {
         scenario_id: project2025ReadModel.scenario_id,
@@ -277,6 +317,8 @@ export function kaleidoscopePlatformReadModel() {
       database_migrations: substrateState.migration_history.length,
       database_persistence: false,
       canonical_projection_execution: false,
+      legislative_consequence_stage_1_2: true,
+      legislative_consequence_stages_3_6: false,
       upstream_mutation: false,
       hidden_composite_score: false,
       runtime_ai_dependency: false,
