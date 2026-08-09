@@ -13,7 +13,10 @@ const LENS_DESCRIPTIONS = new Map([
   ['civil_rights.v1', 'Tracks formal rights, protected-class coverage, and preserved or removed legal protections.'],
   ['enforcement_pathways.v1', 'Tracks practical routes through agencies, courts, and administrative enforcement systems.'],
   ['local_government_preemption.v1', 'Tracks when state rules restrict or displace local protective authority.'],
-  ['affected_populations.v1', 'Tracks which source-declared populations are structurally exposed to a change without forecasting outcomes.']
+  ['affected_populations.v1', 'Tracks which source-declared populations are structurally exposed to a change without forecasting outcomes.'],
+  ['preemption_operability.v1', 'Tracks whether the preemption mechanism is operative, expired, contested, or otherwise structurally constrained in each jurisdiction.'],
+  ['preemption_temporal_history.v1', 'Tracks the mechanism across time without turning sequence into a causal coordination claim.'],
+  ['preemption_jurisdictional_variation.v1', 'Compares the same mechanism family across jurisdictions while preserving each state-specific legal posture.']
 ]);
 
 let platformModel = null;
@@ -65,8 +68,8 @@ function renderMetrics(model) {
   const summary = model.summary;
   const metrics = [
     ['Source artifacts', summary.active_source_artifacts, 'active manifest entries'],
-    ['Scenarios', summary.scenario_count, 'bounded scenario library'],
-    ['Lenses', summary.lens_count, 'independent transformations'],
+    ['Scenarios', summary.scenario_count, 'executable bounded scenarios'],
+    ['Lenses', summary.lens_count, 'unique independent transformations'],
     ['Collisions', summary.preserved_collision_count, 'preserved, not averaged'],
     ['Unresolved', summary.unresolved_condition_count, 'visible open conditions'],
     ['DB tables', summary.database_tables, `${summary.database_rows} canonical rows`]
@@ -111,11 +114,32 @@ function createScenarioStats(scenario) {
 
 function createScenarioActions(scenario) {
   const actions = element('div', 'scenario-actions');
-  const inspect = element('a', '', 'Inspect scenario');
-  inspect.href = scenario.href;
-  const receipt = element('a', '', 'Open receipt');
-  receipt.href = scenario.receipt_href;
-  actions.append(inspect, receipt);
+  let actionCount = 0;
+
+  if (typeof scenario.href === 'string' && scenario.href.length > 0) {
+    const inspect = element('a', '', 'Inspect scenario');
+    inspect.href = scenario.href;
+    actions.append(inspect);
+    actionCount += 1;
+  }
+
+  if (typeof scenario.receipt_href === 'string' && scenario.receipt_href.length > 0) {
+    const receipt = element('a', '', 'Open receipt');
+    receipt.href = scenario.receipt_href;
+    actions.append(receipt);
+    actionCount += 1;
+  }
+
+  if (actionCount === 0) {
+    actions.append(
+      element(
+        'span',
+        'scenario-action-note',
+        'Deterministic summary is available here; a dedicated detail surface has not been built for this slice yet.'
+      )
+    );
+  }
+
   return actions;
 }
 
@@ -201,10 +225,16 @@ function renderLenses(model) {
       '',
       LENS_DESCRIPTIONS.get(lens.lens_id) ?? 'Declared deterministic lens with source-bound output.'
     );
-    const link = element('a', 'quiet-link', 'Inspect current effects →');
-    link.href = lens.href;
+    card.append(topline, title, description);
 
-    card.append(topline, title, description, link);
+    if (typeof lens.href === 'string' && lens.href.length > 0) {
+      const link = element('a', 'quiet-link', 'Inspect current effects →');
+      link.href = lens.href;
+      card.append(link);
+    } else {
+      card.append(element('span', 'scenario-action-note', `Used by ${lens.scenario_count ?? 1} source-controlled scenario${(lens.scenario_count ?? 1) === 1 ? '' : 's'}; no dedicated lens detail route yet.`));
+    }
+
     return card;
   });
   document.querySelector('#lens-registry').replaceChildren(...cards);
@@ -262,7 +292,7 @@ function renderReceipts(model) {
     }
     card.append(meta);
 
-    if (receipt.href) {
+    if (typeof receipt.href === 'string' && receipt.href.length > 0) {
       const link = element('a', '', 'Open raw receipt →');
       link.href = receipt.href;
       card.append(link);
