@@ -20,7 +20,7 @@ test('accepts the deterministic EEOC structural delta and typed consequence grap
 
 test('binds legislation through Docket Room and Civic Genome without collapsing ownership', () => {
   const bindings = assertLegislationPlatformBindings(fixture.legislation_platform_bindings);
-  assert.equal(bindings.binding_count, 4);
+  assert.equal(bindings.binding_count, 6);
   const docket = bindings.bindings.find((entry) => entry.binding_id === 'docket_room:legiscan:2115794');
   const genomeBill = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410');
   const genomeEvent = bindings.bindings.find((entry) => entry.binding_id === 'civic_genome:event:a8b3889c-9bb0-4c02-8d88-242bebe0eba8');
@@ -31,14 +31,14 @@ test('binds legislation through Docket Room and Civic Genome without collapsing 
   assert.equal(bindings.conflicts[0].prohibited_resolution, 'do_not_silently_choose_or_overwrite_any_source_record');
 });
 
-test('preserves missing Rosetta assembly as an explicit Civic Genome limitation', () => {
+test('preserves completed Rosetta assembly and unresolved Civic Genome limitations', () => {
   const genomeBill = fixture.legislation_platform_bindings.bindings.find(
     (entry) => entry.binding_id === 'civic_genome:bill:ea189395-af71-4d61-907a-508220d6d410'
   );
-  assert.equal(genomeBill.rosetta_source_binding_count, 0);
-  assert.equal(genomeBill.completed_assembly_count, 0);
-  assert.equal(genomeBill.trait_count, 0);
-  assert.ok(genomeBill.unresolved_conditions.includes('no_rosetta_source_binding_or_structural_trait_assembly'));
+  assert.equal(genomeBill.rosetta_source_binding_count, 1);
+  assert.equal(genomeBill.completed_assembly_count, 1);
+  assert.equal(genomeBill.trait_count, 7);
+  assert.ok(genomeBill.unresolved_conditions.includes('prism_verification_not_observed'));
 });
 
 test('replay preserves exact bundle and graph hashes', () => {
