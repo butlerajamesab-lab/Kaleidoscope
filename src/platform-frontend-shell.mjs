@@ -211,14 +211,14 @@ function assertSourceControlledState(derived) {
 
   if (substrateReceipt.platform !== 'kaleidoscope'
       || substrateReceipt.project_ref !== 'iwmytuwofniybsmidtki'
-      || substrateReceipt.state !== 'projection_substrate_applied_empty_unbound'
+      || substrateReceipt.state !== 'projection_substrate_and_source_artifact_custody_applied_empty_unbound'
       || substrateReceipt.canonical_persistence_state !== 'schema_present_empty_runtime_not_bound') {
     fail('substrate_receipt_identity_mismatch');
   }
   if (substrateReceipt.schema?.name !== 'kaleidoscope'
-      || substrateReceipt.schema?.table_count !== 16
+      || substrateReceipt.schema?.table_count !== 19
       || substrateReceipt.schema?.function_count !== 3
-      || substrateReceipt.schema?.trigger_count !== 17) {
+      || substrateReceipt.schema?.trigger_count !== 20) {
     fail('substrate_shape_mismatch');
   }
   if (substrateReceipt.schema?.rls_state !== 'enabled_all_truth_bearing_tables'
@@ -227,7 +227,7 @@ function assertSourceControlledState(derived) {
       || substrateReceipt.schema?.append_only_update_delete_boundary !== 'trigger_enforced') {
     fail('substrate_governance_mismatch');
   }
-  if (substrateReceipt.live_migrations?.length !== 2
+  if (substrateReceipt.live_migrations?.length !== 3
       || substrateRowCount() !== 0
       || substrateReceipt.capability_boundaries?.runtime_database_adapter_proven !== false) {
     fail('substrate_runtime_boundary_mismatch');
@@ -235,7 +235,7 @@ function assertSourceControlledState(derived) {
 
   for (const plan of [derived.project2025PersistencePlan, derived.localPreemptionPersistencePlan]) {
     if (plan.target_schema !== 'kaleidoscope'
-        || plan.table_plan.length !== 16
+        || plan.table_plan.length !== 19
         || plan.live_write_authorized !== false
         || plan.database_write_count !== 0
         || plan.credentials_required !== false
@@ -358,7 +358,7 @@ function capabilities(derived) {
       capability_id: 'deterministic_persistence_preflight',
       label: 'Deterministic persistence preflight',
       state: 'available_no_write',
-      detail: `Both bounded scenarios map against all 16 substrate tables while preserving ${derived.project2025PersistencePlan.blocker_count} explicit blockers and authorizing zero live writes.`
+      detail: `Both bounded scenarios map against all ${substrateReceipt.schema.table_count} source-controlled substrate tables while preserving ${derived.project2025PersistencePlan.blocker_count} explicit blockers and authorizing zero live writes.`
     },
     {
       capability_id: 'civic_genome_snapshot_validation',
@@ -370,7 +370,7 @@ function capabilities(derived) {
       capability_id: 'projection_substrate',
       label: 'Projection substrate',
       state: 'applied_empty_unbound',
-      detail: 'The Kaleidoscope schema contains 16 RLS-enabled truth-bearing tables, 3 governed functions, 17 append-only triggers, and 2 applied migrations. All tables remain empty.'
+      detail: `The source-controlled Kaleidoscope receipt contains ${substrateReceipt.schema.table_count} RLS-enabled truth-bearing tables, ${substrateReceipt.schema.function_count} governed functions, ${substrateReceipt.schema.trigger_count} append-only triggers, and ${substrateReceipt.live_migrations.length} applied migrations. All represented tables remain empty.`
     },
     {
       capability_id: 'canonical_projection_persistence',
