@@ -30,7 +30,7 @@ test('builds an exact deterministic persistence plan without database credential
   assert.equal(plan.upstream_mutation, false);
   assert.equal(plan.credentials_required, false);
   assert.equal(plan.sql_emitted, false);
-  assert.equal(plan.table_plan.length, 16);
+  assert.equal(plan.table_plan.length, 19);
 });
 
 test('replay produces the identical persistence plan hash', () => {
@@ -43,7 +43,7 @@ test('replay produces the identical persistence plan hash', () => {
 test('preserves unresolved source ownership mapping instead of inventing peer-platform identifiers', () => {
   const plan = build();
   assert.equal(plan.source_artifacts.length, fixture.source_artifact_ids.length);
-  assert.ok(plan.source_artifacts.every((entry) => entry.mapping_state === 'unresolved'));
+  assert.ok(plan.source_artifacts.every((entry) => entry.mapping_state === 'direct_custody_mappable_unpersisted'));
   assert.ok(plan.blockers.includes('source_binding_upstream_ownership_mapping_not_declared'));
   const sourceBinding = plan.table_plan.find((entry) => entry.table === 'source_binding');
   assert.equal(sourceBinding.mapping_state, 'blocked_contract_gap');

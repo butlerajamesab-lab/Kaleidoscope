@@ -6,10 +6,13 @@ export const PERSISTENCE_TARGET_SCHEMA = 'kaleidoscope';
 
 const TARGET_TABLES = [
   'source_binding',
+  'source_artifact',
   'state_snapshot',
   'state_snapshot_source',
+  'state_snapshot_artifact',
   'state_component',
   'state_component_source',
+  'state_component_artifact',
   'change_set',
   'change_operation',
   'lens_manifest',
@@ -86,9 +89,9 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
       byte_length: source.byte_length,
       source_role: source.source_role,
       source_use_state: source.source_use_state,
-      target_table: 'source_binding',
-      mapping_state: 'unresolved',
-      unresolved_condition: 'upstream_platform_object_type_and_object_id_mapping_not_declared'
+      target_table: 'source_artifact',
+      mapping_state: 'direct_custody_mappable_unpersisted',
+      unresolved_condition: null
     };
   });
 
@@ -109,10 +112,12 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     tablePlan('source_binding', 'blocked_contract_gap', sourceArtifacts.length, [], [
       'upstream_platform_object_type_and_object_id_mapping_not_declared'
     ]),
-    tablePlan('state_snapshot', 'structurally_mappable_unpersisted', 2, ['source_binding']),
+    tablePlan('source_artifact', 'structurally_mappable_unpersisted', sourceArtifacts.length),
+    tablePlan('state_snapshot', 'structurally_mappable_unpersisted', 2, ['source_artifact']),
     tablePlan('state_snapshot_source', 'blocked_dependency', 0, ['source_binding', 'state_snapshot'], [
       'source_binding_mapping_unresolved'
     ]),
+    tablePlan('state_snapshot_artifact', 'structurally_mappable_unpersisted', 2 * sourceArtifacts.length, ['source_artifact', 'state_snapshot']),
     tablePlan(
       'state_component',
       'structurally_mappable_unpersisted',
@@ -122,6 +127,7 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     tablePlan('state_component_source', 'blocked_dependency', 0, ['source_binding', 'state_component'], [
       'source_binding_mapping_unresolved'
     ]),
+    tablePlan('state_component_artifact', 'structurally_mappable_unpersisted', fixtureRecord.baseline.components.length + fixtureRecord.changed.components.length, ['source_artifact', 'state_component']),
     tablePlan('change_set', 'structurally_mappable_unpersisted', 1, ['state_snapshot']),
     tablePlan('change_operation', 'structurally_mappable_unpersisted', bundle.diff.operations.length, ['change_set']),
     tablePlan('lens_manifest', 'structurally_mappable_unpersisted', manifests.length),
