@@ -30,7 +30,7 @@ test('builds an exact deterministic persistence plan without database credential
   assert.equal(plan.upstream_mutation, false);
   assert.equal(plan.credentials_required, false);
   assert.equal(plan.sql_emitted, false);
-  assert.equal(plan.table_plan.length, 19);
+  assert.equal(plan.table_plan.length, 36);
 });
 
 test('replay produces the identical persistence plan hash', () => {

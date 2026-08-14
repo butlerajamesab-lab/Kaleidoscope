@@ -1,14 +1,14 @@
 {
   "receipt_id": "kaleidoscope_supabase_projection_substrate_2026_08_09.v1",
-  "receipt_version": "1.1.0",
+  "receipt_version": "1.2.0",
   "platform": "kaleidoscope",
   "project_ref": "iwmytuwofniybsmidtki",
   "project_region": "us-east-1",
   "observed_date": "2026-08-09",
-  "state": "projection_substrate_and_source_artifact_custody_applied_empty_unbound",
+  "state": "state_response_projection_substrate_applied_empty_unbound",
   "canonical_persistence_state": "schema_present_empty_runtime_not_bound",
-  "migration_count": 3,
-  "migration_version_capture_state": "first_two_live_versions_pinned_third_name_and_source_version_verified_live_generated_version_not_embedded",
+  "migration_count": 5,
+  "migration_version_capture_state": "all_live_versions_pinned",
   "live_migrations": [
     {
       "live_version": "20260809144200",
@@ -23,19 +23,32 @@
       "application_state": "applied"
     },
     {
-      "live_version": null,
+      "live_version": "20260809161105",
       "source_version": "20260809190000",
       "name": "kaleidoscope_source_artifact_custody",
       "source_file": "supabase/migrations/20260809190000_kaleidoscope_source_artifact_custody.sql",
       "application_state": "applied",
       "live_application_verified": true
+    },
+    {
+      "live_version": "20260809162548",
+      "name": "kaleidoscope_scenario_artifact_provenance",
+      "source_file": "supabase/migrations/20260809190100_kaleidoscope_scenario_artifact_provenance.sql",
+      "application_state": "applied"
+    },
+    {
+      "live_version": "20260814002732",
+      "source_version": "20260813140000",
+      "name": "kaleidoscope_state_response_projection",
+      "source_file": "supabase/migrations/20260813140000_kaleidoscope_state_response_projection.sql",
+      "application_state": "applied"
     }
   ],
   "schema": {
     "name": "kaleidoscope",
-    "table_count": 19,
+    "table_count": 36,
     "function_count": 3,
-    "trigger_count": 20,
+    "trigger_count": 37,
     "public_schema_owned_table_count": 0,
     "public_anon_authenticated_table_privilege_rows": 0,
     "rls_state": "enabled_all_truth_bearing_tables",
@@ -52,23 +65,40 @@
   "row_counts": {
     "change_operation": 0,
     "change_set": 0,
+    "claim_source": 0,
     "collision_lens_result": 0,
     "cross_lens_collision": 0,
+    "correction_record": 0,
+    "constraint_determination": 0,
+    "federal_mechanism": 0,
+    "implementation_edge": 0,
+    "implementation_event": 0,
     "lens_manifest": 0,
     "lens_result": 0,
+    "material_claim": 0,
+    "mechanism_authority": 0,
+    "no_go_path": 0,
+    "pathway_score": 0,
+    "projection_result": 0,
     "projection_run": 0,
     "projection_run_event": 0,
     "replay_receipt": 0,
     "scenario": 0,
+    "scenario_artifact": 0,
     "scenario_lens": 0,
     "source_binding": 0,
+    "state_baseline": 0,
     "source_artifact": 0,
     "state_component": 0,
     "state_component_artifact": 0,
     "state_component_source": 0,
     "state_snapshot": 0,
     "state_snapshot_artifact": 0,
-    "state_snapshot_source": 0
+    "state_snapshot_source": 0,
+    "response_pathway": 0,
+    "response_window": 0,
+    "watch_event": 0,
+    "affected_population_coverage": 0
   },
   "performance_advisor_state": {
     "unindexed_foreign_key_findings_before_index_migration": 20,

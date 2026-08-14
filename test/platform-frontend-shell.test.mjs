@@ -27,9 +27,9 @@ test('builds one deterministic platform read model over both bounded examples', 
   assert.equal(model.summary.lens_count, 7);
   assert.equal(model.summary.preserved_collision_count, 5);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
-  assert.equal(model.summary.database_tables, 19);
+  assert.equal(model.summary.database_tables, 36);
   assert.equal(model.summary.database_rows, 0);
-  assert.equal(model.summary.database_migrations, 3);
+  assert.equal(model.summary.database_migrations, 5);
 
   const { read_model_hash: observedHash, ...basis } = model;
   assert.equal(observedHash, sha256Hex(basis));
@@ -51,17 +51,17 @@ test('reads the canonical live Supabase receipt and preserves an empty runtime-u
   const model = kaleidoscopePlatformReadModel();
   assert.equal(model.database_substrate.receipt_id, 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1');
   assert.equal(model.database_substrate.schema_name, 'kaleidoscope');
-  assert.equal(model.database_substrate.table_count, 19);
-  assert.equal(model.database_substrate.table_names.length, 19);
+  assert.equal(model.database_substrate.table_count, 36);
+  assert.equal(model.database_substrate.table_names.length, 36);
   assert.equal(model.database_substrate.function_count, 3);
-  assert.equal(model.database_substrate.trigger_count, 20);
+  assert.equal(model.database_substrate.trigger_count, 37);
   assert.equal(model.database_substrate.exact_total_rows, 0);
   assert.equal(model.database_substrate.all_tables_rls_enabled, true);
   assert.equal(model.database_substrate.rls_policy_state, 'none_intentional_deny_by_default');
   assert.equal(model.database_substrate.service_role_access, 'select_insert_only');
   assert.equal(model.database_substrate.append_only_update_delete_boundary, 'trigger_enforced');
-  assert.equal(model.database_substrate.migration_history.length, 3);
-  assert.equal(model.database_substrate.substrate_state, 'projection_substrate_and_source_artifact_custody_applied_empty_unbound');
+  assert.equal(model.database_substrate.migration_history.length, 5);
+  assert.equal(model.database_substrate.substrate_state, 'state_response_projection_substrate_applied_empty_unbound');
   assert.equal(model.database_substrate.canonical_persistence_state, 'schema_present_empty_runtime_not_bound');
   assert.equal(model.database_substrate.runtime_database_write_path_proven, false);
 });
