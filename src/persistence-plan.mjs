@@ -17,13 +17,18 @@ const TARGET_TABLES = [
   'change_operation',
   'lens_manifest',
   'scenario',
+  'scenario_artifact',
   'scenario_lens',
   'projection_run',
   'lens_result',
   'cross_lens_collision',
   'collision_lens_result',
   'replay_receipt',
-  'projection_run_event'
+  'projection_run_event',
+  'federal_mechanism', 'mechanism_authority', 'implementation_event', 'implementation_edge',
+  'state_baseline', 'material_claim', 'claim_source', 'projection_result', 'response_pathway',
+  'constraint_determination', 'response_window', 'pathway_score', 'no_go_path', 'watch_event',
+  'affected_population_coverage', 'correction_record'
 ];
 
 function fail(code, detail = '') {
@@ -132,6 +137,7 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     tablePlan('change_operation', 'structurally_mappable_unpersisted', bundle.diff.operations.length, ['change_set']),
     tablePlan('lens_manifest', 'structurally_mappable_unpersisted', manifests.length),
     tablePlan('scenario', 'structurally_mappable_unpersisted', 1, ['change_set', 'state_snapshot']),
+    tablePlan('scenario_artifact', 'structurally_mappable_unpersisted', sourceArtifacts.length, ['scenario', 'source_artifact']),
     tablePlan('scenario_lens', 'structurally_mappable_unpersisted', manifests.length, ['lens_manifest', 'scenario']),
     tablePlan('projection_run', 'blocked_authorization', 1, ['scenario', 'scenario_lens'], [
       'projection_claim_state_not_authorized_for_canonical_persistence',
@@ -151,7 +157,9 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     ]),
     tablePlan('projection_run_event', 'blocked_contract_gap', 0, ['projection_run', 'scenario'], [
       'projection_event_emission_contract_not_declared'
-    ])
+    ]),
+    ...['federal_mechanism','mechanism_authority','implementation_event','implementation_edge','state_baseline','material_claim','claim_source','projection_result','response_pathway','constraint_determination','response_window','pathway_score','no_go_path','watch_event','affected_population_coverage','correction_record']
+      .map((table) => tablePlan(table, 'blocked_state_response_input_not_accepted', 0, [], ['state_response_fixture_missing_primary_sources']))
   ];
 
   if (tablePlans.map((entry) => entry.table).join('|') !== TARGET_TABLES.join('|')) {
