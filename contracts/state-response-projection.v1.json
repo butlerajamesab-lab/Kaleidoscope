@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://luminari.org/kaleidoscope/contracts/state-response-projection.v1.json",
+  "title": "Kaleidoscope State-Response Projection Result",
+  "type": "object",
+  "required": ["run_id", "as_of_date", "mechanism_id", "jurisdiction_id", "current_status", "pathways", "no_go_paths", "watch_events", "evidence_summary", "unresolved_questions", "acceptance_state", "disclaimer", "result_hash"],
+  "properties": {
+    "acceptance_state": {"enum": ["accepted_evidence_bound_projection", "fail_closed_missing_primary_sources"]},
+    "disclaimer": {"const": "Research and civic-analysis output; not legal advice."},
+    "pathways": {"type": "array"},
+    "result_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": true
+}
