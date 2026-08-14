@@ -211,14 +211,14 @@ function assertSourceControlledState(derived) {
 
   if (substrateReceipt.platform !== 'kaleidoscope'
       || substrateReceipt.project_ref !== 'iwmytuwofniybsmidtki'
-      || substrateReceipt.state !== 'projection_substrate_and_source_artifact_custody_applied_empty_unbound'
+      || substrateReceipt.state !== 'state_response_projection_substrate_applied_empty_unbound'
       || substrateReceipt.canonical_persistence_state !== 'schema_present_empty_runtime_not_bound') {
     fail('substrate_receipt_identity_mismatch');
   }
   if (substrateReceipt.schema?.name !== 'kaleidoscope'
-      || substrateReceipt.schema?.table_count !== 19
+      || substrateReceipt.schema?.table_count !== 36
       || substrateReceipt.schema?.function_count !== 3
-      || substrateReceipt.schema?.trigger_count !== 20) {
+      || substrateReceipt.schema?.trigger_count !== 37) {
     fail('substrate_shape_mismatch');
   }
   if (substrateReceipt.schema?.rls_state !== 'enabled_all_truth_bearing_tables'
@@ -227,7 +227,7 @@ function assertSourceControlledState(derived) {
       || substrateReceipt.schema?.append_only_update_delete_boundary !== 'trigger_enforced') {
     fail('substrate_governance_mismatch');
   }
-  if (substrateReceipt.live_migrations?.length !== 3
+  if (substrateReceipt.live_migrations?.length !== 5
       || substrateRowCount() !== 0
       || substrateReceipt.capability_boundaries?.runtime_database_adapter_proven !== false) {
     fail('substrate_runtime_boundary_mismatch');
@@ -235,7 +235,7 @@ function assertSourceControlledState(derived) {
 
   for (const plan of [derived.project2025PersistencePlan, derived.localPreemptionPersistencePlan]) {
     if (plan.target_schema !== 'kaleidoscope'
-        || plan.table_plan.length !== 19
+        || plan.table_plan.length !== 36
         || plan.live_write_authorized !== false
         || plan.database_write_count !== 0
         || plan.credentials_required !== false
