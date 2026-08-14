@@ -29,6 +29,8 @@ import {
   kaleidoscopePlatformReadModel,
   resolveKaleidoscopePlatformFrontendRequest
 } from './platform-frontend-shell.mjs';
+import stateResponseFixture from '../fixtures/state-response-guidance-rescission-partial.v1.mjs';
+import { STATE_RESPONSE_RESULT_PATH, resolveStateResponse } from './state-response-resolver.mjs';
 
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
@@ -176,9 +178,13 @@ const server = http.createServer(async (req, res) => {
           LOCAL_PREEMPTION_READ_MODEL_PATH,
           LOCAL_PREEMPTION_RECEIPT_PATH,
           LEGISLATIVE_IMPACT_SURFACE_PATH,
-          LEGISLATIVE_IMPACT_RECEIPT_PATH
+          LEGISLATIVE_IMPACT_RECEIPT_PATH,
+          STATE_RESPONSE_RESULT_PATH
         ]
       });
+    }
+    if (req.method === 'GET' && pathname === STATE_RESPONSE_RESULT_PATH) {
+      return send(res, 200, resolveStateResponse(stateResponseFixture));
     }
     if (req.method === 'GET' && pathname === '/health') {
       const platform = platformStatus();
