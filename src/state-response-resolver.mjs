@@ -78,6 +78,19 @@ export function resolveStateResponse({mechanism, state, as_of_date, candidates =
     generated_at: null,
     as_of_date,
     mechanism_id: mechanism.mechanism_id,
+    mechanism: {
+      title: mechanism.title,
+      policy_family: mechanism.policy_family,
+      proposal_summary: mechanism.proposal_summary,
+      proposal_source: mechanism.proposal_source,
+      asserted_authority: mechanism.asserted_authority ?? [],
+      required_instrument: mechanism.required_instrument ?? [],
+      implementation_events: mechanism.observed_implementation.events,
+      implementation_edges: mechanism.implementation_path.chain_edges ?? [],
+      match_classification: mechanism.match_classification,
+      affected_federal_systems: mechanism.affected_federal_systems ?? [],
+      affected_state_local_systems: mechanism.affected_state_local_systems ?? []
+    },
     jurisdiction_id: state.jurisdiction_id,
     current_status: {
       proposal_status: mechanism.proposal_source.verification_state,
