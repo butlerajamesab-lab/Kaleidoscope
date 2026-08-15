@@ -31,6 +31,7 @@ import {
 } from './platform-frontend-shell.mjs';
 import stateResponseFixture from '../fixtures/state-response-guidance-rescission-partial.v1.mjs';
 import { STATE_RESPONSE_RESULT_PATH, resolveStateResponse } from './state-response-resolver.mjs';
+import { STATE_RESPONSE_FRONTEND_PATH, resolveStateResponseFrontendRequest } from './state-response-frontend-shell.mjs';
 
 const PORT = Number.parseInt(process.env.PORT ?? '10000', 10);
 const ENGINE_VERSION = '0.1.4';
@@ -114,6 +115,9 @@ const server = http.createServer(async (req, res) => {
       const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname);
       if (platformResponse) return sendRaw(res, platformResponse);
 
+      const stateResponsePage = await resolveStateResponseFrontendRequest(pathname);
+      if (stateResponsePage) return sendRaw(res, stateResponsePage);
+
       const impactResponse = resolveLegislativeImpactRequest(pathname);
       if (impactResponse) return sendRaw(res, impactResponse);
 
@@ -179,6 +183,7 @@ const server = http.createServer(async (req, res) => {
           LOCAL_PREEMPTION_RECEIPT_PATH,
           LEGISLATIVE_IMPACT_SURFACE_PATH,
           LEGISLATIVE_IMPACT_RECEIPT_PATH,
+          STATE_RESPONSE_FRONTEND_PATH,
           STATE_RESPONSE_RESULT_PATH
         ]
       });
