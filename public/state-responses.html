@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07110d">
+  <title>State Responses · Kaleidoscope</title>
+  <link rel="stylesheet" href="/state-responses.css">
+  <script type="module" src="/state-responses.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/app"><span>K</span><strong>Kaleidoscope</strong></a>
+    <nav><a href="/app">Overview</a><a class="active" href="/state-responses">State responses</a><a href="/v1/state-response/result">Technical result</a></nav>
+  </header>
+  <main>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Evidence-bound projection</p>
+        <h1>What can a state lawfully do?</h1>
+        <p class="lede">Trace the operative federal instrument to actor-specific state pathways, response windows, constraints, expected effects, and hard limits.</p>
+      </div>
+      <div id="acceptance" class="acceptance loading" role="status">Loading verified projection state…</div>
+    </section>
+
+    <section id="error" class="error" hidden><h2>The projection could not be displayed.</h2><p id="error-message"></p></section>
+    <div id="workspace" hidden>
+      <section class="status-grid" aria-label="Current projection status">
+        <article><span>Federal mechanism</span><strong id="mechanism"></strong></article>
+        <article><span>Jurisdiction</span><strong id="jurisdiction"></strong></article>
+        <article><span>Operative instrument</span><strong id="instrument"></strong></article>
+        <article><span>As of</span><strong id="as-of"></strong></article>
+      </section>
+
+      <section class="panel change-panel">
+        <p class="eyebrow">What changed</p>
+        <h2 id="implementation"></h2>
+        <p id="posture"></p>
+        <div class="baseline"><strong>State baseline</strong><p id="baseline"></p></div>
+      </section>
+
+      <section class="section-heading"><div><p class="eyebrow">Ranked and actor-specific</p><h2>Best-supported pathways</h2></div><span id="pathway-count"></span></section>
+      <div id="pathways" class="pathways"></div>
+
+      <div class="split">
+        <section class="panel hard-limit"><p class="eyebrow">What the state cannot do</p><h2>Hard limits</h2><div id="no-go"></div></section>
+        <section class="panel"><p class="eyebrow">Timing and posture</p><h2>Watch events</h2><div id="watch-events"></div></section>
+      </div>
+
+      <section class="panel"><p class="eyebrow">Who is affected</p><h2>Affected populations and coverage gaps</h2><div id="populations" class="chips"></div></section>
+
+      <section class="panel evidence"><p class="eyebrow">Confidence and unknowns</p><h2>Evidence boundary</h2><div class="evidence-grid"><div><strong>Primary sources</strong><ul id="primary"></ul></div><div><strong>Secondary sources</strong><ul id="secondary"></ul></div><div><strong>Missing sources</strong><ul id="missing"></ul></div></div><div class="unknowns"><strong>Unresolved questions</strong><ul id="unknowns"></ul></div></section>
+    </div>
+  </main>
+  <footer><span id="disclaimer"></span><span id="result-hash"></span></footer>
+</body>
+</html>
