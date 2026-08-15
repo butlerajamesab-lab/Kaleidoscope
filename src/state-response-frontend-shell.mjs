@@ -4,6 +4,7 @@ export const STATE_RESPONSE_FRONTEND_PATH = '/state-responses';
 
 const ASSETS = new Map([
   ['/state-responses.css', ['../public/state-responses.css', 'text/css; charset=utf-8']],
+  ['/state-responses-enhanced.css', ['../public/state-responses-enhanced.css', 'text/css; charset=utf-8']],
   ['/state-responses.js', ['../public/state-responses.js', 'text/javascript; charset=utf-8']]
 ]);
 

@@ -14,6 +14,27 @@ function list(target, values, empty = 'None identified') {
   document.querySelector(target).replaceChildren(...rows.map(value => el('li', '', typeof value === 'string' ? value : JSON.stringify(value))));
 }
 
+function renderSources(values) {
+  const rows = values?.length ? values : [{citation:'No primary sources verified',proves:'This projection remains evidence-limited.',does_not_prove:''}];
+  document.querySelector('#primary').replaceChildren(...rows.map(row => {
+    const card=el('article','source-card');
+    const title=row.url ? el('a','',row.citation) : el('strong','',row.citation);
+    if(row.url){title.href=row.url;title.target='_blank';title.rel='noreferrer';}
+    card.append(title,el('p','',row.proves));
+    if(row.does_not_prove) card.append(el('small','',`Does not prove: ${row.does_not_prove}`));
+    return card;
+  }));
+}
+
+function renderChain(mechanism) {
+  const names=new Map(mechanism.implementation_events.map(event=>[event.event_id,event.title]));
+  document.querySelector('#chain').replaceChildren(...mechanism.implementation_edges.map(edge=>{
+    const row=el('div',`chain-row ${edge.causal ? '' : 'noncausal'}`);
+    row.append(el('span','',names.get(edge.from)??edge.from),el('span','relation',`${humanize(edge.relationship_type)}${edge.causal?'':' · noncausal'}`),el('span','',names.get(edge.to)??edge.to));
+    return row;
+  }));
+}
+
 function scoreGrid(ranking) {
   const positive = ['legal_viability','expected_effect','durability','population_coverage','institutional_feasibility','temporal_urgency','evidentiary_confidence'];
   const risk = ['preemption_risk','adverse_precedent_risk','fiscal_burden'];
@@ -60,13 +81,16 @@ function render(result) {
   document.querySelector('#as-of').textContent = result.as_of_date;
   document.querySelector('#implementation').textContent = humanize(result.current_status.implementation_status);
   document.querySelector('#posture').textContent = result.current_status.procedural_posture;
+  document.querySelector('#proposal').textContent = result.mechanism.proposal_summary;
+  document.querySelector('#match').textContent = `Proposal/action match · ${humanize(result.mechanism.match_classification)}`;
+  renderChain(result.mechanism);
   document.querySelector('#baseline').textContent = result.state_baseline_summary;
   document.querySelector('#pathway-count').textContent = `${result.pathways.length} pathway${result.pathways.length === 1 ? '' : 's'}`;
   document.querySelector('#pathways').replaceChildren(...result.pathways.map((pathway, index) => pathwayCard(pathway, index + 1)));
   document.querySelector('#no-go').replaceChildren(...result.no_go_paths.map(row => {const item=el('article','limit-item');item.append(el('strong','',row.proposed_action),el('p','',row.reason_foreclosed),el('span','authority-note',row.authority.join(' · ')));return item;}));
   document.querySelector('#watch-events').replaceChildren(...result.watch_events.map(row => {const item=el('article','watch-item');item.append(el('strong','',row.event),el('p','',row.consequence));return item;}));
   document.querySelector('#populations').replaceChildren(...result.affected_populations.map(row => el('span','chip',row)));
-  list('#primary', result.evidence_summary.primary_sources, 'No primary sources verified in this demonstration');
+  renderSources(result.evidence_summary.primary_sources);
   list('#secondary', result.evidence_summary.secondary_sources);
   list('#missing', result.evidence_summary.missing_sources);
   list('#unknowns', result.unresolved_questions);
@@ -75,9 +99,9 @@ function render(result) {
   document.querySelector('#workspace').hidden = false;
 }
 
-async function load() {
+async function load(jurisdiction='US-CA') {
   try {
-    const response = await fetch(RESULT_URL, {headers:{accept:'application/json'}, cache:'no-store'});
+    const response = await fetch(`${RESULT_URL}?jurisdiction=${encodeURIComponent(jurisdiction)}`, {headers:{accept:'application/json'}, cache:'no-store'});
     if (!response.ok) throw new Error(`State-response endpoint returned HTTP ${response.status}.`);
     const result = await response.json();
     if (!result.result_hash || !result.current_status || !Array.isArray(result.pathways)) throw new Error('State-response result failed the frontend truth boundary.');
@@ -89,4 +113,9 @@ async function load() {
   }
 }
 
+for(const button of document.querySelectorAll('[data-jurisdiction]')) button.addEventListener('click',()=>{
+  for(const peer of document.querySelectorAll('[data-jurisdiction]')) peer.classList.toggle('selected',peer===button);
+  document.querySelector('#error').hidden=true;
+  load(button.dataset.jurisdiction);
+});
 load();

@@ -29,7 +29,7 @@ import {
   kaleidoscopePlatformReadModel,
   resolveKaleidoscopePlatformFrontendRequest
 } from './platform-frontend-shell.mjs';
-import stateResponseFixture from '../fixtures/state-response-guidance-rescission-partial.v1.mjs';
+import { stateResponseFixtures } from '../fixtures/state-response-guidance-rescission-partial.v1.mjs';
 import { STATE_RESPONSE_RESULT_PATH, resolveStateResponse } from './state-response-resolver.mjs';
 import { STATE_RESPONSE_FRONTEND_PATH, resolveStateResponseFrontendRequest } from './state-response-frontend-shell.mjs';
 
@@ -189,7 +189,10 @@ const server = http.createServer(async (req, res) => {
       });
     }
     if (req.method === 'GET' && pathname === STATE_RESPONSE_RESULT_PATH) {
-      return send(res, 200, resolveStateResponse(stateResponseFixture));
+      const jurisdiction = new URL(req.url ?? '/', 'http://localhost').searchParams.get('jurisdiction') ?? 'US-CA';
+      const fixture = stateResponseFixtures[jurisdiction];
+      if (!fixture) return send(res, 404, {error:'jurisdiction_not_available',available_jurisdictions:Object.keys(stateResponseFixtures)});
+      return send(res, 200, resolveStateResponse(fixture));
     }
     if (req.method === 'GET' && pathname === '/health') {
       const platform = platformStatus();
