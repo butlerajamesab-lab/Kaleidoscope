@@ -12,51 +12,69 @@
 <body>
   <header class="topbar">
     <a class="brand" href="/app"><span>K</span><strong>Kaleidoscope</strong></a>
-    <nav><a href="/app">Overview</a><a class="active" href="/state-responses">State responses</a><a href="/v1/state-response/result">Technical result</a></nav>
+    <nav><a href="/app">Overview</a><a class="active" href="/state-responses">State responses</a><a href="/v1/state-response/result">Technical details</a></nav>
   </header>
   <main>
     <section class="hero">
       <div>
-        <p class="eyebrow">Evidence-bound projection</p>
+        <p class="eyebrow">State response options</p>
         <h1>What can a state lawfully do?</h1>
-        <p class="lede">Trace the operative federal instrument to actor-specific state pathways, response windows, constraints, expected effects, and hard limits.</p>
+        <p class="lede">See what a state government could legally do in response to a federal change: who can act, when action is possible, what the action could accomplish, and where the legal limits are.</p>
       </div>
-      <div id="acceptance" class="acceptance loading" role="status">Loading verified projection state…</div>
+      <div id="acceptance" class="acceptance loading" role="status">Checking the available evidence…</div>
     </section>
 
-    <section class="jurisdiction-picker" aria-label="Select a state baseline">
-      <div><p class="eyebrow">Compare state baselines</p><h2>Same federal change, different lawful pathways</h2></div>
-      <div class="tabs" role="group" aria-label="Jurisdiction"><button data-jurisdiction="US-CA" class="selected">California</button><button data-jurisdiction="US-TX">Texas</button></div>
+    <section class="jurisdiction-picker" aria-label="Select a state">
+      <div><p class="eyebrow">Compare states</p><h2>How the lawful options change from state to state</h2></div>
+      <div class="tabs" role="group" aria-label="State"><button data-jurisdiction="US-CA" class="selected">California</button><button data-jurisdiction="US-TX">Texas</button></div>
     </section>
-    <section id="error" class="error" hidden><h2>The projection could not be displayed.</h2><p id="error-message"></p></section>
+    <section id="error" class="error" hidden><h2>This state analysis could not be displayed.</h2><p id="error-message"></p></section>
     <div id="workspace" hidden>
-      <section class="status-grid" aria-label="Current projection status">
-        <article><span>Federal mechanism</span><strong id="mechanism"></strong></article>
-        <article><span>Jurisdiction</span><strong id="jurisdiction"></strong></article>
-        <article><span>Operative instrument</span><strong id="instrument"></strong></article>
-        <article><span>As of</span><strong id="as-of"></strong></article>
+      <section class="status-grid" aria-label="Current state-response status">
+        <article><span>Federal action being examined</span><strong id="mechanism"></strong></article>
+        <article><span>State</span><strong id="jurisdiction"></strong></article>
+        <article><span>Federal action currently in effect</span><strong id="instrument"></strong></article>
+        <article><span>Information current as of</span><strong id="as-of"></strong></article>
       </section>
 
       <section class="panel change-panel">
-        <p class="eyebrow">What changed</p>
+        <p class="eyebrow">What changed federally</p>
         <h2 id="implementation"></h2>
         <p id="posture"></p>
-        <div class="mechanism-summary"><strong>Proposal</strong><p id="proposal"></p><span id="match"></span></div>
-        <div><strong>Implementation chain</strong><div id="chain" class="chain"></div></div>
-        <div class="baseline"><strong>State baseline</strong><p id="baseline"></p></div>
+        <div class="mechanism-summary"><strong>Original proposal</strong><p id="proposal"></p><span id="match"></span></div>
+        <div><strong>How the federal action unfolded</strong><div id="chain" class="chain"></div></div>
+        <div class="baseline"><strong>What state law and institutions already provide</strong><p id="baseline"></p></div>
       </section>
 
-      <section class="section-heading"><div><p class="eyebrow">Ranked and actor-specific</p><h2>Best-supported pathways</h2></div><span id="pathway-count"></span></section>
+      <section class="section-heading"><div><p class="eyebrow">Options the evidence supports</p><h2>What the state could do</h2></div><span id="pathway-count"></span></section>
       <div id="pathways" class="pathways"></div>
 
       <div class="split">
-        <section class="panel hard-limit"><p class="eyebrow">What the state cannot do</p><h2>Hard limits</h2><div id="no-go"></div></section>
-        <section class="panel"><p class="eyebrow">Timing and posture</p><h2>Watch events</h2><div id="watch-events"></div></section>
+        <section class="panel hard-limit"><p class="eyebrow">What is not legally available</p><h2>Actions the state cannot lawfully take</h2><div id="no-go"></div></section>
+        <section class="panel"><p class="eyebrow">What to watch</p><h2>What could change this analysis</h2><div id="watch-events"></div></section>
       </div>
 
-      <section class="panel"><p class="eyebrow">Who is affected</p><h2>Affected populations and coverage gaps</h2><div id="populations" class="chips"></div></section>
+      <section class="panel"><p class="eyebrow">Who could be affected</p><h2>People covered — and people who may still fall through gaps</h2><div id="populations" class="chips"></div></section>
 
-      <section class="panel evidence"><p class="eyebrow">Confidence and unknowns</p><h2>Evidence boundary</h2><div class="evidence-grid"><div><strong>Primary sources</strong><div id="primary"></div></div><div><strong>Secondary sources</strong><ul id="secondary"></ul></div><div><strong>Missing sources</strong><ul id="missing"></ul></div></div><div class="unknowns"><strong>Unresolved questions</strong><ul id="unknowns"></ul></div></section>
+      <section class="panel evidence"><p class="eyebrow">What we know and what we do not know</p><h2>Evidence and open questions</h2><div class="evidence-grid"><div><strong>Official sources</strong><div id="primary"></div></div><div><strong>Other supporting sources</strong><ul id="secondary"></ul></div><div><strong>Evidence still missing</strong><ul id="missing"></ul></div></div><div class="unknowns"><strong>Questions not settled yet</strong><ul id="unknowns"></ul></div></section>
+
+      <section class="panel">
+        <p class="eyebrow">Plain-language help</p>
+        <h2>Terms you may see in the detailed analysis</h2>
+        <p><strong>Authority</strong> means the legal power an official or institution can rely on to act.</p>
+        <p><strong>Preemption</strong> means a higher level of law may prevent a lower level of government from using a particular rule or power.</p>
+        <p><strong>Jurisdiction</strong> means which government, agency, or court has legal power over the issue.</p>
+        <p><strong>Operative</strong> means currently in effect in the represented legal state.</p>
+      </section>
+
+      <details class="panel">
+        <summary>Technical details</summary>
+        <div class="detail-block"><strong>Mechanism ID</strong><p id="technical-mechanism-id"></p></div>
+        <div class="detail-block"><strong>Jurisdiction ID</strong><p id="technical-jurisdiction-id"></p></div>
+        <div class="detail-block"><strong>Implementation status code</strong><p id="technical-implementation-status"></p></div>
+        <div class="detail-block"><strong>Proposal/action match code</strong><p id="technical-match-classification"></p></div>
+        <div class="detail-block"><strong>Deterministic result hash</strong><p id="technical-result-hash"></p></div>
+      </details>
     </div>
   </main>
   <footer><span id="disclaimer"></span><span id="result-hash"></span></footer>
