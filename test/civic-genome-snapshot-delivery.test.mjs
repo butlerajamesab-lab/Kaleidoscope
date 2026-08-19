@@ -8,8 +8,13 @@ import {
   civicGenomeSourceSnapshotHashBasis
 } from '../src/civic-genome-snapshot-binding.mjs';
 import {
+  CIVIC_GENOME_VERIFICATION_MAPPING_RULE_ID,
+  CIVIC_GENOME_VERIFICATION_MAPPING_RULE_VERSION
+} from '../src/civic-genome-verification-mapping.mjs';
+import {
   CIVIC_GENOME_DELIVERY_CONTRACT_ID,
   CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+  CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION,
   signCivicGenomeDelivery,
   validateAuthenticatedCivicGenomeDelivery
 } from '../src/civic-genome-snapshot-delivery.mjs';
@@ -100,10 +105,10 @@ function sourceSnapshot() {
   return snapshot;
 }
 
-function delivery(snapshot = sourceSnapshot()) {
+function delivery(snapshot = sourceSnapshot(), version = CIVIC_GENOME_DELIVERY_CONTRACT_VERSION) {
   return {
     delivery_contract_id: CIVIC_GENOME_DELIVERY_CONTRACT_ID,
-    delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+    delivery_contract_version: version,
     source_schema_id: CIVIC_GENOME_SOURCE_SCHEMA_ID,
     source_contract_id: snapshot.contract_id,
     source_contract_version: snapshot.contract_version,
@@ -111,19 +116,38 @@ function delivery(snapshot = sourceSnapshot()) {
   };
 }
 
-test('authenticates and validates a source snapshot without accepting or persisting it', () => {
-  const body = delivery();
+function validate(body) {
   const signature = signCivicGenomeDelivery(body, KEY_ID, SECRET);
-  const receipt = validateAuthenticatedCivicGenomeDelivery({
+  return validateAuthenticatedCivicGenomeDelivery({
     body,
     keyId: KEY_ID,
     signature,
     expectedKeyId: KEY_ID,
     secret: SECRET
   });
+}
 
-  assert.equal(receipt.validation_state, 'validated_unbound');
+test('authenticates, maps, and accepts a bounded complete source snapshot without persistence', () => {
+  const receipt = validate(delivery());
+
+  assert.equal(receipt.delivery_contract_version, '1.1.0');
+  assert.equal(receipt.validation_state, 'validated_bound');
   assert.equal(receipt.authenticated, true);
+  assert.equal(receipt.binding_state, 'accepted');
+  assert.equal(receipt.verification_mapping_state, 'mapped_by_declared_rule');
+  assert.equal(receipt.verification_mapping_rule_id, CIVIC_GENOME_VERIFICATION_MAPPING_RULE_ID);
+  assert.equal(receipt.verification_mapping_rule_version, CIVIC_GENOME_VERIFICATION_MAPPING_RULE_VERSION);
+  assert.deepEqual(receipt.binding_errors, []);
+  assert.equal(receipt.persisted, false);
+  assert.equal(receipt.projection_executed, false);
+  assert.equal(receipt.no_mutation, true);
+});
+
+test('keeps delivery 1.0 backward compatible and validated-unbound', () => {
+  const receipt = validate(delivery(sourceSnapshot(), CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION));
+
+  assert.equal(receipt.delivery_contract_version, '1.0.0');
+  assert.equal(receipt.validation_state, 'validated_unbound');
   assert.equal(receipt.binding_state, 'unresolved');
   assert.equal(receipt.verification_mapping_state, 'unmapped_source_native');
   assert.deepEqual(receipt.binding_errors, [
@@ -132,7 +156,29 @@ test('authenticates and validates a source snapshot without accepting or persist
   ]);
   assert.equal(receipt.persisted, false);
   assert.equal(receipt.projection_executed, false);
-  assert.equal(receipt.no_mutation, true);
+});
+
+test('refuses binding acceptance when the source snapshot declares unresolved conditions', () => {
+  const snapshot = sourceSnapshot();
+  snapshot.unresolved_conditions = ['unresolved_family_candidate:test'];
+  snapshot.snapshot_hash = sha256Hex(civicGenomeSourceSnapshotHashBasis(snapshot));
+  snapshot.export_receipt.snapshot_hash = snapshot.snapshot_hash;
+  snapshot.export_receipt.deterministic_replay_key = sha256Hex({
+    contract_id: snapshot.contract_id,
+    contract_version: snapshot.contract_version,
+    snapshot_id: snapshot.snapshot_id,
+    snapshot_hash: snapshot.snapshot_hash,
+    methodology_version: snapshot.methodology_version
+  });
+  snapshot.export_receipt.export_receipt_id =
+    `cg-export-${snapshot.export_receipt.deterministic_replay_key.slice(0, 32)}`;
+  snapshot.export_receipt.export_receipt_hash = sha256Hex(civicGenomeExportReceiptHashBasis(snapshot));
+
+  const receipt = validate(delivery(snapshot));
+  assert.equal(receipt.validation_state, 'validated_unbound');
+  assert.equal(receipt.binding_state, 'unresolved');
+  assert.deepEqual(receipt.binding_errors, ['source_snapshot_has_unresolved_conditions']);
+  assert.equal(receipt.verification_mapping_state, 'mapped_by_declared_rule');
 });
 
 test('produces one deterministic receipt for the same authenticated source state', () => {
