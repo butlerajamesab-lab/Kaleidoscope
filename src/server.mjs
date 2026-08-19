@@ -2,6 +2,7 @@ import http from 'node:http';
 import { diffSnapshots } from './diff.mjs';
 import {
   CIVIC_GENOME_DELIVERY_PATH,
+  CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
   validateAuthenticatedCivicGenomeDelivery
 } from './civic-genome-snapshot-delivery.mjs';
 import {
@@ -154,10 +155,11 @@ const server = http.createServer(async (req, res) => {
         legislative_consequence_stages_4_6_executed: false,
         persistence_preflight_state: persistence.state,
         persistence_live_write_authorized: persistence.live_write_authorized,
-        civic_genome_binding_contract: 'defined_unbound',
-        civic_genome_source_validation: 'contract_and_tamper_tests_passed_live_source_not_accepted',
+        civic_genome_delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+        civic_genome_binding_contract: 'mapped_transient_acceptance_available_no_persistence',
+        civic_genome_source_validation: 'contract_tamper_and_declared_verification_mapping_available',
         civic_genome_handoff_state: handshakeConfiguration().ready
-          ? 'authenticated_validation_ready'
+          ? 'authenticated_validation_and_mapping_ready'
           : 'not_configured',
         frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
@@ -218,9 +220,10 @@ const server = http.createServer(async (req, res) => {
         persistence_live_write_authorized: persistence.live_write_authorized,
         frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
-        civic_genome_binding_contract: 'defined_unbound',
+        civic_genome_delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+        civic_genome_binding_contract: 'mapped_transient_acceptance_available_no_persistence',
         civic_genome_handoff_state: handshakeConfiguration().ready
-          ? 'authenticated_validation_ready'
+          ? 'authenticated_validation_and_mapping_ready'
           : 'not_configured',
         database_state: database.canonical_persistence_state,
         database_schema: database.schema_name,
@@ -250,12 +253,13 @@ const server = http.createServer(async (req, res) => {
         governed_lens_count: platform.summary.lens_count,
         preserved_collision_count: platform.summary.preserved_collision_count,
         civic_genome_source_schema_id: 'https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json',
-        civic_genome_binding_contract: 'defined_unbound',
-        civic_genome_validation_state: 'component_snapshot_replay_receipt_and_hmac_validation_passed',
+        civic_genome_delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+        civic_genome_binding_contract: 'mapped_transient_acceptance_available_no_persistence',
+        civic_genome_validation_state: 'component_snapshot_replay_receipt_hmac_and_declared_verification_mapping_available',
         civic_genome_handoff_state: handshakeConfiguration().ready
-          ? 'authenticated_validation_ready_no_persistence'
+          ? 'authenticated_validation_and_mapping_ready_no_persistence'
           : 'not_configured',
-        civic_genome_live_binding_state: 'not_accepted',
+        civic_genome_live_binding_state: 'transient_acceptance_only_not_persisted',
         projection_state: 'executed_test_fixtures_not_canonical_fact',
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
@@ -310,13 +314,19 @@ const server = http.createServer(async (req, res) => {
         secret: configuration.secret
       });
       console.log(JSON.stringify({
-        event: 'civic_genome_snapshot_validated_unbound',
+        event: receipt.binding_state === 'accepted'
+          ? 'civic_genome_snapshot_validated_bound_transient'
+          : 'civic_genome_snapshot_validated_unbound',
+        delivery_contract_version: receipt.delivery_contract_version,
         delivery_receipt_id: receipt.delivery_receipt_id,
         delivery_receipt_hash: receipt.delivery_receipt_hash,
         source_snapshot_id: receipt.source_snapshot_id,
         source_snapshot_hash: receipt.source_snapshot_hash,
         source_component_count: receipt.source_component_count,
         binding_state: receipt.binding_state,
+        verification_mapping_state: receipt.verification_mapping_state,
+        verification_mapping_rule_id: receipt.verification_mapping_rule_id,
+        verification_mapping_rule_version: receipt.verification_mapping_rule_version,
         persisted: receipt.persisted,
         projection_executed: receipt.projection_executed
       }));
@@ -361,6 +371,10 @@ server.listen(PORT, '0.0.0.0', () => {
     legislative_consequence_stages_4_6_executed: false,
     persistence_preflight_state: persistence.state,
     persistence_live_write_authorized: persistence.live_write_authorized,
+    civic_genome_delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+    civic_genome_handoff_state: handshakeConfiguration().ready
+      ? 'authenticated_validation_and_mapping_ready_no_persistence'
+      : 'not_configured',
     database_state: database.canonical_persistence_state,
     database_table_count: database.table_count,
     database_row_count: database.exact_total_rows,

@@ -6,14 +6,25 @@ import {
   assertCivicGenomeSourceSnapshot,
   assertCivicGenomeSnapshotBinding
 } from './civic-genome-snapshot-binding.mjs';
+import {
+  CIVIC_GENOME_VERIFICATION_MAPPING_RULE_ID,
+  CIVIC_GENOME_VERIFICATION_MAPPING_RULE_VERSION,
+  civicGenomeSnapshotBindingEligibility,
+  mapCivicGenomeComponentVerification
+} from './civic-genome-verification-mapping.mjs';
 
 export const CIVIC_GENOME_DELIVERY_CONTRACT_ID =
   'kaleidoscope.civic_genome_snapshot_delivery.v1';
-export const CIVIC_GENOME_DELIVERY_CONTRACT_VERSION = '1.0.0';
+export const CIVIC_GENOME_DELIVERY_CONTRACT_VERSION = '1.1.0';
+export const CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION = '1.0.0';
 export const CIVIC_GENOME_DELIVERY_PATH = '/v1/civic-genome/snapshots/validate';
 export const CIVIC_GENOME_DELIVERY_AUTH_SCHEME = 'hmac-sha256';
 
 const HEX64 = /^[0-9a-f]{64}$/;
+const SUPPORTED_DELIVERY_VERSIONS = new Set([
+  CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION,
+  CIVIC_GENOME_DELIVERY_CONTRACT_VERSION
+]);
 
 function fail(code, detail = '') {
   const suffix = detail ? `: ${detail}` : '';
@@ -42,7 +53,7 @@ function signatureBasis(body, keyId) {
   const row = record(body, 'body');
   return {
     delivery_contract_id: CIVIC_GENOME_DELIVERY_CONTRACT_ID,
-    delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
+    delivery_contract_version: string(row.delivery_contract_version, 'delivery_contract_version'),
     method: 'POST',
     path: CIVIC_GENOME_DELIVERY_PATH,
     key_id: keyId,
@@ -135,13 +146,69 @@ export function buildUnresolvedCivicGenomeBinding(snapshot) {
   return binding;
 }
 
-export function buildCivicGenomeDeliveryReceipt({ snapshot, binding, keyId }) {
+export function buildMappedCivicGenomeBinding(snapshot) {
+  const source = assertCivicGenomeSourceSnapshot(snapshot);
+  const eligibility = civicGenomeSnapshotBindingEligibility(source);
+  const bindingBasis = {
+    binding_version: '1.1.0',
+    source_snapshot_id: source.snapshot_id,
+    source_snapshot_hash: source.snapshot_hash,
+    source_export_receipt_hash: source.export_receipt.export_receipt_hash,
+    verification_mapping_rule_id: CIVIC_GENOME_VERIFICATION_MAPPING_RULE_ID,
+    verification_mapping_rule_version: CIVIC_GENOME_VERIFICATION_MAPPING_RULE_VERSION
+  };
+  const binding = {
+    binding_id: `kcg-binding-${sha256Hex(bindingBasis).slice(0, 32)}`,
+    binding_version: '1.1.0',
+    source_owner: 'lighthouse/civic_genome',
+    source_schema_id: CIVIC_GENOME_SOURCE_SCHEMA_ID,
+    source_contract_id: source.contract_id,
+    source_contract_version: source.contract_version,
+    source_snapshot_id: source.snapshot_id,
+    source_snapshot_hash: source.snapshot_hash,
+    source_export_receipt_id: source.export_receipt.export_receipt_id,
+    source_export_receipt_hash: source.export_receipt.export_receipt_hash,
+    source_as_of: new Date(source.as_of).toISOString(),
+    source_scope: source.scope,
+    source_completeness_state: source.completeness_state,
+    source_component_count: source.component_count,
+    component_manifest: source.components.map((component) => ({
+      source_component_id: component.component_id,
+      source_component_type: component.component_type,
+      source_component_hash: component.component_hash,
+      source_canonical_record_id: component.canonical_record_id,
+      source_inclusion_state: component.inclusion_state,
+      source_verification: component.source_verification,
+      mapped_verification: mapCivicGenomeComponentVerification(component),
+      source_unresolved_conditions: component.unresolved_conditions,
+      kaleidoscope_component_id: null,
+      component_mapping_state: 'verification_mapped_identity_unbound'
+    })),
+    verification_mapping_state: 'mapped_by_declared_rule',
+    verification_mapping_rule_id: CIVIC_GENOME_VERIFICATION_MAPPING_RULE_ID,
+    verification_mapping_rule_version: CIVIC_GENOME_VERIFICATION_MAPPING_RULE_VERSION,
+    binding_state: eligibility.eligible ? 'accepted' : 'unresolved',
+    binding_errors: eligibility.errors,
+    imported_at: null,
+    no_mutation: true
+  };
+  assertCivicGenomeSnapshotBinding(binding, source);
+  return binding;
+}
+
+export function buildCivicGenomeDeliveryReceipt({
+  snapshot,
+  binding,
+  keyId,
+  deliveryContractVersion
+}) {
   const source = assertCivicGenomeSourceSnapshot(snapshot);
   const governedBinding = assertCivicGenomeSnapshotBinding(binding, source);
+  const accepted = governedBinding.binding_state === 'accepted';
   const basis = {
     delivery_contract_id: CIVIC_GENOME_DELIVERY_CONTRACT_ID,
-    delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
-    validation_state: 'validated_unbound',
+    delivery_contract_version: deliveryContractVersion,
+    validation_state: accepted ? 'validated_bound' : 'validated_unbound',
     authenticated: true,
     auth_scheme: CIVIC_GENOME_DELIVERY_AUTH_SCHEME,
     key_id: string(keyId, 'key_id'),
@@ -159,6 +226,8 @@ export function buildCivicGenomeDeliveryReceipt({ snapshot, binding, keyId }) {
     binding_state: governedBinding.binding_state,
     binding_errors: [...governedBinding.binding_errors].sort(),
     verification_mapping_state: governedBinding.verification_mapping_state,
+    verification_mapping_rule_id: governedBinding.verification_mapping_rule_id,
+    verification_mapping_rule_version: governedBinding.verification_mapping_rule_version,
     persisted: false,
     projection_executed: false,
     no_mutation: true
@@ -182,7 +251,11 @@ export function validateAuthenticatedCivicGenomeDelivery({
   if (row.delivery_contract_id !== CIVIC_GENOME_DELIVERY_CONTRACT_ID) {
     fail('delivery_contract_id_mismatch');
   }
-  if (row.delivery_contract_version !== CIVIC_GENOME_DELIVERY_CONTRACT_VERSION) {
+  const deliveryContractVersion = string(
+    row.delivery_contract_version,
+    'delivery_contract_version'
+  );
+  if (!SUPPORTED_DELIVERY_VERSIONS.has(deliveryContractVersion)) {
     fail('delivery_contract_version_mismatch');
   }
   if (row.source_schema_id !== CIVIC_GENOME_SOURCE_SCHEMA_ID) {
@@ -202,6 +275,13 @@ export function validateAuthenticatedCivicGenomeDelivery({
   if (row.source_contract_version !== snapshot.contract_version) {
     fail('source_contract_version_mismatch');
   }
-  const binding = buildUnresolvedCivicGenomeBinding(snapshot);
-  return buildCivicGenomeDeliveryReceipt({ snapshot, binding, keyId });
+  const binding = deliveryContractVersion === CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION
+    ? buildUnresolvedCivicGenomeBinding(snapshot)
+    : buildMappedCivicGenomeBinding(snapshot);
+  return buildCivicGenomeDeliveryReceipt({
+    snapshot,
+    binding,
+    keyId,
+    deliveryContractVersion
+  });
 }

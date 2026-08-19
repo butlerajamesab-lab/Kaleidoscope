@@ -31,7 +31,7 @@
       "minLength": 1
     },
     "binding_version": {
-      "const": "1.0.0"
+      "enum": ["1.0.0", "1.1.0"]
     },
     "source_owner": {
       "const": "lighthouse/civic_genome"
@@ -168,6 +168,42 @@
               }
             }
           },
+          "mapped_verification": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "source_owner_service",
+                "source_state",
+                "source_receipt_id",
+                "source_evidence_hash",
+                "source_mapping_state",
+                "mapped_verification_state",
+                "mapping_rule_id",
+                "mapping_rule_version",
+                "mapping_reason"
+              ],
+              "properties": {
+                "source_owner_service": { "type": "string", "minLength": 1 },
+                "source_state": { "type": "string", "minLength": 1 },
+                "source_receipt_id": { "type": ["string", "null"] },
+                "source_evidence_hash": {
+                  "type": ["string", "null"],
+                  "pattern": "^[0-9a-f]{64}$"
+                },
+                "source_mapping_state": { "const": "source_native_preserved" },
+                "mapped_verification_state": {
+                  "enum": ["primary_adjacent", "locator_only", "unresolved", "contradicted"]
+                },
+                "mapping_rule_id": {
+                  "const": "kaleidoscope.civic_genome_verification_mapping"
+                },
+                "mapping_rule_version": { "const": "1.0.0" },
+                "mapping_reason": { "type": "string", "minLength": 1 }
+              }
+            }
+          },
           "source_unresolved_conditions": {
             "type": "array",
             "items": { "type": "string" }
@@ -176,7 +212,12 @@
             "type": ["string", "null"]
           },
           "component_mapping_state": {
-            "enum": ["unmapped", "mapped_by_declared_rule", "rejected"]
+            "enum": [
+              "unmapped",
+              "mapped_by_declared_rule",
+              "verification_mapped_identity_unbound",
+              "rejected"
+            ]
           }
         }
       }
@@ -230,6 +271,22 @@
         "properties": {
           "verification_mapping_state": { "const": "mapped_by_declared_rule" },
           "binding_errors": { "maxItems": 0 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "binding_version": { "const": "1.1.0" }
+        }
+      },
+      "then": {
+        "properties": {
+          "component_manifest": {
+            "items": {
+              "required": ["mapped_verification"]
+            }
+          }
         }
       }
     },
