@@ -243,7 +243,7 @@ function assertSourceControlledState(derived) {
         || plan.upstream_mutation !== false) {
       fail('persistence_preflight_boundary_mismatch');
     }
-    if (!plan.blockers.includes('source_binding_upstream_ownership_mapping_not_declared')
+    if (plan.blockers.includes('source_binding_upstream_ownership_mapping_not_declared')
         || !plan.blockers.includes('projection_claim_state_not_authorized_for_canonical_persistence')
         || !plan.blockers.includes('runtime_database_transport_not_bound')) {
       fail('persistence_preflight_blocker_mismatch');
