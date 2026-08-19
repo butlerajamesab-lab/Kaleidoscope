@@ -1,7 +1,7 @@
 import { executeProject2025VerticalSlice } from './project2025-vertical-slice.mjs';
 import { sha256Hex } from './hash.mjs';
 
-export const PERSISTENCE_PLAN_VERSION = '1.0.0';
+export const PERSISTENCE_PLAN_VERSION = '1.1.0';
 export const PERSISTENCE_TARGET_SCHEMA = 'kaleidoscope';
 
 const TARGET_TABLES = [
@@ -78,6 +78,44 @@ function tablePlan(table, mappingState, candidateRecordCount, dependencies = [],
   };
 }
 
+function directCustodyUsage(snapshot, label, declaredArtifactIds, manifestIndex) {
+  const snapshotRow = record(snapshot, label);
+  const snapshotArtifactIds = new Set();
+  let componentArtifactLinkCount = 0;
+
+  for (const [componentIndex, component] of array(snapshotRow.components, `${label}.components`).entries()) {
+    const componentRow = record(component, `${label}.components[${componentIndex}]`);
+    const componentId = string(componentRow.component_id, `${label}.components[${componentIndex}].component_id`);
+    const componentArtifactIds = new Set();
+
+    for (const [bindingIndex, binding] of array(
+      componentRow.source_bindings ?? [],
+      `${label}.components[${componentIndex}].source_bindings`
+    ).entries()) {
+      const bindingRow = record(binding, `${label}.components[${componentIndex}].source_bindings[${bindingIndex}]`);
+      const sourceArtifactId = string(
+        bindingRow.source_artifact_id,
+        `${label}.components[${componentIndex}].source_bindings[${bindingIndex}].source_artifact_id`
+      );
+      if (!declaredArtifactIds.has(sourceArtifactId)) {
+        fail('component_source_artifact_not_declared_by_scenario', `${componentId}:${sourceArtifactId}`);
+      }
+      if (!manifestIndex.has(sourceArtifactId)) {
+        fail('source_artifact_missing_from_manifest', sourceArtifactId);
+      }
+      snapshotArtifactIds.add(sourceArtifactId);
+      componentArtifactIds.add(sourceArtifactId);
+    }
+    componentArtifactLinkCount += componentArtifactIds.size;
+  }
+
+  return {
+    snapshot_artifact_ids: [...snapshotArtifactIds].sort(),
+    snapshot_artifact_link_count: snapshotArtifactIds.size,
+    component_artifact_link_count: componentArtifactLinkCount
+  };
+}
+
 export function buildDeterministicPersistencePlan({ fixture, lensManifests, sourceManifest }) {
   const fixtureRecord = record(fixture, 'fixture');
   const manifests = array(lensManifests, 'lens_manifests');
@@ -100,9 +138,29 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     };
   });
 
+  const declaredArtifactIds = new Set(sourceArtifacts.map((entry) => entry.source_artifact_id));
+  const baselineCustody = directCustodyUsage(
+    fixtureRecord.baseline,
+    'fixture.baseline',
+    declaredArtifactIds,
+    index
+  );
+  const changedCustody = directCustodyUsage(
+    fixtureRecord.changed,
+    'fixture.changed',
+    declaredArtifactIds,
+    index
+  );
+  const componentBoundArtifactIds = new Set([
+    ...baselineCustody.snapshot_artifact_ids,
+    ...changedCustody.snapshot_artifact_ids
+  ]);
+  const unlinkedScenarioSupportArtifactIds = [...declaredArtifactIds]
+    .filter((sourceArtifactId) => !componentBoundArtifactIds.has(sourceArtifactId))
+    .sort();
+
   const blockers = [
     'runtime_database_transport_not_bound',
-    'source_binding_upstream_ownership_mapping_not_declared',
     'collision_lens_result_foreign_key_mapping_not_declared',
     'projection_run_event_emission_contract_not_declared'
   ];
@@ -113,26 +171,25 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     fail('source_execution_already_wrote_database');
   }
 
+  const snapshotArtifactLinkCount = baselineCustody.snapshot_artifact_link_count
+    + changedCustody.snapshot_artifact_link_count;
+  const componentArtifactLinkCount = baselineCustody.component_artifact_link_count
+    + changedCustody.component_artifact_link_count;
+
   const tablePlans = [
-    tablePlan('source_binding', 'blocked_contract_gap', sourceArtifacts.length, [], [
-      'upstream_platform_object_type_and_object_id_mapping_not_declared'
-    ]),
+    tablePlan('source_binding', 'not_applicable_direct_custody', 0),
     tablePlan('source_artifact', 'structurally_mappable_unpersisted', sourceArtifacts.length),
     tablePlan('state_snapshot', 'structurally_mappable_unpersisted', 2, ['source_artifact']),
-    tablePlan('state_snapshot_source', 'blocked_dependency', 0, ['source_binding', 'state_snapshot'], [
-      'source_binding_mapping_unresolved'
-    ]),
-    tablePlan('state_snapshot_artifact', 'structurally_mappable_unpersisted', 2 * sourceArtifacts.length, ['source_artifact', 'state_snapshot']),
+    tablePlan('state_snapshot_source', 'not_applicable_direct_custody', 0, ['state_snapshot']),
+    tablePlan('state_snapshot_artifact', 'structurally_mappable_unpersisted', snapshotArtifactLinkCount, ['source_artifact', 'state_snapshot']),
     tablePlan(
       'state_component',
       'structurally_mappable_unpersisted',
       fixtureRecord.baseline.components.length + fixtureRecord.changed.components.length,
       ['state_snapshot']
     ),
-    tablePlan('state_component_source', 'blocked_dependency', 0, ['source_binding', 'state_component'], [
-      'source_binding_mapping_unresolved'
-    ]),
-    tablePlan('state_component_artifact', 'structurally_mappable_unpersisted', fixtureRecord.baseline.components.length + fixtureRecord.changed.components.length, ['source_artifact', 'state_component']),
+    tablePlan('state_component_source', 'not_applicable_direct_custody', 0, ['state_component']),
+    tablePlan('state_component_artifact', 'structurally_mappable_unpersisted', componentArtifactLinkCount, ['source_artifact', 'state_component']),
     tablePlan('change_set', 'structurally_mappable_unpersisted', 1, ['state_snapshot']),
     tablePlan('change_operation', 'structurally_mappable_unpersisted', bundle.diff.operations.length, ['change_set']),
     tablePlan('lens_manifest', 'structurally_mappable_unpersisted', manifests.length),
@@ -181,6 +238,16 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     read_model_hash: readModel.read_model_hash,
     execution_receipt_hash: receipt.receipt_hash,
     source_artifacts: sourceArtifacts,
+    direct_custody: {
+      source_artifact_count: sourceArtifacts.length,
+      snapshot_artifact_link_count: snapshotArtifactLinkCount,
+      component_artifact_link_count: componentArtifactLinkCount,
+      baseline_snapshot_artifact_ids: baselineCustody.snapshot_artifact_ids,
+      changed_snapshot_artifact_ids: changedCustody.snapshot_artifact_ids,
+      unlinked_scenario_support_artifact_ids: unlinkedScenarioSupportArtifactIds,
+      upstream_object_bindings_created: 0,
+      no_upstream_ownership_inference: true
+    },
     table_plan: tablePlans,
     blocker_count: blockers.length,
     blockers: [...new Set(blockers)].sort(),
