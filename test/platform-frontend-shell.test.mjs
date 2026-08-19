@@ -115,7 +115,7 @@ test('runs persistence preflight for both examples while authorizing zero writes
   for (const plan of model.persistence_preflight.scenario_plans) {
     assert.equal(plan.live_write_authorized, false);
     assert.equal(plan.database_write_count, 0);
-    assert.ok(plan.blockers.includes('source_binding_upstream_ownership_mapping_not_declared'));
+    assert.equal(plan.blockers.includes('source_binding_upstream_ownership_mapping_not_declared'), false);
     assert.ok(plan.blockers.includes('projection_claim_state_not_authorized_for_canonical_persistence'));
     assert.ok(plan.blockers.includes('runtime_database_transport_not_bound'));
     assert.match(plan.persistence_plan_hash, /^[0-9a-f]{64}$/);
