@@ -121,13 +121,13 @@ test('rejects a source artifact that is not present in the governed source manif
   );
 });
 
-test('rejects component support that was not declared by the scenario', () => {
+test('preserves upstream validation when component support is not declared by the scenario', () => {
   const changed = structuredClone(fixture);
   changed.baseline.components[0].source_bindings[0].source_artifact_id = 'constitutional_powers_reference_pass1.md';
   changed.source_artifact_ids = changed.source_artifact_ids.filter((id) => id !== 'constitutional_powers_reference_pass1.md');
   assert.throws(
     () => buildDeterministicPersistencePlan({ fixture: changed, lensManifests, sourceManifest }),
-    /component_source_artifact_not_declared_by_scenario/
+    /unknown_source_artifact:constitutional_powers_reference_pass1\.md/
   );
 });
 
