@@ -200,11 +200,25 @@ export function buildCivicGenomeDeliveryReceipt({
   snapshot,
   binding,
   keyId,
-  deliveryContractVersion
+  deliveryContractVersion,
+  persistence = null
 }) {
   const source = assertCivicGenomeSourceSnapshot(snapshot);
   const governedBinding = assertCivicGenomeSnapshotBinding(binding, source);
   const accepted = governedBinding.binding_state === 'accepted';
+  const persistenceBoundary = persistence ?? {
+    state: 'transient_validation_only',
+    persisted: false,
+    projection_executed: false,
+    database_write_count: 0,
+    target_schema: 'kaleidoscope',
+    source_binding_id: null,
+    state_snapshot_id: null,
+    state_component_count: 0,
+    source_artifact_count: 0,
+    idempotent_reuse: false,
+    errors: []
+  };
   const basis = {
     delivery_contract_id: CIVIC_GENOME_DELIVERY_CONTRACT_ID,
     delivery_contract_version: deliveryContractVersion,
@@ -228,8 +242,17 @@ export function buildCivicGenomeDeliveryReceipt({
     verification_mapping_state: governedBinding.verification_mapping_state,
     verification_mapping_rule_id: governedBinding.verification_mapping_rule_id,
     verification_mapping_rule_version: governedBinding.verification_mapping_rule_version,
-    persisted: false,
+    persistence_state: persistenceBoundary.state,
+    persisted: persistenceBoundary.persisted === true,
     projection_executed: false,
+    target_schema: persistenceBoundary.target_schema ?? 'kaleidoscope',
+    source_binding_id: persistenceBoundary.source_binding_id ?? null,
+    state_snapshot_id: persistenceBoundary.state_snapshot_id ?? null,
+    state_component_count: persistenceBoundary.state_component_count ?? 0,
+    source_artifact_count: persistenceBoundary.source_artifact_count ?? 0,
+    database_write_count: persistenceBoundary.database_write_count ?? 0,
+    idempotent_reuse: persistenceBoundary.idempotent_reuse === true,
+    persistence_errors: [...(persistenceBoundary.errors ?? [])].sort(),
     no_mutation: true
   };
   const receiptHash = sha256Hex(basis);
@@ -240,7 +263,7 @@ export function buildCivicGenomeDeliveryReceipt({
   };
 }
 
-export function validateAuthenticatedCivicGenomeDelivery({
+export function authenticateAndMapCivicGenomeDelivery({
   body,
   keyId,
   signature,
@@ -278,10 +301,32 @@ export function validateAuthenticatedCivicGenomeDelivery({
   const binding = deliveryContractVersion === CIVIC_GENOME_LEGACY_DELIVERY_CONTRACT_VERSION
     ? buildUnresolvedCivicGenomeBinding(snapshot)
     : buildMappedCivicGenomeBinding(snapshot);
-  return buildCivicGenomeDeliveryReceipt({
+  return {
     snapshot,
     binding,
     keyId,
     deliveryContractVersion
+  };
+}
+
+export function validateAuthenticatedCivicGenomeDelivery({
+  body,
+  keyId,
+  signature,
+  expectedKeyId,
+  secret
+}) {
+  const delivery = authenticateAndMapCivicGenomeDelivery({
+    body,
+    keyId,
+    signature,
+    expectedKeyId,
+    secret
+  });
+  return buildCivicGenomeDeliveryReceipt({
+    snapshot: delivery.snapshot,
+    binding: delivery.binding,
+    keyId: delivery.keyId,
+    deliveryContractVersion: delivery.deliveryContractVersion
   });
 }
