@@ -1,10 +1,11 @@
 import { civicGenomePersistenceConfiguration } from './civic-genome-snapshot-persistence.mjs';
 
-export const CIVIC_GENOME_DURABLE_INTAKE_READ_MODEL_VERSION = '1.0.0';
+export const CIVIC_GENOME_DURABLE_INTAKE_READ_MODEL_VERSION = '1.1.0';
 
 const CIVIC_GENOME_PLATFORM = 'lighthouse/civic_genome';
 const CIVIC_GENOME_OBJECT_TYPE = 'external_snapshot';
-const MAX_QUERY_ROWS = 1_000;
+const MAX_READ_ROWS = 1_000;
+const ACCEPTED_BINDING_STATE = 'mapped_by_declared_rule';
 
 function emptyIntake(state, errorCode = null) {
   return {
@@ -82,9 +83,36 @@ async function selectRows({ configuration, fetchImpl, table, search }) {
   return parsed;
 }
 
+async function selectBoundedRows(options) {
+  const rows = await selectRows({
+    ...options,
+    search: {
+      ...options.search,
+      limit: String(MAX_READ_ROWS)
+    }
+  });
+  if (rows.length === MAX_READ_ROWS) {
+    const nextPage = await selectRows({
+      ...options,
+      search: {
+        ...options.search,
+        limit: '1',
+        offset: String(MAX_READ_ROWS)
+      }
+    });
+    if (nextPage.length > 0) throw failure(`${options.table}_read_limit_reached`);
+  }
+  return rows;
+}
+
 function inFilter(values) {
   if (values.length === 0) return null;
   return `in.(${values.join(',')})`;
+}
+
+function rowsLinkedTo(rows, field, allowedIds) {
+  if (allowedIds.size === 0) return [];
+  return rows.filter((row) => allowedIds.has(requiredText(row, field, 64)));
 }
 
 function countComponents(rows) {
@@ -154,7 +182,7 @@ export async function readCivicGenomeDurableIntake({
   if (typeof fetchImpl !== 'function') return emptyIntake('fetch_unavailable');
 
   try {
-    const sourceBindings = await selectRows({
+    const sourceBindings = (await selectBoundedRows({
       configuration,
       fetchImpl,
       table: 'source_binding',
@@ -162,68 +190,100 @@ export async function readCivicGenomeDurableIntake({
         select: 'source_binding_id,upstream_object_id,upstream_hash,verification_state,bound_at',
         upstream_platform: `eq.${CIVIC_GENOME_PLATFORM}`,
         upstream_object_type: `eq.${CIVIC_GENOME_OBJECT_TYPE}`,
-        order: 'bound_at.desc',
-        limit: String(MAX_QUERY_ROWS)
+        verification_state: `eq.${ACCEPTED_BINDING_STATE}`,
+        order: 'bound_at.desc'
       }
-    });
+    })).filter((binding) => requiredText(binding, 'verification_state', 120) === ACCEPTED_BINDING_STATE);
     const bindingIds = sourceBindings.map((row) => requiredText(row, 'source_binding_id', 64));
+    const bindingIdSet = new Set(bindingIds);
 
-    const [snapshotSources, projectionRuns, projectionResults, replayReceipts] = await Promise.all([
-      selectRows({
-        configuration,
-        fetchImpl,
-        table: 'state_snapshot_source',
-        search: {
-          select: 'state_snapshot_id,source_binding_id',
-          source_binding_id: inFilter(bindingIds) ?? 'eq.__none__',
-          limit: String(MAX_QUERY_ROWS)
-        }
-      }),
-      selectRows({
-        configuration,
-        fetchImpl,
-        table: 'projection_run',
-        search: { select: 'projection_run_id', limit: String(MAX_QUERY_ROWS) }
-      }),
-      selectRows({
-        configuration,
-        fetchImpl,
-        table: 'projection_result',
-        search: { select: 'projection_result_id', limit: String(MAX_QUERY_ROWS) }
-      }),
-      selectRows({
-        configuration,
-        fetchImpl,
-        table: 'replay_receipt',
-        search: { select: 'replay_receipt_id', limit: String(MAX_QUERY_ROWS) }
-      })
-    ]);
+    const snapshotSources = rowsLinkedTo(await selectBoundedRows({
+      configuration,
+      fetchImpl,
+      table: 'state_snapshot_source',
+      search: {
+        select: 'state_snapshot_id,source_binding_id',
+        source_binding_id: inFilter(bindingIds) ?? 'eq.__none__'
+      }
+    }), 'source_binding_id', bindingIdSet);
 
     const snapshotIds = snapshotSources.map((row) => requiredText(row, 'state_snapshot_id', 64));
-    const [snapshots, components] = await Promise.all([
-      selectRows({
+    const snapshotIdSet = new Set(snapshotIds);
+    const [snapshots, components, scenarios] = await Promise.all([
+      selectBoundedRows({
         configuration,
         fetchImpl,
         table: 'state_snapshot',
         search: {
           select: 'state_snapshot_id,external_snapshot_id,snapshot_kind,as_of_date,snapshot_hash,created_at',
-          state_snapshot_id: inFilter(snapshotIds) ?? 'eq.__none__',
-          limit: String(MAX_QUERY_ROWS)
+          state_snapshot_id: inFilter(snapshotIds) ?? 'eq.__none__'
         }
       }),
-      selectRows({
+      selectBoundedRows({
         configuration,
         fetchImpl,
         table: 'state_component',
         search: {
           select: 'state_snapshot_id',
-          state_snapshot_id: inFilter(snapshotIds) ?? 'eq.__none__',
-          limit: String(MAX_QUERY_ROWS)
+          state_snapshot_id: inFilter(snapshotIds) ?? 'eq.__none__'
+        }
+      }),
+      selectBoundedRows({
+        configuration,
+        fetchImpl,
+        table: 'scenario',
+        search: {
+          select: 'scenario_id,baseline_snapshot_id',
+          baseline_snapshot_id: inFilter(snapshotIds) ?? 'eq.__none__'
         }
       })
     ]);
+    const linkedSnapshots = rowsLinkedTo(snapshots, 'state_snapshot_id', snapshotIdSet);
+    const linkedComponents = rowsLinkedTo(components, 'state_snapshot_id', snapshotIdSet);
+    const linkedScenarios = rowsLinkedTo(scenarios, 'baseline_snapshot_id', snapshotIdSet);
+    const scenarioIds = linkedScenarios.map((row) => requiredText(row, 'scenario_id', 64));
+    const scenarioIdSet = new Set(scenarioIds);
 
-    const records = boundedRecords({ sourceBindings, snapshotSources, snapshots, components });
+    const projectionRuns = rowsLinkedTo(await selectBoundedRows({
+      configuration,
+      fetchImpl,
+      table: 'projection_run',
+      search: {
+        select: 'projection_run_id,scenario_id',
+        scenario_id: inFilter(scenarioIds) ?? 'eq.__none__'
+      }
+    }), 'scenario_id', scenarioIdSet);
+    const projectionRunIds = projectionRuns.map((row) => requiredText(row, 'projection_run_id', 64));
+    const projectionRunIdSet = new Set(projectionRunIds);
+    const [projectionResults, replayReceipts] = await Promise.all([
+      selectBoundedRows({
+        configuration,
+        fetchImpl,
+        table: 'projection_result',
+        search: {
+          select: 'projection_result_id,projection_run_id',
+          projection_run_id: inFilter(projectionRunIds) ?? 'eq.__none__'
+        }
+      }),
+      selectBoundedRows({
+        configuration,
+        fetchImpl,
+        table: 'replay_receipt',
+        search: {
+          select: 'replay_receipt_id,projection_run_id',
+          projection_run_id: inFilter(projectionRunIds) ?? 'eq.__none__'
+        }
+      })
+    ]);
+    const linkedProjectionResults = rowsLinkedTo(projectionResults, 'projection_run_id', projectionRunIdSet);
+    const linkedReplayReceipts = rowsLinkedTo(replayReceipts, 'projection_run_id', projectionRunIdSet);
+
+    const records = boundedRecords({
+      sourceBindings,
+      snapshotSources,
+      snapshots: linkedSnapshots,
+      components: linkedComponents
+    });
     return {
       read_model_version: CIVIC_GENOME_DURABLE_INTAKE_READ_MODEL_VERSION,
       state: records.length > 0 ? 'durable_intake_active' : 'available_no_durable_intake',
@@ -232,8 +292,8 @@ export async function readCivicGenomeDurableIntake({
       snapshot_count: records.length,
       component_count: records.reduce((sum, record) => sum + record.component_count, 0),
       projection_run_count: projectionRuns.length,
-      projection_result_count: projectionResults.length,
-      replay_receipt_count: replayReceipts.length,
+      projection_result_count: linkedProjectionResults.length,
+      replay_receipt_count: linkedReplayReceipts.length,
       records,
       error_code: null
     };
