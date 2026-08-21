@@ -18,9 +18,17 @@ const STATUS_LABELS = new Map([
   ['stage_1_2_source_controlled', 'First two analysis stages available'],
   ['live_proven_unbound', 'Connection tested — not accepted as official input'],
   ['validated_unbound', 'Validated — not accepted as official input'],
+  ['mapped_by_declared_rule', 'Mapped by declared rule'],
+  ['accepted_durable_no_projection', 'Durably bound — no projection'],
+  ['durable_intake_active', 'Durable intake active'],
+  ['available_no_durable_intake', 'No durable input yet'],
   ['applied_empty_unbound', 'Storage ready — runtime not connected'],
   ['schema_present_empty', 'Storage ready — empty'],
   ['runtime_not_bound', 'Not connected'],
+  ['not_queried_from_runtime', 'Live intake not queried'],
+  ['live_read_unavailable', 'Live intake unavailable'],
+  ['disabled_no_read', 'Live intake disabled'],
+  ['enabled_missing_database_credentials', 'Live intake unavailable'],
   ['external_owner', 'Separate source system'],
   ['contract_not_established', 'Not connected'],
   ['disabled', 'Off']
@@ -148,7 +156,14 @@ function humanize(value) {
 }
 
 function statusTone(state) {
-  if (['available', 'live_proven_unbound', 'validated_unbound'].includes(state)) return 'positive';
+  if ([
+    'available',
+    'live_proven_unbound',
+    'validated_unbound',
+    'mapped_by_declared_rule',
+    'accepted_durable_no_projection',
+    'durable_intake_active'
+  ].includes(state)) return 'positive';
   if ([
     'available_no_write',
     'executed_test_fixture',
@@ -158,7 +173,12 @@ function statusTone(state) {
     'external_owner',
     'schema_present_empty',
     'applied_empty_unbound',
-    'runtime_not_bound'
+    'runtime_not_bound',
+    'available_no_durable_intake',
+    'not_queried_from_runtime',
+    'live_read_unavailable',
+    'disabled_no_read',
+    'enabled_missing_database_credentials'
   ].includes(state)) return 'warning';
   if (['disabled', 'contract_not_established'].includes(state)) return 'restricted';
   return '';
@@ -190,6 +210,8 @@ function renderMetrics(model) {
     ['Ways examined', summary.lens_count, 'separate questions asked of the same change'],
     ['Conflicts shown', summary.preserved_collision_count, 'kept visible instead of averaged away'],
     ['Open questions', summary.unresolved_condition_count, 'information the sources do not settle yet'],
+    ['Civic Genome bindings', summary.accepted_civic_genome_bindings ?? '—', 'accepted source inputs, separate from Kaleidoscope outputs'],
+    ['Civic Genome snapshots', summary.civic_genome_durable_snapshots ?? '—', 'immutable source states retained append-only'],
     ['Official saved results', summary.database_rows, 'currently stored as canonical Kaleidoscope records']
   ];
 
@@ -218,11 +240,14 @@ function renderCapabilities(model) {
       detail: capability.detail,
       technical: capability.label
     };
+    const detail = ['accepted_durable_no_projection', 'durable_intake_active'].includes(capability.state)
+      ? capability.detail
+      : presentation.detail;
     const row = element('article', 'capability-row');
     row.append(
       element('strong', 'capability-label', presentation.label),
       statusChip(capability.state),
-      element('span', 'capability-detail', presentation.detail),
+      element('span', 'capability-detail', detail),
       technicalDetails([
         ['Technical name', presentation.technical],
         ['Capability ID', capability.capability_id],
@@ -232,6 +257,77 @@ function renderCapabilities(model) {
     return row;
   });
   container.replaceChildren(...rows);
+}
+
+function abbreviatedHash(value) {
+  const text = String(value ?? '');
+  return text.length > 18 ? `${text.slice(0, 12)}…${text.slice(-8)}` : text;
+}
+
+function formattedDateTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value ?? '—');
+  return date.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short'
+  });
+}
+
+function intakeCount(value) {
+  return Number.isInteger(value) && value >= 0 ? value : '—';
+}
+
+function renderCivicGenomeDurableIntake(model) {
+  const intake = model.civic_genome_durable_intake ?? {};
+  const state = document.querySelector('#civic-genome-intake-state');
+  const summary = document.querySelector('#civic-genome-intake-summary');
+  const list = document.querySelector('#civic-genome-intake-list');
+  const records = Array.isArray(intake.records) ? intake.records : [];
+
+  state.textContent = statusLabel(intake.state ?? 'live_read_unavailable');
+  if (intake.available !== true) {
+    summary.textContent = 'The live durable-intake read is unavailable right now. The historical staging fixtures remain separate, and Kaleidoscope does not infer an accepted source input when the live record cannot be read.';
+    list.replaceChildren();
+    return;
+  }
+
+  summary.textContent = `${intakeCount(intake.binding_count)} accepted Civic Genome source binding${intake.binding_count === 1 ? '' : 's'} and ${intakeCount(intake.snapshot_count)} immutable snapshot${intake.snapshot_count === 1 ? '' : 's'} are retained append-only. These are source inputs, not official Kaleidoscope outputs: ${intakeCount(intake.projection_run_count)} projection runs, ${intakeCount(intake.projection_result_count)} results, and ${intakeCount(intake.replay_receipt_count)} replay receipts.`;
+
+  if (records.length === 0) {
+    list.replaceChildren(element('p', 'intake-empty', 'No accepted durable Civic Genome source input is currently present.'));
+    return;
+  }
+
+  const cards = records.map((record) => {
+    const card = element('article', 'intake-record');
+    const header = element('div', 'intake-record-header');
+    const identity = element('div');
+    identity.append(
+      element('span', 'intake-record-kicker', 'Immutable Civic Genome snapshot'),
+      element('code', 'intake-record-id', record.external_snapshot_id)
+    );
+    header.append(identity, statusChip(record.verification_state));
+    const details = element('dl', 'intake-record-details');
+    const rows = [
+      ['As of', record.as_of_date],
+      ['Bound', formattedDateTime(record.bound_at)],
+      ['Stored components', record.component_count],
+      ['Snapshot hash', abbreviatedHash(record.snapshot_hash)],
+      ['Projection', 'Not executed']
+    ];
+    for (const [label, value] of rows) {
+      const row = element('div');
+      row.append(element('dt', '', label), element('dd', '', value));
+      details.append(row);
+    }
+    card.append(header, details);
+    return card;
+  });
+  list.replaceChildren(...cards);
 }
 
 function scenarioPresentation(scenario) {
@@ -471,6 +567,9 @@ function receiptPublicLabel(receipt) {
   if (receipt.receipt_id === 'kaleidoscope_supabase_projection_substrate_2026_08_09.v1') {
     return 'Proof of the current Kaleidoscope storage boundary';
   }
+  if (receipt.receipt_id === 'civic_genome_durable_intake.live.v1') {
+    return 'Live proof of accepted Civic Genome source intake';
+  }
   return receipt.label;
 }
 
@@ -490,6 +589,12 @@ function renderReceipts(model) {
       ['Binding state', receipt.binding_state],
       ['Persisted', receipt.persisted],
       ['Projection executed', receipt.projection_executed],
+      ['Accepted source bindings', receipt.binding_count],
+      ['Immutable snapshots', receipt.snapshot_count],
+      ['Stored components', receipt.component_count],
+      ['Projection runs', receipt.projection_run_count],
+      ['Projection results', receipt.projection_result_count],
+      ['Replay receipts', receipt.replay_receipt_count],
       ['Tables', receipt.table_count],
       ['Functions', receipt.function_count],
       ['Triggers', receipt.trigger_count],
@@ -516,6 +621,13 @@ function boundaryDisplay(key, value) {
     database_migrations: ['Storage versions applied', value, 'The storage structure and its indexing change are both recorded.'],
     database_persistence: ['Saving official results', value ? 'Enabled' : 'Not enabled', 'The storage exists, but the runtime has no proven authorized write path.'],
     canonical_projection_execution: ['Live official projections', value ? 'Enabled' : 'Not enabled', 'Current executions are bounded tested examples, not canonical civic truth.'],
+    civic_genome_durable_intake_state: ['Civic Genome durable intake', statusLabel(value), 'Accepted Civic Genome source snapshots are shown separately from official Kaleidoscope projections.'],
+    civic_genome_durable_binding_count: ['Accepted Civic Genome bindings', value ?? '—', 'Append-only source bindings; not a Kaleidoscope projection result.'],
+    civic_genome_durable_snapshot_count: ['Immutable Civic Genome snapshots', value ?? '—', 'Persisted source states retained without altering their upstream owner.'],
+    civic_genome_durable_component_count: ['Stored source components', value ?? '—', 'Source components retained within the bounded snapshots.'],
+    civic_genome_projection_run_count: ['Civic Genome projection runs', value ?? '—', 'A durable input does not authorize a canonical Kaleidoscope projection.'],
+    civic_genome_projection_result_count: ['Civic Genome projection results', value ?? '—', 'No output is claimed merely because a source snapshot was retained.'],
+    civic_genome_replay_receipt_count: ['Civic Genome replay receipts', value ?? '—', 'Replay remains a separate governed stage.'],
     legislative_consequence_stage_1_2: ['Legal-change analysis', value ? 'First two stages available' : 'Unavailable', 'Direct structural change and governed consequence relationships are available.'],
     legislative_consequence_stage_3: ['Who or what is directly touched?', value ? 'Available' : 'Unavailable', 'The current Stage 3 classification groups already-governed consequences without adding causation, actors, or unsupported economic effects.'],
     legislative_consequence_stages_4_6: ['Historical comparison and later stages', value ? 'Available' : 'Not run', 'Atlas historical comparison, Lighthouse accountability presentation, and the later checklist are not executed.'],
@@ -546,14 +658,17 @@ function renderSystem(model) {
 
 function renderHeaderState(model) {
   document.querySelector('#platform-mission').textContent = 'See what changes, why it matters, what the evidence supports, and what is still unknown — without hiding disagreement behind a score.';
-  document.querySelector('#truth-label').textContent = 'This is a staging workspace. It shows deterministic, source-controlled examples and clearly marks anything that is not yet an official saved Kaleidoscope result.';
+  document.querySelector('#truth-label').textContent = model.truth_label;
   document.querySelector('#hero-environment').textContent = model.environment === 'staging' ? 'Testing / staging' : humanize(model.environment);
   document.querySelector('#hero-determinism').textContent = model.deterministic ? 'Same inputs → same result' : 'Unverified';
-  document.querySelector('#hero-persistence').textContent = model.system_boundary.database_persistence
-    ? 'Official saving enabled'
-    : model.summary.database_tables > 0
-      ? 'Storage ready; saving not enabled'
-      : 'Not available';
+  const intake = model.civic_genome_durable_intake ?? {};
+  document.querySelector('#hero-persistence').textContent = intake.available === true && intake.binding_count > 0
+    ? `${intake.binding_count} source binding${intake.binding_count === 1 ? '' : 's'} retained; official saving disabled`
+    : model.system_boundary.database_persistence
+      ? 'Official saving enabled'
+      : model.summary.database_tables > 0
+        ? 'Storage ready; saving not enabled'
+        : 'Not available';
   document.querySelector('#hero-projection').textContent = model.system_boundary.canonical_projection_execution
     ? 'Official projections enabled'
     : 'Examples only';
@@ -565,6 +680,7 @@ function renderHeaderState(model) {
 function render(model) {
   renderHeaderState(model);
   renderMetrics(model);
+  renderCivicGenomeDurableIntake(model);
   renderCapabilities(model);
   renderScenarioSpotlight(model);
   renderPlatformContracts(model);

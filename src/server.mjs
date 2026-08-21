@@ -10,6 +10,7 @@ import {
   civicGenomePersistenceConfiguration,
   persistCivicGenomeSnapshot
 } from './civic-genome-snapshot-persistence.mjs';
+import { readCivicGenomeDurableIntake } from './civic-genome-durable-intake-read-model.mjs';
 import {
   PROJECT2025_FRONTEND_PATH,
   PROJECT2025_FRONTEND_READ_MODEL_PATH,
@@ -32,6 +33,7 @@ import {
   KALEIDOSCOPE_APP_PATH,
   KALEIDOSCOPE_APP_READ_MODEL_PATH,
   KALEIDOSCOPE_APP_FRONTEND_VERSION,
+  applyCivicGenomeDurableIntake,
   kaleidoscopePlatformReadModel,
   resolveKaleidoscopePlatformFrontendRequest
 } from './platform-frontend-shell.mjs';
@@ -44,6 +46,13 @@ const ENGINE_VERSION = '0.1.4';
 const PROJECT2025_FRONTEND_SHELL_VERSION = '1.0.0';
 const RUNTIME_REVISION = 'kaleidoscope_legislative_consequence_stage3.v1';
 const SOURCE_MANIFEST_ID = 'kaleidoscope_source_pack_2026_08_03_v3';
+const LIVE_INTAKE_CACHE_TTL_MS = 15_000;
+
+let platformStatusCache = {
+  expires_at: 0,
+  value: null,
+  in_flight: null
+};
 
 function send(res, statusCode, body) {
   const payload = JSON.stringify(body);
@@ -95,8 +104,29 @@ function handshakeConfiguration() {
   };
 }
 
-function platformStatus() {
-  return kaleidoscopePlatformReadModel();
+async function platformStatus() {
+  if (platformStatusCache.value && Date.now() < platformStatusCache.expires_at) {
+    return platformStatusCache.value;
+  }
+  if (platformStatusCache.in_flight) return platformStatusCache.in_flight;
+
+  platformStatusCache.in_flight = (async () => {
+    const foundation = kaleidoscopePlatformReadModel();
+    const durableIntake = await readCivicGenomeDurableIntake();
+    const value = applyCivicGenomeDurableIntake(foundation, durableIntake);
+    platformStatusCache = {
+      expires_at: Date.now() + LIVE_INTAKE_CACHE_TTL_MS,
+      value,
+      in_flight: null
+    };
+    return value;
+  })();
+
+  try {
+    return await platformStatusCache.in_flight;
+  } finally {
+    if (platformStatusCache.in_flight) platformStatusCache.in_flight = null;
+  }
 }
 
 function civicGenomeHandoffState() {
@@ -128,6 +158,12 @@ const server = http.createServer(async (req, res) => {
         return sendRaw(res, appResponse);
       }
 
+      if (pathname === KALEIDOSCOPE_APP_READ_MODEL_PATH) {
+        const platform = await platformStatus();
+        const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname, platform);
+        return sendRaw(res, platformResponse);
+      }
+
       const platformResponse = await resolveKaleidoscopePlatformFrontendRequest(pathname);
       if (platformResponse) return sendRaw(res, platformResponse);
 
@@ -145,7 +181,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (req.method === 'GET' && pathname === '/') {
-      const platform = platformStatus();
+      const platform = await platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const impact = consequence.impact_surface;
@@ -174,6 +210,12 @@ const server = http.createServer(async (req, res) => {
         civic_genome_binding_contract: 'mapped_acceptance_with_optional_durable_snapshot_persistence_no_projection',
         civic_genome_source_validation: 'contract_tamper_and_declared_verification_mapping_available',
         civic_genome_handoff_state: civicGenomeHandoffState(),
+        civic_genome_durable_intake_state: platform.civic_genome_durable_intake.state,
+        civic_genome_durable_binding_count: platform.civic_genome_durable_intake.binding_count,
+        civic_genome_durable_snapshot_count: platform.civic_genome_durable_intake.snapshot_count,
+        civic_genome_projection_run_count: platform.civic_genome_durable_intake.projection_run_count,
+        civic_genome_projection_result_count: platform.civic_genome_durable_intake.projection_result_count,
+        civic_genome_replay_receipt_count: platform.civic_genome_durable_intake.replay_receipt_count,
         frontend_state: 'citizen_first_workspace_stage3_visible',
         platform_frontend_version: KALEIDOSCOPE_APP_FRONTEND_VERSION,
         project2025_frontend_shell_version: PROJECT2025_FRONTEND_SHELL_VERSION,
@@ -210,7 +252,7 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, resolveStateResponse(fixture));
     }
     if (req.method === 'GET' && pathname === '/health') {
-      const platform = platformStatus();
+      const platform = await platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const impact = consequence.impact_surface;
@@ -236,6 +278,12 @@ const server = http.createServer(async (req, res) => {
         civic_genome_delivery_contract_version: CIVIC_GENOME_DELIVERY_CONTRACT_VERSION,
         civic_genome_binding_contract: 'mapped_acceptance_with_optional_durable_snapshot_persistence_no_projection',
         civic_genome_handoff_state: civicGenomeHandoffState(),
+        civic_genome_durable_intake_state: platform.civic_genome_durable_intake.state,
+        civic_genome_durable_binding_count: platform.civic_genome_durable_intake.binding_count,
+        civic_genome_durable_snapshot_count: platform.civic_genome_durable_intake.snapshot_count,
+        civic_genome_projection_run_count: platform.civic_genome_durable_intake.projection_run_count,
+        civic_genome_projection_result_count: platform.civic_genome_durable_intake.projection_result_count,
+        civic_genome_replay_receipt_count: platform.civic_genome_durable_intake.replay_receipt_count,
         database_state: database.canonical_persistence_state,
         database_schema: database.schema_name,
         database_table_count: database.table_count,
@@ -243,7 +291,7 @@ const server = http.createServer(async (req, res) => {
       });
     }
     if (req.method === 'GET' && pathname === '/v1/status') {
-      const platform = platformStatus();
+      const platform = await platformStatus();
       const database = platform.database_substrate;
       const consequence = platform.legislative_consequence;
       const impact = consequence.impact_surface;
@@ -269,6 +317,13 @@ const server = http.createServer(async (req, res) => {
         civic_genome_validation_state: 'component_snapshot_replay_receipt_hmac_and_declared_verification_mapping_available',
         civic_genome_handoff_state: civicGenomeHandoffState(),
         civic_genome_live_binding_state: 'durable_snapshot_persistence_when_runtime_gate_ready_no_projection',
+        civic_genome_durable_intake_state: platform.civic_genome_durable_intake.state,
+        civic_genome_durable_binding_count: platform.civic_genome_durable_intake.binding_count,
+        civic_genome_durable_snapshot_count: platform.civic_genome_durable_intake.snapshot_count,
+        civic_genome_durable_component_count: platform.civic_genome_durable_intake.component_count,
+        civic_genome_projection_run_count: platform.civic_genome_durable_intake.projection_run_count,
+        civic_genome_projection_result_count: platform.civic_genome_durable_intake.projection_result_count,
+        civic_genome_replay_receipt_count: platform.civic_genome_durable_intake.replay_receipt_count,
         projection_state: 'executed_test_fixtures_not_canonical_fact',
         legislative_consequence_state: consequence.state,
         legislative_consequence_structural_delta_count: consequence.structural_delta_count,
@@ -376,7 +431,7 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  const platform = platformStatus();
+  const platform = kaleidoscopePlatformReadModel();
   const database = platform.database_substrate;
   const consequence = platform.legislative_consequence;
   const impact = consequence.impact_surface;
