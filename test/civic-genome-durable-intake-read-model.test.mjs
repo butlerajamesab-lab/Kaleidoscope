@@ -148,6 +148,48 @@ test('does not count an unaccepted Civic Genome source binding as durable intake
   assert.equal(intake.binding_count, 0);
   assert.equal(intake.snapshot_count, 0);
   assert.equal(intake.projection_run_count, 0);
+  assert.deepEqual(database.calls.map((call) => call.table), ['source_binding']);
+});
+
+test('short-circuits empty projection links instead of sending invalid UUID sentinels', async () => {
+  const database = fakeSupabase({
+    source_binding: [{
+      source_binding_id: 'binding-1',
+      upstream_object_id: 'cg-family-snapshot',
+      upstream_hash: FIRST_HASH,
+      verification_state: 'mapped_by_declared_rule',
+      bound_at: '2026-08-21T20:41:09.491699Z'
+    }],
+    state_snapshot_source: [{ source_binding_id: 'binding-1', state_snapshot_id: 'snapshot-1' }],
+    state_snapshot: [{
+      state_snapshot_id: 'snapshot-1',
+      external_snapshot_id: 'cg-family-snapshot',
+      snapshot_kind: 'baseline',
+      as_of_date: '2026-08-21',
+      snapshot_hash: FIRST_HASH,
+      created_at: '2026-08-21T20:41:09.952698Z'
+    }],
+    state_component: [{ state_snapshot_id: 'snapshot-1' }],
+    scenario: []
+  });
+
+  const intake = await readCivicGenomeDurableIntake({
+    configuration: configuration(),
+    fetchImpl: database.fetchImpl
+  });
+
+  assert.equal(intake.available, true);
+  assert.equal(intake.state, 'durable_intake_active');
+  assert.equal(intake.binding_count, 1);
+  assert.equal(intake.snapshot_count, 1);
+  assert.equal(intake.component_count, 1);
+  assert.equal(intake.projection_run_count, 0);
+  assert.equal(intake.projection_result_count, 0);
+  assert.equal(intake.replay_receipt_count, 0);
+  assert.ok(database.calls.every((call) => ![...call.url.searchParams.values()].includes('eq.__none__')));
+  assert.ok(!database.calls.some((call) => call.table === 'projection_run'));
+  assert.ok(!database.calls.some((call) => call.table === 'projection_result'));
+  assert.ok(!database.calls.some((call) => call.table === 'replay_receipt'));
 });
 
 test('fails closed rather than silently undercounting a bounded read', async () => {
