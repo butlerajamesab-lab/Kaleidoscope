@@ -30,7 +30,7 @@ import { sha256Hex } from './hash.mjs';
 
 export const KALEIDOSCOPE_APP_PATH = '/app';
 export const KALEIDOSCOPE_APP_READ_MODEL_PATH = '/v1/platform/read-model';
-export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.3.0';
+export const KALEIDOSCOPE_APP_FRONTEND_VERSION = '1.4.0';
 
 const HTML_ASSET = {
   file: '../public/kaleidoscope-app.html',
@@ -268,7 +268,10 @@ function assertSourceControlledState(derived) {
   }
 }
 
-function platformContracts() {
+function platformContracts(civicGenomeIntake = null) {
+  const hasDurableCivicGenomeIntake = civicGenomeIntake?.available === true
+    && Number.isInteger(civicGenomeIntake.binding_count)
+    && civicGenomeIntake.binding_count > 0;
   return [
     {
       platform_id: 'docket_room',
@@ -290,8 +293,12 @@ function platformContracts() {
       platform_id: 'civic_genome',
       label: 'Civic Genome',
       role: 'Persistent policy identity, traits, events, lineage, and immutable snapshots',
-      relationship: 'authenticated read-only source',
-      state: civicGenomeHandoffReceipt.delivery_receipt.validation_state,
+      relationship: hasDurableCivicGenomeIntake
+        ? 'authenticated read-only source with append-only durable intake'
+        : 'authenticated read-only source',
+      state: hasDurableCivicGenomeIntake
+        ? 'accepted_durable_no_projection'
+        : civicGenomeHandoffReceipt.delivery_receipt.validation_state,
       mutation: 'prohibited'
     },
     {
@@ -321,8 +328,17 @@ function platformContracts() {
   ];
 }
 
-function capabilities(derived) {
+function capabilities(derived, civicGenomeIntake = null) {
   const impact = assertLegislativeImpactState().surface;
+  const hasDurableCivicGenomeIntake = civicGenomeIntake?.available === true
+    && Number.isInteger(civicGenomeIntake.binding_count)
+    && civicGenomeIntake.binding_count > 0;
+  const civicGenomeBindingCount = civicGenomeIntake?.binding_count ?? 0;
+  const civicGenomeSnapshotCount = civicGenomeIntake?.snapshot_count ?? 0;
+  const civicGenomeComponentCount = civicGenomeIntake?.component_count ?? 0;
+  const projectionRunCount = civicGenomeIntake?.projection_run_count ?? 0;
+  const projectionResultCount = civicGenomeIntake?.projection_result_count ?? 0;
+  const replayReceiptCount = civicGenomeIntake?.replay_receipt_count ?? 0;
   return [
     {
       capability_id: 'typed_state_diff',
@@ -363,20 +379,26 @@ function capabilities(derived) {
     {
       capability_id: 'civic_genome_snapshot_validation',
       label: 'Civic Genome snapshot validation',
-      state: 'live_proven_unbound',
-      detail: 'Authenticated 62-component snapshot validation proved without persistence or projection.'
+      state: hasDurableCivicGenomeIntake ? 'accepted_durable_no_projection' : 'live_proven_unbound',
+      detail: hasDurableCivicGenomeIntake
+        ? `${civicGenomeBindingCount} authenticated Civic Genome source binding${civicGenomeBindingCount === 1 ? '' : 's'} and ${civicGenomeSnapshotCount} immutable snapshot${civicGenomeSnapshotCount === 1 ? '' : 's'} are durably retained with ${civicGenomeComponentCount} source component${civicGenomeComponentCount === 1 ? '' : 's'}; validation and projection remain separate.`
+        : 'Authenticated 62-component snapshot validation proved without persistence or projection.'
     },
     {
       capability_id: 'projection_substrate',
       label: 'Projection substrate',
-      state: 'applied_empty_unbound',
-      detail: `The source-controlled Kaleidoscope receipt contains ${substrateReceipt.schema.table_count} RLS-enabled truth-bearing tables, ${substrateReceipt.schema.function_count} governed functions, ${substrateReceipt.schema.trigger_count} append-only triggers, and ${substrateReceipt.live_migrations.length} applied migrations. All represented tables remain empty.`
+      state: hasDurableCivicGenomeIntake ? 'durable_intake_active' : 'applied_empty_unbound',
+      detail: hasDurableCivicGenomeIntake
+        ? `The governed substrate has ${civicGenomeBindingCount} accepted Civic Genome input binding${civicGenomeBindingCount === 1 ? '' : 's'} and ${civicGenomeSnapshotCount} immutable snapshot${civicGenomeSnapshotCount === 1 ? '' : 's'} in append-only storage. Projection remains unexecuted: ${projectionRunCount} runs, ${projectionResultCount} results, and ${replayReceiptCount} replay receipts.`
+        : `The source-controlled Kaleidoscope receipt contains ${substrateReceipt.schema.table_count} RLS-enabled truth-bearing tables, ${substrateReceipt.schema.function_count} governed functions, ${substrateReceipt.schema.trigger_count} append-only triggers, and ${substrateReceipt.live_migrations.length} applied migrations. All represented tables remain empty.`
     },
     {
       capability_id: 'canonical_projection_persistence',
       label: 'Canonical projection persistence',
       state: 'runtime_not_bound',
-      detail: 'The governed substrate exists, but the runtime database transport is not proven and no source binding, scenario, projection run, or replay receipt has been persisted.'
+      detail: hasDurableCivicGenomeIntake
+        ? `Civic Genome source intake is durable, but no official Kaleidoscope projection has been created: ${projectionRunCount} projection runs, ${projectionResultCount} results, and ${replayReceiptCount} replay receipts.`
+        : 'The governed substrate exists, but the runtime database transport is not proven and no source binding, scenario, projection run, or replay receipt has been persisted.'
     }
   ];
 }
@@ -417,7 +439,7 @@ export function kaleidoscopePlatformReadModel() {
   const rowCount = substrateRowCount();
 
   const basis = {
-    read_model_version: '1.3.0',
+    read_model_version: '1.4.0',
     platform: 'kaleidoscope',
     platform_label: 'Kaleidoscope',
     environment: 'staging',
@@ -433,6 +455,8 @@ export function kaleidoscopePlatformReadModel() {
       preserved_collision_count: project2025ReadModel.summary.collision_count + localPreemption.read_model.summary.collision_count,
       unresolved_condition_count: project2025ReadModel.summary.unresolved_count + localPreemption.read_model.summary.unresolved_count,
       accepted_civic_genome_bindings: 0,
+      civic_genome_durable_snapshots: 0,
+      civic_genome_durable_components: 0,
       database_tables: substrateReceipt.schema.table_count,
       database_rows: rowCount,
       database_migrations: substrateReceipt.live_migrations.length
@@ -556,6 +580,19 @@ export function kaleidoscopePlatformReadModel() {
       canonical_persistence_state: substrateReceipt.canonical_persistence_state,
       runtime_database_write_path_proven: substrateReceipt.capability_boundaries.runtime_database_adapter_proven
     },
+    civic_genome_durable_intake: {
+      read_model_version: '1.0.0',
+      state: 'not_queried_from_runtime',
+      available: false,
+      binding_count: 0,
+      snapshot_count: 0,
+      component_count: 0,
+      projection_run_count: 0,
+      projection_result_count: 0,
+      replay_receipt_count: 0,
+      records: [],
+      error_code: null
+    },
     platform_contracts: platformContracts(),
     receipts: [
       {
@@ -613,6 +650,13 @@ export function kaleidoscopePlatformReadModel() {
       database_migrations: substrateReceipt.live_migrations.length,
       database_persistence: false,
       canonical_projection_execution: false,
+      civic_genome_durable_intake_state: 'not_queried_from_runtime',
+      civic_genome_durable_binding_count: 0,
+      civic_genome_durable_snapshot_count: 0,
+      civic_genome_durable_component_count: 0,
+      civic_genome_projection_run_count: 0,
+      civic_genome_projection_result_count: 0,
+      civic_genome_replay_receipt_count: 0,
       legislative_consequence_stage_1_2: true,
       legislative_consequence_stage_3: true,
       legislative_consequence_stages_4_6: false,
@@ -642,6 +686,106 @@ export function kaleidoscopePlatformReadModel() {
   };
 }
 
+function hasObservedCivicGenomeIntake(intake) {
+  return intake?.available === true
+    && Number.isInteger(intake.binding_count)
+    && intake.binding_count >= 0
+    && Number.isInteger(intake.snapshot_count)
+    && intake.snapshot_count >= 0
+    && Number.isInteger(intake.component_count)
+    && intake.component_count >= 0
+    && Number.isInteger(intake.projection_run_count)
+    && intake.projection_run_count >= 0
+    && Number.isInteger(intake.projection_result_count)
+    && intake.projection_result_count >= 0
+    && Number.isInteger(intake.replay_receipt_count)
+    && intake.replay_receipt_count >= 0
+    && Array.isArray(intake.records);
+}
+
+export function applyCivicGenomeDurableIntake(model, intake) {
+  const { read_model_hash: _ignoredReadModelHash, ...sourceBasis } = model;
+  const observed = hasObservedCivicGenomeIntake(intake);
+  const normalizedIntake = observed
+    ? intake
+    : {
+        read_model_version: intake?.read_model_version ?? '1.0.0',
+        state: intake?.state ?? 'live_read_unavailable',
+        available: false,
+        binding_count: null,
+        snapshot_count: null,
+        component_count: null,
+        projection_run_count: null,
+        projection_result_count: null,
+        replay_receipt_count: null,
+        records: [],
+        error_code: intake?.error_code ?? 'live_read_unavailable'
+      };
+  const hasDurableIntake = observed && normalizedIntake.binding_count > 0;
+  const civilGenomeState = hasDurableIntake
+    ? 'accepted_durable_no_projection'
+    : normalizedIntake.state;
+  const updatedCapabilities = hasDurableIntake
+    ? capabilities(derivedRuntimeState(), normalizedIntake)
+    : sourceBasis.capabilities;
+  const dynamicReceipt = hasDurableIntake
+    ? {
+        receipt_id: 'civic_genome_durable_intake.live.v1',
+        label: 'Civic Genome durable intake — live read-only state',
+        state: 'accepted_durable_no_projection',
+        binding_count: normalizedIntake.binding_count,
+        snapshot_count: normalizedIntake.snapshot_count,
+        component_count: normalizedIntake.component_count,
+        projection_run_count: normalizedIntake.projection_run_count,
+        projection_result_count: normalizedIntake.projection_result_count,
+        replay_receipt_count: normalizedIntake.replay_receipt_count,
+        source_snapshot_hash: normalizedIntake.records[0]?.snapshot_hash ?? null,
+        persisted: true,
+        projection_executed: normalizedIntake.projection_run_count > 0
+      }
+    : null;
+  const basis = {
+    ...sourceBasis,
+    truth_label: hasDurableIntake
+      ? `Staging workspace — source-controlled examples plus ${normalizedIntake.binding_count} accepted append-only Civic Genome input binding${normalizedIntake.binding_count === 1 ? '' : 's'}; no official Kaleidoscope projection is claimed.`
+      : sourceBasis.truth_label,
+    summary: {
+      ...sourceBasis.summary,
+      accepted_civic_genome_bindings: observed ? normalizedIntake.binding_count : sourceBasis.summary.accepted_civic_genome_bindings,
+      civic_genome_durable_snapshots: observed ? normalizedIntake.snapshot_count : sourceBasis.summary.civic_genome_durable_snapshots,
+      civic_genome_durable_components: observed ? normalizedIntake.component_count : sourceBasis.summary.civic_genome_durable_components
+    },
+    capabilities: updatedCapabilities,
+    civic_genome_durable_intake: normalizedIntake,
+    database_substrate: {
+      ...sourceBasis.database_substrate,
+      live_civic_genome_durable_intake_state: civilGenomeState,
+      live_civic_genome_durable_binding_count: observed ? normalizedIntake.binding_count : null,
+      live_civic_genome_durable_snapshot_count: observed ? normalizedIntake.snapshot_count : null
+    },
+    platform_contracts: hasDurableIntake
+      ? platformContracts(normalizedIntake)
+      : sourceBasis.platform_contracts,
+    receipts: dynamicReceipt
+      ? [...sourceBasis.receipts, dynamicReceipt]
+      : sourceBasis.receipts,
+    system_boundary: {
+      ...sourceBasis.system_boundary,
+      civic_genome_durable_intake_state: civilGenomeState,
+      civic_genome_durable_binding_count: observed ? normalizedIntake.binding_count : null,
+      civic_genome_durable_snapshot_count: observed ? normalizedIntake.snapshot_count : null,
+      civic_genome_durable_component_count: observed ? normalizedIntake.component_count : null,
+      civic_genome_projection_run_count: observed ? normalizedIntake.projection_run_count : null,
+      civic_genome_projection_result_count: observed ? normalizedIntake.projection_result_count : null,
+      civic_genome_replay_receipt_count: observed ? normalizedIntake.replay_receipt_count : null
+    }
+  };
+  return {
+    ...basis,
+    read_model_hash: sha256Hex(basis)
+  };
+}
+
 async function textAsset(asset) {
   const body = await readFile(new URL(asset.file, import.meta.url), 'utf8');
   return {
@@ -652,7 +796,7 @@ async function textAsset(asset) {
   };
 }
 
-export async function resolveKaleidoscopePlatformFrontendRequest(pathname) {
+export async function resolveKaleidoscopePlatformFrontendRequest(pathname, platformModel = null) {
   if (pathname === KALEIDOSCOPE_APP_PATH || pathname === `${KALEIDOSCOPE_APP_PATH}/`) {
     return {
       ...(await textAsset(HTML_ASSET)),
@@ -672,7 +816,7 @@ export async function resolveKaleidoscopePlatformFrontendRequest(pathname) {
     return {
       statusCode: 200,
       contentType: 'application/json; charset=utf-8',
-      body: JSON.stringify(canonicalValue(kaleidoscopePlatformReadModel())),
+      body: JSON.stringify(canonicalValue(platformModel ?? kaleidoscopePlatformReadModel())),
       cacheControl: 'no-store',
       headers: { 'x-content-type-options': 'nosniff' }
     };

@@ -5,6 +5,7 @@ import {
   KALEIDOSCOPE_APP_PATH,
   KALEIDOSCOPE_APP_READ_MODEL_PATH,
   KALEIDOSCOPE_APP_FRONTEND_VERSION,
+  applyCivicGenomeDurableIntake,
   kaleidoscopePlatformReadModel,
   resolveKaleidoscopePlatformFrontendRequest
 } from '../src/platform-frontend-shell.mjs';
@@ -18,8 +19,8 @@ test('builds one deterministic platform read model over both bounded examples', 
   assert.equal(model.platform, 'kaleidoscope');
   assert.equal(model.environment, 'staging');
   assert.equal(model.frontend_version, KALEIDOSCOPE_APP_FRONTEND_VERSION);
-  assert.equal(model.frontend_version, '1.3.0');
-  assert.equal(model.read_model_version, '1.3.0');
+  assert.equal(model.frontend_version, '1.4.0');
+  assert.equal(model.read_model_version, '1.4.0');
   assert.equal(model.deterministic, true);
   assert.equal(model.summary.active_source_artifacts, 41);
   assert.equal(model.summary.scenario_count, 2);
@@ -27,9 +28,54 @@ test('builds one deterministic platform read model over both bounded examples', 
   assert.equal(model.summary.lens_count, 7);
   assert.equal(model.summary.preserved_collision_count, 5);
   assert.equal(model.summary.accepted_civic_genome_bindings, 0);
+  assert.equal(model.summary.civic_genome_durable_snapshots, 0);
+  assert.equal(model.summary.civic_genome_durable_components, 0);
   assert.equal(model.summary.database_tables, 36);
   assert.equal(model.summary.database_rows, 0);
   assert.equal(model.summary.database_migrations, 5);
+
+  const { read_model_hash: observedHash, ...basis } = model;
+  assert.equal(observedHash, sha256Hex(basis));
+});
+
+test('overlays accepted Civic Genome durable intake without claiming a canonical projection', () => {
+  const model = applyCivicGenomeDurableIntake(kaleidoscopePlatformReadModel(), {
+    read_model_version: '1.0.0',
+    state: 'durable_intake_active',
+    available: true,
+    binding_count: 3,
+    snapshot_count: 3,
+    component_count: 32,
+    projection_run_count: 0,
+    projection_result_count: 0,
+    replay_receipt_count: 0,
+    error_code: null,
+    records: [{
+      external_snapshot_id: 'cg-family-snapshot-2ddd949cf353a1623f0002b593f0151c',
+      snapshot_hash: '6c686159fc70c57384a760e66bc6a59338a2df6a3506d5cad73129aab53a6709',
+      verification_state: 'mapped_by_declared_rule',
+      bound_at: '2026-08-21T20:41:09.491699Z',
+      snapshot_kind: 'baseline',
+      as_of_date: '2026-08-21',
+      created_at: '2026-08-21T20:41:09.952698Z',
+      component_count: 11
+    }]
+  });
+
+  assert.equal(model.summary.accepted_civic_genome_bindings, 3);
+  assert.equal(model.summary.civic_genome_durable_snapshots, 3);
+  assert.equal(model.summary.civic_genome_durable_components, 32);
+  assert.equal(model.summary.database_rows, 0);
+  assert.equal(model.civic_genome_durable_intake.state, 'durable_intake_active');
+  assert.equal(model.platform_contracts.find((entry) => entry.platform_id === 'civic_genome').state, 'accepted_durable_no_projection');
+  assert.equal(model.capabilities.find((entry) => entry.capability_id === 'civic_genome_snapshot_validation').state, 'accepted_durable_no_projection');
+  assert.equal(model.capabilities.find((entry) => entry.capability_id === 'projection_substrate').state, 'durable_intake_active');
+  assert.equal(model.capabilities.find((entry) => entry.capability_id === 'canonical_projection_persistence').state, 'runtime_not_bound');
+  assert.equal(model.system_boundary.civic_genome_projection_run_count, 0);
+  assert.equal(model.system_boundary.civic_genome_projection_result_count, 0);
+  assert.equal(model.system_boundary.civic_genome_replay_receipt_count, 0);
+  assert.equal(model.receipts.length, 6);
+  assert.equal(model.receipts.at(-1).receipt_id, 'civic_genome_durable_intake.live.v1');
 
   const { read_model_hash: observedHash, ...basis } = model;
   assert.equal(observedHash, sha256Hex(basis));
@@ -181,6 +227,7 @@ test('serves the citizen-first HTML with strict self-only browser boundaries', a
   assert.equal(response.statusCode, 200);
   assert.equal(response.contentType, 'text/html; charset=utf-8');
   assert.match(response.body, /See exactly what changes when civic rules change/);
+  assert.match(response.body, /Current Civic Genome durable intake/);
   assert.match(response.body, /Who owns what information/);
   assert.match(response.body, /What this page can claim/);
   assert.doesNotMatch(response.body, /Run scenario/i);
@@ -199,6 +246,8 @@ test('serves browser assets without dynamic HTML injection primitives', async ()
   assert.doesNotMatch(js.body, /innerHTML/);
   assert.doesNotMatch(js.body, /eval\(/);
   assert.match(js.body, /\/v1\/platform\/read-model/);
+  assert.match(js.body, /accepted Civic Genome source binding/);
+  assert.match(js.body, /Not executed/);
 
   assert.equal(css.statusCode, 200);
   assert.match(css.body, /@media \(max-width: 900px\)/);
