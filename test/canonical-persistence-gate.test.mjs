@@ -50,7 +50,9 @@ test('current deterministic specimen remains fail-closed even with matching revi
   assert.equal(gate.write_authorized, false);
   assert.ok(gate.blocker_reasons.includes('projection_claim_state_not_canonical_fact'));
   assert.ok(gate.blocker_reasons.includes('plan_does_not_authorize_live_write'));
-  assert.ok(gate.blocker_reasons.includes('collision_lens_result_foreign_key_mapping_not_declared'));
+  assert.ok(gate.blocker_reasons.includes('runtime_database_transport_not_bound'));
+  assert.equal(gate.blocker_reasons.includes('collision_lens_result_foreign_key_mapping_not_declared'), false);
+  assert.equal(gate.blocker_reasons.includes('projection_run_event_emission_contract_not_declared'), false);
 });
 
 test('missing authorization blocks an otherwise structurally ready plan', () => {
