@@ -1,7 +1,11 @@
 import { executeProject2025VerticalSlice } from './project2025-vertical-slice.mjs';
 import { sha256Hex } from './hash.mjs';
+import {
+  buildProjectionRunEventContracts,
+  mapCollisionLensResultContracts
+} from './projection-persistence-contracts.mjs';
 
-export const PERSISTENCE_PLAN_VERSION = '1.1.0';
+export const PERSISTENCE_PLAN_VERSION = '1.2.0';
 export const PERSISTENCE_TARGET_SCHEMA = 'kaleidoscope';
 
 const TARGET_TABLES = [
@@ -159,11 +163,15 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     .filter((sourceArtifactId) => !componentBoundArtifactIds.has(sourceArtifactId))
     .sort();
 
-  const blockers = [
-    'runtime_database_transport_not_bound',
-    'collision_lens_result_foreign_key_mapping_not_declared',
-    'projection_run_event_emission_contract_not_declared'
-  ];
+  const collisionLensResultLinks = mapCollisionLensResultContracts({
+    collisions: bundle.collisions,
+    lensResults: bundle.lens_results
+  });
+  const projectionRunEvents = buildProjectionRunEventContracts({
+    bundle,
+    runStatus: bundle.unresolved_conditions.length === 0 ? 'completed' : 'unresolved'
+  });
+  const blockers = ['runtime_database_transport_not_bound'];
   if (bundle.projection_claim_state !== 'canonical_fact') {
     blockers.push('projection_claim_state_not_authorized_for_canonical_persistence');
   }
@@ -206,15 +214,11 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     tablePlan('cross_lens_collision', 'blocked_dependency', bundle.collisions.length, ['projection_run'], [
       'projection_run_not_authorized'
     ]),
-    tablePlan('collision_lens_result', 'blocked_contract_gap', 0, ['cross_lens_collision', 'lens_result'], [
-      'effect_to_lens_result_foreign_key_mapping_not_declared'
-    ]),
+    tablePlan('collision_lens_result', 'structurally_mappable_unpersisted', collisionLensResultLinks.length, ['cross_lens_collision', 'lens_result']),
     tablePlan('replay_receipt', 'blocked_dependency', 1, ['projection_run'], [
       'projection_run_not_authorized'
     ]),
-    tablePlan('projection_run_event', 'blocked_contract_gap', 0, ['projection_run', 'scenario'], [
-      'projection_event_emission_contract_not_declared'
-    ]),
+    tablePlan('projection_run_event', 'structurally_mappable_unpersisted', projectionRunEvents.length, ['projection_run', 'scenario']),
     ...['federal_mechanism','mechanism_authority','implementation_event','implementation_edge','state_baseline','material_claim','claim_source','projection_result','response_pathway','constraint_determination','response_window','pathway_score','no_go_path','watch_event','affected_population_coverage','correction_record']
       .map((table) => tablePlan(table, 'blocked_state_response_input_not_accepted', 0, [], ['state_response_fixture_missing_primary_sources']))
   ];
@@ -238,6 +242,8 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     read_model_hash: readModel.read_model_hash,
     execution_receipt_hash: receipt.receipt_hash,
     source_artifacts: sourceArtifacts,
+    collision_lens_result_links: collisionLensResultLinks,
+    projection_run_events: projectionRunEvents,
     direct_custody: {
       source_artifact_count: sourceArtifacts.length,
       snapshot_artifact_link_count: snapshotArtifactLinkCount,

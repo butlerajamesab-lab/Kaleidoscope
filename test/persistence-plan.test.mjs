@@ -32,7 +32,7 @@ function artifactUsage(snapshot) {
 
 test('builds an exact deterministic persistence plan without database credentials or writes', () => {
   const plan = build();
-  assert.equal(plan.persistence_plan_version, '1.1.0');
+  assert.equal(plan.persistence_plan_version, '1.2.0');
   assert.equal(plan.adapter_state, 'deterministic_dry_run_mapping_only');
   assert.equal(plan.target_schema, 'kaleidoscope');
   assert.equal(plan.source_manifest_id, 'kaleidoscope_source_pack_2026_08_03_v3');
@@ -106,10 +106,12 @@ test('maps structurally available records while blocking canonical projection pe
   assert.equal(projectionRun.mapping_state, 'blocked_authorization');
   assert.ok(projectionRun.unresolved_conditions.includes('projection_claim_state_not_authorized_for_canonical_persistence'));
   assert.ok(plan.blockers.includes('runtime_database_transport_not_bound'));
-  assert.ok(plan.blockers.includes('collision_lens_result_foreign_key_mapping_not_declared'));
-  assert.ok(plan.blockers.includes('projection_run_event_emission_contract_not_declared'));
-  assert.equal(collisionLinks.mapping_state, 'blocked_contract_gap');
-  assert.equal(collisionLinks.candidate_record_count, 0);
+  assert.equal(plan.blockers.includes('collision_lens_result_foreign_key_mapping_not_declared'), false);
+  assert.equal(plan.blockers.includes('projection_run_event_emission_contract_not_declared'), false);
+  assert.equal(collisionLinks.mapping_state, 'structurally_mappable_unpersisted');
+  assert.equal(collisionLinks.candidate_record_count, plan.collision_lens_result_links.length);
+  assert.equal(plan.collision_lens_result_links.length, fixture.collision_rules.length * 2);
+  assert.deepEqual(plan.projection_run_events.map((event) => event.event_type), ['started', 'unresolved']);
 });
 
 test('rejects a source artifact that is not present in the governed source manifest', () => {
