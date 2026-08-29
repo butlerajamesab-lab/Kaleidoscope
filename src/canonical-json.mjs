@@ -9,7 +9,9 @@ function normalize(value, path = '$') {
   if (UNSUPPORTED.has(typeof value)) throw new TypeError(`Unsupported ${typeof value} at ${path}`);
   if (Array.isArray(value)) return value.map((item, index) => normalize(item, `${path}[${index}]`));
   if (typeof value === 'object') {
-    const output = {};
+    // A normal object treats "__proto__" assignment as a prototype mutation,
+    // which would silently omit an own input key from canonical JSON and hashes.
+    const output = Object.create(null);
     for (const key of Object.keys(value).sort()) {
       if (typeof value[key] === 'undefined') throw new TypeError(`Undefined value at ${path}.${key}`);
       output[key] = normalize(value[key], `${path}.${key}`);
