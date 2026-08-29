@@ -91,6 +91,26 @@ test('authorization is bound to the exact plan hash and expiry', () => {
   ]);
 });
 
+test('rejects authorization timestamps without an explicit timezone', () => {
+  const plan = currentPlan();
+  assert.throws(
+    () => evaluateCanonicalPersistenceGate({
+      plan,
+      authorization: authorization(plan, { expires_at: '2026-08-30T00:00:00' }),
+      now: new Date('2026-08-29T00:00:00.000Z')
+    }),
+    /timezone_required_expiry/
+  );
+  assert.throws(
+    () => evaluateCanonicalPersistenceGate({
+      plan,
+      authorization: authorization(plan),
+      now: '2026-08-29T00:00:00'
+    }),
+    /timezone_required_now/
+  );
+});
+
 test('blocked execution never invokes the database transport', async () => {
   const plan = currentPlan();
   let calls = 0;

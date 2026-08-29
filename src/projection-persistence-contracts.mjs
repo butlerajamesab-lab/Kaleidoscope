@@ -37,9 +37,12 @@ export function mapCollisionLensResultContracts({ collisions, lensResults }) {
   if (!Array.isArray(collisions)) fail('array_required', 'collisions');
   const owners = effectOwners(lensResults);
   const links = [];
+  const collisionIds = new Set();
   for (const collisionValue of collisions) {
     const collision = record(collisionValue, 'collision');
     const collisionId = text(collision.collision_id, 'collision.collision_id');
+    if (collisionIds.has(collisionId)) fail('duplicate_collision_id', collisionId);
+    collisionIds.add(collisionId);
     const leftEffectId = text(collision.left_effect_id, `${collisionId}.left_effect_id`);
     const rightEffectId = text(collision.right_effect_id, `${collisionId}.right_effect_id`);
     const leftLensId = owners.get(leftEffectId);
@@ -75,10 +78,14 @@ export function buildProjectionRunEventContracts({ bundle, runStatus }) {
     input_hash: text(projection.input_hash, 'bundle.input_hash')
   };
   const startedPayload = { ...common, transition: 'pending_to_started' };
+  const outputHash = projection.projection_bundle_hash == null
+    ? null
+    : text(projection.projection_bundle_hash, 'bundle.projection_bundle_hash');
+  if (terminalEvent !== 'failed' && outputHash === null) fail('terminal_output_hash_required', terminalEvent);
   const terminalPayload = {
     ...common,
     transition: `started_to_${terminalEvent}`,
-    output_hash: text(projection.projection_bundle_hash, 'bundle.projection_bundle_hash'),
+    output_hash: outputHash,
     unresolved_conditions: [...new Set(projection.unresolved_conditions ?? [])].sort()
   };
   return [

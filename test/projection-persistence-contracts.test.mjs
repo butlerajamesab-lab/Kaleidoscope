@@ -72,6 +72,15 @@ test('fails closed when a collision references an effect that no lens emitted', 
   );
 });
 
+test('rejects duplicate collision identifiers before emitting ambiguous links', () => {
+  const { bundle } = execution();
+  const collisions = [bundle.collisions[0], structuredClone(bundle.collisions[0])];
+  assert.throws(
+    () => mapCollisionLensResultContracts({ collisions, lensResults: bundle.lens_results }),
+    /duplicate_collision_id/
+  );
+});
+
 test('emits exactly one started event and one terminal event with stable hashes', () => {
   const { bundle } = execution();
   const first = buildProjectionRunEventContracts({ bundle, runStatus: 'unresolved' });
@@ -87,5 +96,27 @@ test('rejects non-terminal run status', () => {
   assert.throws(
     () => buildProjectionRunEventContracts({ bundle, runStatus: 'started' }),
     /invalid_terminal_run_status:started/
+  );
+});
+
+test('failed terminal event permits a null output hash', () => {
+  const { bundle } = execution();
+  const failedBundle = { ...bundle, projection_bundle_hash: null };
+  const events = buildProjectionRunEventContracts({ bundle: failedBundle, runStatus: 'failed' });
+  assert.equal(events[1].event_type, 'failed');
+  assert.equal(events[1].event_payload.output_hash, null);
+  assert.match(events[1].event_hash, /^[0-9a-f]{64}$/);
+});
+
+test('completed and unresolved events require an output hash', () => {
+  const { bundle } = execution();
+  const noOutput = { ...bundle, projection_bundle_hash: null };
+  assert.throws(
+    () => buildProjectionRunEventContracts({ bundle: noOutput, runStatus: 'completed' }),
+    /terminal_output_hash_required:completed/
+  );
+  assert.throws(
+    () => buildProjectionRunEventContracts({ bundle: noOutput, runStatus: 'unresolved' }),
+    /terminal_output_hash_required:unresolved/
   );
 });

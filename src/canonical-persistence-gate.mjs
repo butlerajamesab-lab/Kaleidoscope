@@ -22,6 +22,20 @@ function hash(value, label) {
   return observed;
 }
 
+function instant(value, label) {
+  if (value instanceof Date) {
+    if (!Number.isFinite(value.getTime())) fail(`invalid_${label}`);
+    return value;
+  }
+  const observed = text(value, label);
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(observed)) {
+    fail(`timezone_required_${label}`);
+  }
+  const parsed = new Date(observed);
+  if (!Number.isFinite(parsed.getTime())) fail(`invalid_${label}`);
+  return parsed;
+}
+
 function verifyPlanIntegrity(plan) {
   const claimedHash = hash(plan.persistence_plan_hash, 'plan.persistence_plan_hash');
   const { persistence_plan_hash: _ignored, ...basis } = plan;
@@ -62,10 +76,8 @@ export function evaluateCanonicalPersistenceGate({ plan, authorization = null, n
     if (hash(authority.persistence_plan_hash, 'authorization.persistence_plan_hash') !== planHash) {
       reasons.add('authorization_plan_hash_mismatch');
     }
-    const expiresAt = new Date(text(authority.expires_at, 'authorization.expires_at'));
-    if (!Number.isFinite(expiresAt.getTime())) fail('invalid_expiry');
-    const observedNow = now instanceof Date ? now : new Date(now);
-    if (!Number.isFinite(observedNow.getTime())) fail('invalid_now');
+    const expiresAt = instant(authority.expires_at, 'expiry');
+    const observedNow = instant(now, 'now');
     if (expiresAt.getTime() <= observedNow.getTime()) reasons.add('authorization_expired');
   }
 
