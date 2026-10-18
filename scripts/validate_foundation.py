@@ -6,6 +6,8 @@ import re
 import sys
 from pathlib import Path
 
+from foundation_integrity import all_causal_claims_unasserted, deployment_identity_mismatches
+
 ROOT = Path(__file__).resolve().parents[1]
 HEX64 = re.compile(r'^[0-9a-f]{64}$')
 
@@ -138,7 +140,7 @@ if components.get('affected localities: 13 cities plus unincorporated Johnson Co
     fail('Iowa locality-count correction missing')
 
 relations = fixture.get('relationships', [])
-if not any(row.get('relationship_type') == 'produces_similar_effect' and row.get('causal_claim_state') == 'not_asserted' for row in relations):
+if not any(row.get('relationship_type') == 'produces_similar_effect' for row in relations) or not all_causal_claims_unasserted(relations):
     fail('non-causal Iowa/federal relationship discipline missing')
 if not any(row.get('target_id') == 'P25-PREEMPT-FAMILY-01' for row in relations):
     fail('Iowa/preemption-family binding missing')
@@ -154,7 +156,7 @@ member_states = {row.get('jurisdiction'): row.get('mechanism_state') for row in 
 expected_members = {'Tennessee':'operative','Arkansas':'operative','North Carolina':'historical_expired','Texas':'contested_litigation','Iowa':'operative'}
 if member_states != expected_members:
     fail('preemption-family member state is incomplete or drifted')
-if not any(row.get('causal_claim_state') == 'not_asserted' for row in preemption.get('relationships', [])):
+if not all_causal_claims_unasserted(preemption.get('relationships', [])):
     fail('preemption-family anti-coordination discipline missing')
 
 contracts = load('contracts/foundation-contracts.v1.json')
@@ -271,8 +273,9 @@ if runtime_receipt.get('deployment_state') != 'live':
     fail('Kaleidoscope runtime deployment receipt is not live')
 if runtime_receipt.get('runtime_version') != '0.1.4':
     fail('Kaleidoscope runtime deployment receipt version drifted')
-if runtime_receipt.get('render', {}).get('deploy_id') != receipt.get('render_deploy_id'):
-    fail('Kaleidoscope runtime deployment receipt does not match foundation receipt')
+mismatches = deployment_identity_mismatches(receipt, runtime_receipt)
+if mismatches:
+    fail('Kaleidoscope runtime deployment receipt does not match foundation receipt: ' + ', '.join(mismatches))
 if runtime_receipt.get('capability_state', {}).get('civic_genome_binding_contract_state') != 'defined_unbound':
     fail('Kaleidoscope runtime receipt overstates Civic Genome binding state')
 if runtime_receipt.get('capability_state', {}).get('projection_state') != 'not_operational':
