@@ -137,6 +137,42 @@ test('accepts a fully hashed immutable Civic Genome snapshot and binding', () =>
   assert.equal(assertCivicGenomeSnapshotBinding(binding, source), binding);
 });
 
+test('rejects a fully rehashed source snapshot with no verification evidence', () => {
+  const source = sourceSnapshot();
+  const component = source.components[0];
+  component.source_verification = [];
+  component.component_hash = sha256Hex(civicGenomeSourceComponentHashBasis(component));
+  source.snapshot_hash = sha256Hex(civicGenomeSourceSnapshotHashBasis(source));
+  source.export_receipt.snapshot_hash = source.snapshot_hash;
+  source.export_receipt.deterministic_replay_key = sha256Hex({
+    contract_id: source.contract_id,
+    contract_version: source.contract_version,
+    snapshot_id: source.snapshot_id,
+    snapshot_hash: source.snapshot_hash,
+    methodology_version: source.methodology_version
+  });
+  source.export_receipt.export_receipt_id =
+    `cg-export-${source.export_receipt.deterministic_replay_key.slice(0, 32)}`;
+  source.export_receipt.export_receipt_hash = sha256Hex(civicGenomeExportReceiptHashBasis(source));
+  assert.throws(() => assertCivicGenomeSourceSnapshot(source), /component_source_verification_required/);
+});
+
+test('rejects missing or substituted source-native verification in accepted binding', () => {
+  const source = sourceSnapshot();
+  const withoutEvidence = bindingFor(source);
+  withoutEvidence.component_manifest[0].source_verification = [];
+  assert.throws(
+    () => assertCivicGenomeSnapshotBinding(withoutEvidence, source),
+    /binding_source_verification_required/
+  );
+  const changedEvidence = bindingFor(source);
+  changedEvidence.component_manifest[0].source_verification[0].state = 'unverified';
+  assert.throws(
+    () => assertCivicGenomeSnapshotBinding(changedEvidence, source),
+    /binding_source_verification_mismatch/
+  );
+});
+
 test('rejects a modified component that retains the original hashes and receipt', () => {
   const source = sourceSnapshot();
   const modified = structuredClone(source);
