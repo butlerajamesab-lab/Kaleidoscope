@@ -109,6 +109,49 @@ test('prohibits numeric judgment weights and scores in the Stage 3 manifest', ()
   );
 });
 
+test('classification manifest identity must match the published Stage 3 output contract', () => {
+  const altered = structuredClone(classificationManifest);
+  altered.manifest_id = 'invented.valid-looking.manifest';
+  assert.throws(
+    () => buildLegislativeImpactSurface(legislativeConsequenceFixture, altered),
+    /manifest_id_mismatch/
+  );
+});
+
+test('deferrals are restricted to reserved Stage 4 historical analogues', () => {
+  const badReason = structuredClone(classificationManifest);
+  const historical = badReason.classifications.find((row) => row.disposition === 'defer');
+  assert.ok(historical);
+  historical.defer_reason = 'defer_until_later';
+  assert.throws(
+    () => buildLegislativeImpactSurface(legislativeConsequenceFixture, badReason),
+    /invalid_stage_4_historical_deferral/
+  );
+
+  const nonHistorical = structuredClone(classificationManifest);
+  const included = nonHistorical.classifications.find((row) => row.disposition === 'include');
+  assert.ok(included);
+  included.disposition = 'defer';
+  included.effect_classes = [];
+  included.defer_reason = 'historical_comparison_reserved_for_stage_4_atlas';
+  assert.throws(
+    () => buildLegislativeImpactSurface(legislativeConsequenceFixture, nonHistorical),
+    /invalid_stage_4_historical_deferral/
+  );
+});
+
+test('derived, nested and camel-case judgment score keys cannot enter the Stage 3 manifest', () => {
+  for (const key of ['impact_score', 'confidence_score', 'riskScore', 'weightedRisk', 'probability_value']) {
+    const altered = structuredClone(classificationManifest);
+    altered.classifications[0].metadata = { [key]: 0.92 };
+    assert.throws(
+      () => buildLegislativeImpactSurface(legislativeConsequenceFixture, altered),
+      /numeric_judgment_key_prohibited/,
+      key
+    );
+  }
+});
+
 test('replay produces identical impact and receipt identities', () => {
   const first = buildLegislativeImpactSurface(legislativeConsequenceFixture, classificationManifest);
   const second = buildLegislativeImpactSurface(legislativeConsequenceFixture, classificationManifest);
