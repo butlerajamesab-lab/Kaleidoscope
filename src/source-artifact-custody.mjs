@@ -72,7 +72,7 @@ export function buildSourceArtifactCustodyManifest(sourceManifest) {
   const manifest = canonicalValue(record(sourceManifest, 'source_manifest'));
   const entries = array(manifest.entries, 'source_manifest.entries');
   const custodyRecords = entries.map((entry) => buildSourceArtifactCustodyRecord(manifest, entry));
-  custodyRecords.sort((a, b) => a.source_artifact_id.localeCompare(b.source_artifact_id));
+  custodyRecords.sort((a, b) => (a.source_artifact_id < b.source_artifact_id ? -1 : a.source_artifact_id > b.source_artifact_id ? 1 : 0));
 
   const ids = custodyRecords.map((entry) => entry.source_artifact_id);
   if (new Set(ids).size !== ids.length) fail('duplicate_source_artifact_id');
@@ -91,6 +91,24 @@ export function buildSourceArtifactCustodyManifest(sourceManifest) {
 
 export function assertSourceArtifactCustodyRecord(custodyRecord) {
   const row = canonicalValue(record(custodyRecord, 'custody_record'));
+  // Keep this validator aligned to the exact published closed JSON schema.
+  // An unkeyed custody hash alone cannot prove that its basis was valid.
+  const keys = [
+    'custody_contract_version', 'custody_record_kind', 'custody_manifest_id',
+    'source_artifact_id', 'source_file_name', 'sha256', 'byte_length',
+    'source_role', 'source_use_state', 'custody_scope', 'content_owner_state',
+    'upstream_binding_state', 'upstream_platform', 'upstream_object_type',
+    'upstream_object_id', 'no_upstream_ownership_inference', 'custody_hash'
+  ];
+  if (Object.keys(row).length !== keys.length || keys.some((key) => !Object.hasOwn(row, key))) {
+    fail('record_fields_mismatch');
+  }
+  for (const key of ['custody_manifest_id', 'source_artifact_id', 'source_file_name', 'source_role', 'source_use_state']) {
+    string(row[key], key);
+  }
+  if (typeof row.sha256 !== 'string' || !/^[0-9a-f]{64}$/.test(row.sha256)) fail('sha256_required');
+  if (typeof row.custody_hash !== 'string' || !/^[0-9a-f]{64}$/.test(row.custody_hash)) fail('custody_hash_required');
+  if (!Number.isSafeInteger(row.byte_length) || row.byte_length < 0) fail('byte_length_required');
   if (row.custody_contract_version !== '1.0.0') fail('custody_version_mismatch');
   if (row.custody_record_kind !== 'source_artifact_custody') fail('custody_kind_mismatch');
   if (row.custody_scope !== 'artifact_identity_and_provenance_only') fail('custody_scope_mismatch');
