@@ -32,6 +32,27 @@ test('produces exact deterministic replay identities', () => {
   assert.equal(second.read_model.read_model_hash, first.read_model.read_model_hash);
 });
 
+test('cannot execute a governed slice with fewer than three declared lenses', () => {
+  const changed = structuredClone(fixture);
+  changed.lens_ids = changed.lens_ids.slice(0, 2);
+  const selectedManifests = manifests.filter((lens) => changed.lens_ids.includes(lens.lens_id));
+  assert.equal(selectedManifests.length, 2);
+  assert.throws(
+    () => executeProject2025VerticalSlice(changed, selectedManifests),
+    /minimum_three_lenses_required/
+  );
+});
+
+test('cannot emit a contract-invalid empty mechanism read model', () => {
+  const changed = structuredClone(fixture);
+  changed.mechanisms = [];
+  changed.relationships = [];
+  assert.throws(
+    () => executeProject2025VerticalSlice(changed, manifests),
+    /mechanism_required/
+  );
+});
+
 test('treats Rosetta not_run as a valid neutral upstream state when not required', () => {
   const result = executeProject2025VerticalSlice(fixture, manifests);
   assert.equal(result.bundle.upstream_processing.rosetta.state, 'not_run');

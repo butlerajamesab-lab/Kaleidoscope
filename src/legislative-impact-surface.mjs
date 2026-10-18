@@ -9,7 +9,14 @@ export const LEGISLATIVE_IMPACT_SURFACE_ENGINE_VERSION = '1.0.0';
 
 const EFFECT_CLASSES = new Set(['legal', 'operational', 'economic', 'administrative']);
 const DISPOSITIONS = new Set(['include', 'defer']);
-const PROHIBITED_NUMERIC_KEYS = new Set(['weight', 'score', 'probability', 'risk_score']);
+const IMPACT_MANIFEST_ID = 'legislative_consequence_impact_surface_classification.v1';
+const STAGE_4_DEFER_REASON = 'historical_comparison_reserved_for_stage_4_atlas';
+
+function prohibitedJudgmentKey(key) {
+  if (key === 'no_numeric_weights') return false;
+  const normalized = key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/-/g, '_').toLowerCase();
+  return /(?:^|_)(?:weight|weights|score|scores|probability|probabilities|risk)(?:_|$)/.test(normalized);
+}
 
 function fail(code, detail = '') {
   throw new Error(`invalid_legislative_impact_surface:${code}${detail ? `:${detail}` : ''}`);
@@ -43,7 +50,7 @@ function assertNoNumericJudgment(value, path = '$') {
   }
   if (!value || typeof value !== 'object') return;
   for (const [key, entry] of Object.entries(value)) {
-    if (PROHIBITED_NUMERIC_KEYS.has(key)) fail('numeric_judgment_key_prohibited', `${path}.${key}`);
+    if (prohibitedJudgmentKey(key)) fail('numeric_judgment_key_prohibited', `${path}.${key}`);
     assertNoNumericJudgment(entry, `${path}.${key}`);
   }
 }
@@ -64,13 +71,15 @@ function validateClassificationManifest(manifest, fixture) {
   const source = canonicalValue(record(manifest, 'classification_manifest'));
   if (source.manifest_version !== '1.0.0') fail('manifest_version_mismatch');
   string(source.manifest_id, 'manifest_id');
+  if (source.manifest_id !== IMPACT_MANIFEST_ID) fail('manifest_id_mismatch');
   if (source.scenario_id !== fixture.source_bundle.scenario_id) fail('manifest_scenario_mismatch');
   if (source.source_graph_id !== fixture.consequence_graph.graph_id) fail('manifest_graph_mismatch');
   if (source.no_numeric_weights !== true) fail('manifest_numeric_weight_prohibition_missing');
   if (source.no_new_causal_claims !== true) fail('manifest_causal_prohibition_missing');
   assertNoNumericJudgment(source);
 
-  const graphEdgeIds = new Set(fixture.consequence_graph.edges.map((edge) => edge.edge_id));
+  const graphEdges = new Map(fixture.consequence_graph.edges.map((edge) => [edge.edge_id, edge]));
+  const graphEdgeIds = new Set(graphEdges.keys());
   const classifications = array(source.classifications, 'classifications');
   if (classifications.length !== graphEdgeIds.size) fail('manifest_must_classify_every_edge');
   const seen = new Set();
@@ -90,6 +99,10 @@ function validateClassificationManifest(manifest, fixture) {
     if (row.disposition === 'defer') {
       if (classes.length !== 0) fail('deferred_edge_must_not_classify_effect', edgeId);
       string(row.defer_reason, 'classification.defer_reason');
+      if (graphEdges.get(edgeId).relationship_type !== 'historical_analogue'
+        || row.defer_reason !== STAGE_4_DEFER_REASON) {
+        fail('invalid_stage_4_historical_deferral', edgeId);
+      }
     } else if ('defer_reason' in row) {
       fail('included_edge_must_not_have_defer_reason', edgeId);
     }
