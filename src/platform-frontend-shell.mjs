@@ -390,7 +390,7 @@ function capabilities(derived, civicGenomeIntake = null) {
       state: hasDurableCivicGenomeIntake ? 'durable_intake_active' : 'applied_empty_unbound',
       detail: hasDurableCivicGenomeIntake
         ? `The governed substrate has ${civicGenomeBindingCount} accepted Civic Genome input binding${civicGenomeBindingCount === 1 ? '' : 's'} and ${civicGenomeSnapshotCount} immutable snapshot${civicGenomeSnapshotCount === 1 ? '' : 's'} in append-only storage. Projection remains unexecuted: ${projectionRunCount} runs, ${projectionResultCount} results, and ${replayReceiptCount} replay receipts.`
-        : `The source-controlled Kaleidoscope receipt contains ${substrateReceipt.schema.table_count} RLS-enabled truth-bearing tables, ${substrateReceipt.schema.function_count} governed functions, ${substrateReceipt.schema.trigger_count} append-only triggers, and ${substrateReceipt.live_migrations.length} applied migrations. All represented tables remain empty.`
+        : `The source-controlled Kaleidoscope receipt contains ${substrateReceipt.schema.table_count} RLS-enabled truth-bearing tables, ${substrateReceipt.schema.function_count} governed functions, ${substrateReceipt.schema.trigger_count} database triggers (including append-only mutation guards), and ${substrateReceipt.live_migrations.length} applied migrations. All represented tables remain empty.`
     },
     {
       capability_id: 'canonical_projection_persistence',
