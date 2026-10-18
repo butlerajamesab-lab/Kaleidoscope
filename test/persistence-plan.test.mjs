@@ -99,7 +99,18 @@ test('maps structurally available records while blocking canonical projection pe
   const projectionRun = plan.table_plan.find((entry) => entry.table === 'projection_run');
   const collisionLinks = plan.table_plan.find((entry) => entry.table === 'collision_lens_result');
 
-  assert.equal(snapshots.mapping_state, 'structurally_mappable_unpersisted');
+  assert.equal(snapshots.mapping_state, 'blocked_missing_snapshot_metadata');
+  assert.ok(plan.blockers.includes('snapshot_metadata_mapping_contract_not_declared'));
+  assert.deepEqual(snapshots.unresolved_conditions, [
+    'baseline.as_of_date',
+    'baseline.jurisdiction_scope',
+    'baseline.snapshot_hash',
+    'baseline.snapshot_kind',
+    'changed.as_of_date',
+    'changed.jurisdiction_scope',
+    'changed.snapshot_hash',
+    'changed.snapshot_kind'
+  ]);
   assert.equal(snapshots.candidate_record_count, 2);
   assert.equal(components.candidate_record_count, fixture.baseline.components.length + fixture.changed.components.length);
   assert.ok(operations.candidate_record_count > 0);
@@ -112,6 +123,23 @@ test('maps structurally available records while blocking canonical projection pe
   assert.equal(collisionLinks.candidate_record_count, plan.collision_lens_result_links.length);
   assert.equal(plan.collision_lens_result_links.length, fixture.collision_rules.length * 2);
   assert.deepEqual(plan.projection_run_events.map((event) => event.event_type), ['started', 'unresolved']);
+});
+
+test('cannot mark a snapshot persistence mapping ready by inventing a partial as-of date', () => {
+  const altered = structuredClone(fixture);
+  altered.baseline.as_of_date = '2025-01-01';
+  altered.changed.as_of_date = '2026-01-01';
+  const plan = buildDeterministicPersistencePlan({
+    fixture: altered, lensManifests, sourceManifest
+  });
+  const snapshots = plan.table_plan.find((entry) => entry.table === 'state_snapshot');
+  assert.equal(snapshots.mapping_state, 'blocked_missing_snapshot_metadata');
+  assert.equal(snapshots.unresolved_conditions.includes('baseline.as_of_date'), false);
+  assert.ok(snapshots.unresolved_conditions.includes('baseline.snapshot_hash'));
+  assert.ok(snapshots.unresolved_conditions.includes('changed.jurisdiction_scope'));
+  assert.ok(plan.blockers.includes('snapshot_metadata_mapping_contract_not_declared'));
+  assert.equal(plan.live_write_authorized, false);
+  assert.equal(plan.database_write_count, 0);
 });
 
 test('rejects a source artifact that is not present in the governed source manifest', () => {
