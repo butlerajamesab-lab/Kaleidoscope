@@ -166,6 +166,9 @@ test('rejects missing or substituted source-native verification in accepted bind
     /binding_source_verification_required/
   );
   const changedEvidence = bindingFor(source);
+  changedEvidence.component_manifest[0].source_verification = structuredClone(
+    changedEvidence.component_manifest[0].source_verification
+  );
   changedEvidence.component_manifest[0].source_verification[0].state = 'unverified';
   assert.throws(
     () => assertCivicGenomeSnapshotBinding(changedEvidence, source),
