@@ -171,7 +171,17 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     bundle,
     runStatus: bundle.unresolved_conditions.length === 0 ? 'completed' : 'unresolved'
   });
+  // A fixture snapshot ID and its components do not provide the full
+  // state_snapshot table mapping. In particular, never invent an as-of date.
+  const requiredSnapshotMetadata = ['snapshot_kind', 'as_of_date', 'jurisdiction_scope', 'snapshot_hash'];
+  const snapshotMetadataGaps = [
+    ['baseline', fixtureRecord.baseline],
+    ['changed', fixtureRecord.changed]
+  ].flatMap(([name, snapshot]) => requiredSnapshotMetadata
+    .filter((column) => !Object.hasOwn(snapshot, column) || snapshot[column] == null)
+    .map((column) => `${name}.${column}`));
   const blockers = ['runtime_database_transport_not_bound'];
+  if (snapshotMetadataGaps.length > 0) blockers.push('snapshot_metadata_mapping_contract_not_declared');
   if (bundle.projection_claim_state !== 'canonical_fact') {
     blockers.push('projection_claim_state_not_authorized_for_canonical_persistence');
   }
@@ -187,7 +197,13 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
   const tablePlans = [
     tablePlan('source_binding', 'not_applicable_direct_custody', 0),
     tablePlan('source_artifact', 'structurally_mappable_unpersisted', sourceArtifacts.length),
-    tablePlan('state_snapshot', 'structurally_mappable_unpersisted', 2, ['source_artifact']),
+    tablePlan(
+      'state_snapshot',
+      snapshotMetadataGaps.length ? 'blocked_missing_snapshot_metadata' : 'structurally_mappable_unpersisted',
+      2,
+      ['source_artifact'],
+      snapshotMetadataGaps
+    ),
     tablePlan('state_snapshot_source', 'not_applicable_direct_custody', 0, ['state_snapshot']),
     tablePlan('state_snapshot_artifact', 'structurally_mappable_unpersisted', snapshotArtifactLinkCount, ['source_artifact', 'state_snapshot']),
     tablePlan(
