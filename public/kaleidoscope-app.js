@@ -13,6 +13,7 @@ const STATUS_LABELS = new Map([
   ['available', 'Available'],
   ['available_no_write', 'Check available — no live writes'],
   ['executed_test_fixture', 'Tested example'],
+  ['executed_test_fixture_not_canonical_fact', 'Tested example — not an official fact'],
   ['source_controlled_test_fixture', 'Tested example'],
   ['source_controlled_no_projection', 'Structured analysis — not a live projection'],
   ['stage_1_2_source_controlled', 'First two analysis stages available'],
@@ -23,6 +24,8 @@ const STATUS_LABELS = new Map([
   ['durable_intake_active', 'Durable intake active'],
   ['available_no_durable_intake', 'No durable input yet'],
   ['applied_empty_unbound', 'Storage ready — runtime not connected'],
+  ['projection_substrate_applied_empty_unbound', 'Storage ready — runtime not connected'],
+  ['state_response_projection_substrate_applied_empty_unbound', 'Storage ready — runtime not connected'],
   ['schema_present_empty', 'Storage ready — empty'],
   ['runtime_not_bound', 'Not connected'],
   ['not_queried_from_runtime', 'Live intake not queried'],
@@ -167,12 +170,15 @@ function statusTone(state) {
   if ([
     'available_no_write',
     'executed_test_fixture',
+    'executed_test_fixture_not_canonical_fact',
     'source_controlled_test_fixture',
     'source_controlled_no_projection',
     'stage_1_2_source_controlled',
     'external_owner',
     'schema_present_empty',
     'applied_empty_unbound',
+    'projection_substrate_applied_empty_unbound',
+    'state_response_projection_substrate_applied_empty_unbound',
     'runtime_not_bound',
     'available_no_durable_intake',
     'not_queried_from_runtime',
@@ -346,7 +352,8 @@ function scenarioStats(scenario) {
     ['Paths compared', scenario.mechanism_count],
     ['Changes found', scenario.operation_count],
     ['Ways examined', scenario.lens_count],
-    ['Conflicts kept visible', scenario.collision_count]
+    ['Conflicts kept visible', scenario.collision_count],
+    ['Open questions', scenario.unresolved_count ?? '—']
   ];
 }
 
