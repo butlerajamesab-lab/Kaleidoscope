@@ -11,8 +11,8 @@ test('each emitted source-controlled scenario has a human-readable status label 
   assert.match(platform, /state: localPreemption\.read_model\.status/);
   assert.match(app, /\['executed_test_fixture_not_canonical_fact', 'Tested example — not an official fact'\]/);
   const tone = app.slice(app.indexOf('function statusTone('), app.indexOf('function statusLabel('));
-  assert.ok(tone.includes(`'${state}'`));
-  assert.ok(tone.indexOf(`'${state}'`) > tone.indexOf('if ([', tone.indexOf("if ([")) || tone.includes(state));
+  const warningSegment = tone.slice(tone.indexOf("return 'positive';"), tone.indexOf("return 'warning';"));
+  assert.ok(warningSegment.includes(`'${state}'`));
 });
 
 test('storage status avoids technical machine codes and false readiness', () => {
