@@ -361,6 +361,7 @@ export function executeProject2025VerticalSlice(fixture, lensManifests) {
   validateUpstreamProcessing(source.upstream_processing);
 
   const mechanisms = array(source.mechanisms, 'mechanisms').map((mechanism) => validateMechanism(mechanism, sourceArtifactIds));
+  if (mechanisms.length === 0) fail('mechanism_required');
   const mechanismIds = new Set(mechanisms.map((mechanism) => mechanism.mechanism_id));
   for (const relationship of array(source.relationships, 'relationships')) validateRelationship(relationship, mechanismIds);
 
@@ -370,6 +371,7 @@ export function executeProject2025VerticalSlice(fixture, lensManifests) {
 
   const manifests = array(lensManifests, 'lens_manifests').map(validateLensManifest);
   const expectedLensIds = uniqueStrings(source.lens_ids, 'lens_ids').sort();
+  if (expectedLensIds.length < 3) fail('minimum_three_lenses_required');
   const observedLensIds = manifests.map((manifest) => manifest.lens_id).sort();
   if (JSON.stringify(expectedLensIds) !== JSON.stringify(observedLensIds)) fail('lens_set_mismatch');
   const lensResults = manifests
