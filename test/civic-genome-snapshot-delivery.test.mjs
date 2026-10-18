@@ -202,6 +202,35 @@ test('produces one deterministic receipt for the same authenticated source state
   assert.match(first.delivery_receipt_hash, /^[0-9a-f]{64}$/);
 });
 
+test('rejects a correctly signed and fully rehashed snapshot with empty source verification', () => {
+  const snapshot = sourceSnapshot();
+  const component = snapshot.components[0];
+  component.source_verification = [];
+  component.component_hash = sha256Hex(civicGenomeSourceComponentHashBasis(component));
+  snapshot.snapshot_hash = sha256Hex(civicGenomeSourceSnapshotHashBasis(snapshot));
+  snapshot.export_receipt.snapshot_hash = snapshot.snapshot_hash;
+  snapshot.export_receipt.deterministic_replay_key = sha256Hex({
+    contract_id: snapshot.contract_id,
+    contract_version: snapshot.contract_version,
+    snapshot_id: snapshot.snapshot_id,
+    snapshot_hash: snapshot.snapshot_hash,
+    methodology_version: snapshot.methodology_version
+  });
+  snapshot.export_receipt.export_receipt_id =
+    `cg-export-${snapshot.export_receipt.deterministic_replay_key.slice(0, 32)}`;
+  snapshot.export_receipt.export_receipt_hash = sha256Hex(civicGenomeExportReceiptHashBasis(snapshot));
+
+  // A valid HMAC confirms transport authorization, not a valid source contract.
+  const body = delivery(snapshot);
+  const signature = signCivicGenomeDelivery(body, KEY_ID, SECRET);
+  assert.throws(
+    () => validateAuthenticatedCivicGenomeDelivery({
+      body, keyId: KEY_ID, signature, expectedKeyId: KEY_ID, secret: SECRET
+    }),
+    /component_source_verification_required/
+  );
+});
+
 test('rejects source modification beneath the original HMAC signature', () => {
   const body = delivery();
   const signature = signCivicGenomeDelivery(body, KEY_ID, SECRET);
