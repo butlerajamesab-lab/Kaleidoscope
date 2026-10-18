@@ -177,6 +177,11 @@ export function assertCivicGenomeSourceSnapshot(snapshot) {
       `snapshot.components[${index}].component_type`
     );
     if (!COMPONENT_TYPES.has(componentType)) fail('component_type_not_governed', componentType);
+    // Source verification cannot be replaced by an empty but correctly rehashed array.
+    // The local binding contract requires at least one source-native verification entry.
+    if (array(componentRow.source_verification, 'component.source_verification').length === 0) {
+      fail('component_source_verification_required', componentId);
+    }
     const observedHash = hex64(
       componentRow.component_hash,
       `snapshot.components[${index}].component_hash`
@@ -251,6 +256,12 @@ export function assertCivicGenomeSnapshotBinding(binding, sourceSnapshot) {
     }
     if (manifestRow.source_canonical_record_id !== sourceComponent.canonical_record_id) {
       fail('binding_canonical_record_mismatch', sourceComponentId);
+    }
+    const claimedVerification = array(manifestRow.source_verification, 'binding.source_verification');
+    if (claimedVerification.length === 0) fail('binding_source_verification_required', sourceComponentId);
+    if (JSON.stringify(sortVerification(claimedVerification))
+      !== JSON.stringify(sortVerification(sourceComponent.source_verification))) {
+      fail('binding_source_verification_mismatch', sourceComponentId);
     }
   }
 
