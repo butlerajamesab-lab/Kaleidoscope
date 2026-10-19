@@ -191,3 +191,15 @@ test('accepts the exact generated Stage 3 surface and keeps later stages null', 
   assert.equal(impactFixture.projection_executed, false);
   assert.equal(impactFixture.database_persisted, false);
 });
+
+test('rejects numeric judgments hidden behind arbitrary property separators', () => {
+  for (const key of ['impact.score', 'risk score', 'probability/value', 'likelihood:risk', 'score%']) {
+    const altered = structuredClone(classificationManifest);
+    altered.classifications[0].untrusted_extension = { [key]: 0.75 };
+    assert.throws(
+      () => buildLegislativeImpactSurface(legislativeConsequenceFixture, altered),
+      /numeric_judgment_key_prohibited/,
+      key
+    );
+  }
+});

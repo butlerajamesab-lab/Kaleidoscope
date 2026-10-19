@@ -170,3 +170,61 @@ test('a source-manifest identity change changes the persistence plan hash withou
   assert.notEqual(second.persistence_plan_hash, first.persistence_plan_hash);
   assert.equal(second.projection_bundle_hash, first.projection_bundle_hash);
 });
+
+function fixtureWithSnapshotMetadata() {
+  const candidate = structuredClone(fixture);
+  for (const [kind, snapshot] of [['baseline', candidate.baseline], ['changed', candidate.changed]]) {
+    snapshot.snapshot_kind = kind;
+    snapshot.as_of_date = '2026-01-31';
+    snapshot.jurisdiction_scope = { scope_type: 'jurisdiction', jurisdiction_codes: ['IA'] };
+    snapshot.snapshot_hash = 'a'.repeat(64);
+  }
+  return candidate;
+}
+
+test('snapshot preflight clears only the metadata blocker for valid explicit values', () => {
+  const plan = buildDeterministicPersistencePlan({
+    fixture: fixtureWithSnapshotMetadata(), lensManifests, sourceManifest
+  });
+  const snapshots = plan.table_plan.find((entry) => entry.table === 'state_snapshot');
+  assert.equal(snapshots.mapping_state, 'structurally_mappable_unpersisted');
+  assert.deepEqual(snapshots.unresolved_conditions, []);
+  assert.equal(plan.blockers.includes('snapshot_metadata_mapping_contract_not_declared'), false);
+  assert.equal(plan.live_write_authorized, false);
+  assert.ok(plan.blockers.includes('runtime_database_transport_not_bound'));
+  assert.equal(plan.database_write_count, 0);
+});
+
+test('snapshot preflight rejects invalid metadata and swapped kind without inventing replacements', () => {
+  const invalidCases = [
+    ['snapshot_kind', 'changed'],
+    ['as_of_date', '2026-02-30'],
+    ['as_of_date', '2026-13-01'],
+    ['as_of_date', '2026-01-31T00:00:00Z'],
+    ['as_of_date', ''],
+    ['as_of_date', '0000-01-01'],
+    ['snapshot_hash', ''],
+    ['snapshot_hash', 'A'.repeat(64)],
+    ['snapshot_hash', 'a'.repeat(63)],
+    ['jurisdiction_scope', {}],
+    ['jurisdiction_scope', []],
+    ['jurisdiction_scope', 'IA']
+  ];
+  for (const [column, value] of invalidCases) {
+    const candidate = fixtureWithSnapshotMetadata();
+    candidate.baseline[column] = value;
+    const plan = buildDeterministicPersistencePlan({
+      fixture: candidate, lensManifests, sourceManifest
+    });
+    const snapshots = plan.table_plan.find((entry) => entry.table === 'state_snapshot');
+    assert.equal(snapshots.mapping_state, 'blocked_missing_snapshot_metadata', column);
+    assert.ok(snapshots.unresolved_conditions.includes(`baseline.${column}`), column);
+    assert.ok(plan.blockers.includes('snapshot_metadata_mapping_contract_not_declared'), column);
+    assert.equal(plan.live_write_authorized, false);
+  }
+  const swapped = fixtureWithSnapshotMetadata();
+  swapped.changed.snapshot_kind = 'baseline';
+  const plan = buildDeterministicPersistencePlan({ fixture: swapped, lensManifests, sourceManifest });
+  const snapshots = plan.table_plan.find((entry) => entry.table === 'state_snapshot');
+  assert.ok(snapshots.unresolved_conditions.includes('changed.snapshot_kind'));
+});
