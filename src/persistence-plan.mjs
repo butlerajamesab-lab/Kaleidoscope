@@ -120,6 +120,24 @@ function directCustodyUsage(snapshot, label, declaredArtifactIds, manifestIndex)
   };
 }
 
+// Validate the actual state_snapshot columns, not merely the presence of keys.
+// This is a dry-run readiness check and never creates or infers missing metadata.
+function validSnapshotMetadata(snapshot, column, expectedKind) {
+  const value = snapshot[column];
+  if (column === 'snapshot_kind') return value === expectedKind;
+  if (column === 'snapshot_hash') return typeof value === 'string' && /^[0-9a-f]{64}$/.test(value);
+  if (column === 'jurisdiction_scope') {
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      && Object.keys(value).length > 0;
+  }
+  if (column === 'as_of_date') {
+    if (typeof value !== 'string' || !/^(?!0000-)[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value)) return false;
+    const parsed = new Date(value + 'T00:00:00.000Z');
+    return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+  }
+  return false;
+}
+
 export function buildDeterministicPersistencePlan({ fixture, lensManifests, sourceManifest }) {
   const fixtureRecord = record(fixture, 'fixture');
   const manifests = array(lensManifests, 'lens_manifests');
@@ -178,7 +196,7 @@ export function buildDeterministicPersistencePlan({ fixture, lensManifests, sour
     ['baseline', fixtureRecord.baseline],
     ['changed', fixtureRecord.changed]
   ].flatMap(([name, snapshot]) => requiredSnapshotMetadata
-    .filter((column) => !Object.hasOwn(snapshot, column) || snapshot[column] == null)
+    .filter((column) => !validSnapshotMetadata(snapshot, column, name))
     .map((column) => `${name}.${column}`));
   const blockers = ['runtime_database_transport_not_bound'];
   if (snapshotMetadataGaps.length > 0) blockers.push('snapshot_metadata_mapping_contract_not_declared');
