@@ -1,4 +1,5 @@
 import { sha256Hex } from './hash.mjs';
+import { canonicalize } from './canonical-json.mjs';
 
 export const CIVIC_GENOME_SOURCE_SCHEMA_ID =
   'https://luminari.org/civic-genome/contracts/external-snapshot.v1.schema.json';
@@ -259,8 +260,8 @@ export function assertCivicGenomeSnapshotBinding(binding, sourceSnapshot) {
     }
     const claimedVerification = array(manifestRow.source_verification, 'binding.source_verification');
     if (claimedVerification.length === 0) fail('binding_source_verification_required', sourceComponentId);
-    if (JSON.stringify(sortVerification(claimedVerification))
-      !== JSON.stringify(sortVerification(sourceComponent.source_verification))) {
+    if (canonicalize(sortVerification(claimedVerification))
+      !== canonicalize(sortVerification(sourceComponent.source_verification))) {
       fail('binding_source_verification_mismatch', sourceComponentId);
     }
   }
