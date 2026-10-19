@@ -5,8 +5,10 @@ import sourceManifest from '../source_manifests/source_pack_2026_08_03_v3.json' 
 import {
   buildSourceArtifactCustodyManifest,
   buildSourceArtifactCustodyRecord,
-  assertSourceArtifactCustodyRecord
+  assertSourceArtifactCustodyRecord,
+  sourceArtifactCustodyHashBasis
 } from '../src/source-artifact-custody.mjs';
+import { sha256Hex } from '../src/hash.mjs';
 
 const migration = await readFile(
   new URL('../supabase/migrations/20260809190000_kaleidoscope_source_artifact_custody.sql', import.meta.url),
@@ -71,6 +73,60 @@ test('custody identity changes deterministically when source bytes change', () =
   const next = buildSourceArtifactCustodyRecord(sourceManifest, changed);
   assert.notEqual(next.custody_hash, original.custody_hash);
   assert.equal(next.source_artifact_id, original.source_artifact_id);
+});
+
+test('custody ordering is locale independent and uses code-point order', () => {
+  const manifest = structuredClone(sourceManifest);
+  manifest.entries = structuredClone(sourceManifest.entries.slice(0, 3));
+  ['z-file.md', 'A-file.md', 'a-file.md'].forEach((name, index) => {
+    manifest.entries[index].source_file_name = name;
+  });
+  const observed = buildSourceArtifactCustodyManifest(manifest);
+  assert.deepEqual(observed.custody_records.map((row) => row.source_artifact_id), [
+    'A-file.md', 'a-file.md', 'z-file.md'
+  ]);
+});
+
+test('incoming custody records must satisfy all required fields and no additional fields', () => {
+  const original = buildSourceArtifactCustodyRecord(sourceManifest, sourceManifest.entries[0]);
+  const cases = [
+    { source_artifact_id: '' },
+    { source_file_name: '' },
+    { custody_manifest_id: '' },
+    { source_role: '' },
+    { source_use_state: '' },
+    { sha256: 'bogus' },
+    { byte_length: -1 },
+    { byte_length: 1.5 },
+    { byte_length: '123' },
+    { byte_length: Number.MAX_SAFE_INTEGER + 1 },
+    { arbitrary_extra_field: true }
+  ];
+  for (const change of cases) {
+    const invalid = { ...original, ...change };
+    invalid.custody_hash = sha256Hex(sourceArtifactCustodyHashBasis(invalid));
+    assert.throws(
+      () => assertSourceArtifactCustodyRecord(invalid),
+      /invalid_source_artifact_custody:/,
+      JSON.stringify(change)
+    );
+  }
+  const { source_artifact_id: _missing, ...missingId } = original;
+  missingId.custody_hash = sha256Hex(sourceArtifactCustodyHashBasis(missingId));
+  assert.throws(() => assertSourceArtifactCustodyRecord(missingId), /record_fields_mismatch/);
+});
+
+test('forward migration enforces one external artifact identity per append-only manifest', async () => {
+  const uniqueMigration = await readFile(
+    new URL('../supabase/migrations/20261018093000_kaleidoscope_custody_identity_unique.sql', import.meta.url),
+    'utf8'
+  );
+  assert.match(uniqueMigration, /group by custody_manifest_id, external_artifact_id/);
+  assert.match(uniqueMigration, /having count\(\*\) > 1/);
+  assert.match(uniqueMigration, /raise exception using\s+errcode = '23505'/);
+  assert.match(uniqueMigration, /create unique index if not exists source_artifact_manifest_external_identity_unique/);
+  assert.match(uniqueMigration, /on kaleidoscope\.source_artifact \(custody_manifest_id, external_artifact_id\)/);
+  assert.doesNotMatch(uniqueMigration, /delete from|update kaleidoscope\.|drop table/i);
 });
 
 test('substrate extension separates direct custody from upstream source_binding semantics', () => {
