@@ -111,6 +111,78 @@ test('rejects authorization timestamps without an explicit timezone', () => {
   );
 });
 
+test('rejects nonexistent calendar dates and invalid local clock components', () => {
+  const source = currentPlan();
+  const plan = rehash({
+    ...source,
+    blockers: [],
+    blocker_count: 0,
+    projection_claim_state: 'canonical_fact',
+    live_write_authorized: true
+  });
+
+  for (const expires_at of [
+    '2026-02-30T00:00:00Z',
+    '2026-02-29T00:00:00Z',
+    '2026-04-31T00:00:00+01:00',
+    '2026-13-01T00:00:00Z',
+    '2026-03-01T24:00:00Z',
+    '2026-03-01T23:60:00Z',
+    '2026-03-01T23:59:60Z',
+    '2026-03-01T23:59:59+24:00',
+    '2026-03-01T23:59:59+01:60'
+  ]) {
+    assert.throws(
+      () => evaluateCanonicalPersistenceGate({
+        plan,
+        authorization: authorization(plan, { expires_at }),
+        now: '2026-03-01T00:00:00Z'
+      }),
+      /canonical_persistence_gate:invalid_expiry/,
+      expires_at
+    );
+  }
+
+  assert.throws(
+    () => evaluateCanonicalPersistenceGate({
+      plan,
+      authorization: authorization(plan, { expires_at: '2026-03-04T00:00:00Z' }),
+      now: '2026-02-30T00:00:00-08:00'
+    }),
+    /canonical_persistence_gate:invalid_now/
+  );
+
+  const validLeapDay = evaluateCanonicalPersistenceGate({
+    plan,
+    authorization: authorization(plan, { expires_at: '2028-02-29T23:59:59-08:00' }),
+    now: '2028-03-01T07:59:58Z'
+  });
+  assert.equal(validLeapDay.state, 'authorized');
+  assert.equal(validLeapDay.write_authorized, true);
+});
+
+test('impossible expiry fails before an authorized plan reaches the write transport', async () => {
+  const source = currentPlan();
+  const plan = rehash({
+    ...source,
+    blockers: [],
+    blocker_count: 0,
+    projection_claim_state: 'canonical_fact',
+    live_write_authorized: true
+  });
+  let calls = 0;
+  await assert.rejects(
+    executeCanonicalPersistencePlan({
+      plan,
+      authorization: authorization(plan, { expires_at: '2026-02-30T00:00:00Z' }),
+      now: '2026-03-01T00:00:00Z',
+      transport: async () => { calls += 1; }
+    }),
+    /canonical_persistence_gate:invalid_expiry/
+  );
+  assert.equal(calls, 0);
+});
+
 test('blocked execution never invokes the database transport', async () => {
   const plan = currentPlan();
   let calls = 0;
