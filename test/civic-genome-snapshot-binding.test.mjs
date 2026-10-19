@@ -208,3 +208,18 @@ test('rejects a binding whose source snapshot hash was altered in transit', () =
     /binding_snapshot_hash_mismatch/
   );
 });
+
+test('accepts the same source verification despite object property insertion order', () => {
+  const source = sourceSnapshot();
+  const binding = bindingFor(source);
+  const verification = binding.component_manifest[0].source_verification[0];
+  binding.component_manifest[0].source_verification[0] = Object.fromEntries(
+    Object.entries(verification).reverse()
+  );
+  assert.equal(assertCivicGenomeSnapshotBinding(binding, source), binding);
+  binding.component_manifest[0].source_verification[0].state = 'fabricated';
+  assert.throws(
+    () => assertCivicGenomeSnapshotBinding(binding, source),
+    /binding_source_verification_mismatch/
+  );
+});
