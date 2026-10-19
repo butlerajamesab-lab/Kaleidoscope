@@ -14,7 +14,7 @@ const STAGE_4_DEFER_REASON = 'historical_comparison_reserved_for_stage_4_atlas';
 
 function prohibitedJudgmentKey(key) {
   if (key === 'no_numeric_weights') return false;
-  const normalized = key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/-/g, '_').toLowerCase();
+  const normalized = key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase().replace(/[^a-z0-9]+/g, '_');
   return /(?:^|_)(?:weight|weights|score|scores|probability|probabilities|risk)(?:_|$)/.test(normalized);
 }
 
