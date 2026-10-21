@@ -24,6 +24,16 @@ function array(value, label) {
   return value;
 }
 
+function compareUnicodeCodePoints(left, right) {
+  const leftPoints = Array.from(left, (character) => character.codePointAt(0));
+  const rightPoints = Array.from(right, (character) => character.codePointAt(0));
+  const sharedLength = Math.min(leftPoints.length, rightPoints.length);
+  for (let index = 0; index < sharedLength; index += 1) {
+    if (leftPoints[index] !== rightPoints[index]) return leftPoints[index] - rightPoints[index];
+  }
+  return leftPoints.length - rightPoints.length;
+}
+
 export function sourceArtifactCustodyHashBasis(custodyRecord) {
   const row = record(custodyRecord, 'custody_record');
   const { custody_hash: _ignored, ...basis } = row;
@@ -37,7 +47,7 @@ export function buildSourceArtifactCustodyRecord(manifest, entry) {
   const fileName = string(source.source_file_name, 'source_file_name');
   const hash = string(source.sha256, 'sha256');
   if (!/^[0-9a-f]{64}$/.test(hash)) fail('sha256_required', fileName);
-  if (!Number.isInteger(source.byte_length) || source.byte_length < 0) {
+  if (!Number.isSafeInteger(source.byte_length) || source.byte_length < 0) {
     fail('byte_length_required', fileName);
   }
   string(source.source_role, 'source_role');
@@ -72,7 +82,7 @@ export function buildSourceArtifactCustodyManifest(sourceManifest) {
   const manifest = canonicalValue(record(sourceManifest, 'source_manifest'));
   const entries = array(manifest.entries, 'source_manifest.entries');
   const custodyRecords = entries.map((entry) => buildSourceArtifactCustodyRecord(manifest, entry));
-  custodyRecords.sort((a, b) => (a.source_artifact_id < b.source_artifact_id ? -1 : a.source_artifact_id > b.source_artifact_id ? 1 : 0));
+  custodyRecords.sort((a, b) => compareUnicodeCodePoints(a.source_artifact_id, b.source_artifact_id));
 
   const ids = custodyRecords.map((entry) => entry.source_artifact_id);
   if (new Set(ids).size !== ids.length) fail('duplicate_source_artifact_id');

@@ -85,6 +85,23 @@ test('custody ordering is locale independent and uses code-point order', () => {
   assert.deepEqual(observed.custody_records.map((row) => row.source_artifact_id), [
     'A-file.md', 'a-file.md', 'z-file.md'
   ]);
+
+  manifest.entries[0].source_file_name = '\u{10000}-file.md';
+  manifest.entries[1].source_file_name = '\uE000-file.md';
+  manifest.entries[2].source_file_name = 'z-file.md';
+  const supplementary = buildSourceArtifactCustodyManifest(manifest);
+  assert.deepEqual(supplementary.custody_records.map((row) => row.source_artifact_id), [
+    'z-file.md', '\uE000-file.md', '\u{10000}-file.md'
+  ]);
+});
+
+test('custody record builder rejects byte lengths that cannot be represented safely', () => {
+  const entry = structuredClone(sourceManifest.entries[0]);
+  entry.byte_length = Number.MAX_SAFE_INTEGER + 1;
+  assert.throws(
+    () => buildSourceArtifactCustodyRecord(sourceManifest, entry),
+    /invalid_source_artifact_custody:byte_length_required/
+  );
 });
 
 test('incoming custody records must satisfy all required fields and no additional fields', () => {
